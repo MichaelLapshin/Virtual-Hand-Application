@@ -46,7 +46,7 @@ flabel1.grid(row=1, column=1)
 
 def printVar(val):
     print(val.get())  # .get() gets the value of the IntVar() object
-    print("slider = "+ str(vertical.get()))
+    print("slider = " + str(vertical.get()))
     print("checkbox = " + str(checkvar.get()))
     print("List box selected = " + str(LB.curselection()))
 
