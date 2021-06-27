@@ -1,6 +1,9 @@
 import tkinter
 
 # Custom Labels constants
+from scripts import General
+from scripts.frontend import Constants
+
 LABEL_PADDING_X = 12
 LABEL_PADDING_Y = 8
 
@@ -38,6 +41,13 @@ class InformationLabel(Label):
                        text=text)
         self.anchor(tkinter.CENTER)
 
+        # Colour
+        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+        self.config(bd=1, relief=tkinter.RIDGE)
+
+        # Padding
+        self.config(padx=12, pady=10)
+        self.grid(padx=16, pady=16)
 
 class SearchLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, padx=5, pady=5, text=None):
