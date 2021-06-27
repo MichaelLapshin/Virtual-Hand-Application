@@ -8,7 +8,7 @@ import flask
 import flask_login
 
 from Session import Session
-from .. import Logger, Question
+from scripts import Logger, Question
 from Database import Database
 import os
 
@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = os.urandom(16)  # Random secret key
 db = Database()
 
 # Logger
-logger = Logger("ServerApp", 4)
+logger = Logger("ServerApp", log_lvl=4)
 
 if __name__ == '__main__':
     app.run()
