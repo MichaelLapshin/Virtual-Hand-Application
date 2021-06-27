@@ -1,6 +1,7 @@
 import tkinter
 
-from scripts.frontend import User
+from scripts import General
+from scripts.frontend import User, Constants
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton
 from scripts.frontend.custom_widgets.CustomEntry import InformationEntry
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
@@ -21,6 +22,13 @@ class Frame(BaseFrame):
 
     def __init__(self, root, base_frame=None):
         BaseFrame.__init__(self, root=root, base_frame=base_frame)
+
+        """
+            Frame configurations
+        """
+        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+        self.config(bd=1, relief=tkinter.RIDGE)
+        self.grid(sticky='WE', padx=5, pady=5)
 
         """
             Login/Logout buttons & labels

@@ -3,6 +3,7 @@ from PIL import ImageTk, Image
 from tkinter import messagebox
 from tkinter import filedialog
 
+from scripts import General
 from scripts.frontend import Constants, User
 
 from scripts.frontend.custom_widgets.CustomButtons import NavigationButton
@@ -50,6 +51,13 @@ class NavigationBar(tkinter.Frame):
     def __init__(self, root, column, row, columnspan=1, rowspan=1):
         tkinter.Frame.__init__(self, root)
         self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
+
+        """
+            Navigation Bar configurations
+        """
+        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+        self.config(bd=1, relief=tkinter.RIDGE)
+        self.grid(padx=5, pady=5)
 
         """
             Navigation buttons
