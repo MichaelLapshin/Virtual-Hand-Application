@@ -1,5 +1,8 @@
 import tkinter
 
+from scripts import General
+from scripts.frontend import Constants
+
 
 class BaseFrame(tkinter.Frame):
 
@@ -14,4 +17,7 @@ class BaseFrame(tkinter.Frame):
             # Uses input (or default) dimensions
             self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
-        self.grid_remove()
+        # Default page configurations
+        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+        self.config(bd=1, relief=tkinter.RIDGE)
+        self.grid(sticky='WE', padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)

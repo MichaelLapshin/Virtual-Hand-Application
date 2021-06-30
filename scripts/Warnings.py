@@ -1,4 +1,5 @@
 from tkinter import messagebox
+import inspect
 
 NOT_COMPLETE_MESSAGE = "Warning. This part of the program is not yet complete."
 NOT_WORKING_MESSAGE = "Warning. This part of the program is not working."
@@ -9,35 +10,27 @@ NOT_TO_REACH_MESSAGE = "Warning. The code has entered a part of the code that sh
 """
 
 
-def generic_warning(message, popup=False):
-    print(message)
+def generic_warning(message, external_frame, popup):
+    prepare_message = message + \
+                      "\n    File:      " + str(external_frame[1][1]) + \
+                      "\n    Function:  " + str(external_frame[1][3]) + \
+                      "\n    Line #:    " + str(external_frame[1][2])
+    print(prepare_message)
     if popup:
-        messagebox.showwarning(message)
+        messagebox.showwarning(prepare_message)
     return message
 
 
 # Not complete warnings
-def not_complete():
-    return generic_warning(NOT_COMPLETE_MESSAGE)
-
-
-def not_complete(popup):
-    return generic_warning(NOT_COMPLETE_MESSAGE, popup)
+def not_complete(popup=False):
+    return generic_warning(NOT_COMPLETE_MESSAGE, inspect.getouterframes(inspect.currentframe(), 2), popup)
 
 
 # Not working warnings
-def not_working():
-    return generic_warning(NOT_WORKING_MESSAGE)
-
-
-def not_working(popup):
-    return generic_warning(NOT_WORKING_MESSAGE)
+def not_working(popup=True):
+    return generic_warning(NOT_WORKING_MESSAGE, inspect.getouterframes(inspect.currentframe(), 2), popup)
 
 
 # Not to reach warnings
-def not_to_reach():
-    return generic_warning(NOT_TO_REACH_MESSAGE)
-
-
-def not_to_reach(popup):
-    return generic_warning(NOT_TO_REACH_MESSAGE)
+def not_to_reach(popup=True):
+    return generic_warning(NOT_TO_REACH_MESSAGE, inspect.getouterframes(inspect.currentframe(), 2), popup)

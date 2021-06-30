@@ -27,7 +27,7 @@ page_map = {}
 
 def add_page_map(name, page):
     page_map[name] = page
-
+    page.grid_remove()
 
 def select_new_page(new_page_name):
     global current_page, page_map
@@ -57,7 +57,7 @@ class NavigationBar(tkinter.Frame):
         """
         self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
         self.config(bd=1, relief=tkinter.RIDGE)
-        self.grid(padx=5, pady=5)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
         """
             Navigation buttons
@@ -109,9 +109,6 @@ class NavigationBar(tkinter.Frame):
             column=7, row=0,
             columnspan=1, rowspan=Constants.MAX_SPAN,
             text=TITLE_SETTINGS, command=lambda: select_new_page(TITLE_SETTINGS))
-
-
-
 
     def destroy(self):
         # Destroys navigation buttons
