@@ -32,8 +32,7 @@ class NavigationLabel(Label):
                        text=text)
         self.anchor(tkinter.CENTER)
 
-
-class InformationLabel(Label):
+class LoginLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, padx=5, pady=5, text=None):
         Label.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
@@ -48,6 +47,24 @@ class InformationLabel(Label):
         # Padding
         self.config(padx=12, pady=10)
         self.grid(padx=16, pady=16)
+
+class InformationLabel(Label):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None):
+        Label.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       text=text)
+        # self.anchor(tkinter.CENTER)
+
+        # Colour
+        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+        self.config(bd=1, relief=tkinter.RIDGE)
+
+        # Padding
+        self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+        self.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+
+        # Grid
+        self.grid(sticky=tkinter.NSEW)
 
 class SearchLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, padx=5, pady=5, text=None):

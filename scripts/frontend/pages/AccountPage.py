@@ -4,7 +4,7 @@ from scripts import General
 from scripts.frontend import User, Constants
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton
 from scripts.frontend.custom_widgets.CustomEntry import InformationEntry
-from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
+from scripts.frontend.custom_widgets.CustomLabels import LoginLabel
 from scripts.frontend.pages.GenericPage import BaseFrame
 
 # Account constants
@@ -26,9 +26,6 @@ class Frame(BaseFrame):
         """
             Frame configurations
         """
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
-        self.config(bd=1, relief=tkinter.RIDGE)
-        self.grid(sticky='WE', padx=5, pady=5)
 
         """
             Login/Logout buttons & labels
@@ -38,13 +35,13 @@ class Frame(BaseFrame):
         self.input_password = tkinter.StringVar()
 
         # Logged is as labels
-        self.label_status = InformationLabel(
+        self.label_status = LoginLabel(
             self, text=STATUS_LOGGED_OUT,
             column=0, row=0,
             columnspan=2, rowspan=1)
 
         # Credentials entry field
-        self.label_logged_as = InformationLabel(
+        self.label_logged_as = LoginLabel(
             self, text=USERNAME_ENTRY,
             column=0, row=1,
             columnspan=1, rowspan=1)
@@ -55,7 +52,7 @@ class Frame(BaseFrame):
             columnspan=1, rowspan=1,
             width=16)
 
-        self.label_logged_as = InformationLabel(
+        self.label_logged_as = LoginLabel(
             self, text=PASSWORD_ENTRY,
             column=0, row=2,
             columnspan=1, rowspan=1)

@@ -6,6 +6,8 @@
 
 # Generic Constants
 MAX_SPAN = 1000
+STANDARD_SPACING = 5
+SHORT_SPACING = 2
 
 # Colour
 BASE_BLUE_COLOUR = (91, 155, 213)

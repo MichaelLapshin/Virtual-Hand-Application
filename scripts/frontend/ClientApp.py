@@ -1,5 +1,6 @@
 import tkinter
 
+from scripts import Warnings
 from scripts.frontend.pages import \
     GenericPage, ModelsPage, DatasetsPage, TrainingProcessesPage, \
     ModelProcessesPage, HowToPage, ProjectInformationPage, AccountPage, SettingsPage
@@ -37,7 +38,11 @@ Navigation.add_page_map(Navigation.TITLE_PROJECT_INFORMATION, ProjectInformation
 Navigation.add_page_map(Navigation.TITLE_ACCOUNT, AccountPage.Frame(root, base_frame=frame_window))
 Navigation.add_page_map(Navigation.TITLE_SETTINGS, SettingsPage.Frame(root, base_frame=frame_window))
 
+# Destroys reference frame
 frame_window.destroy()
+
+# Starts at the Account page by default
+Navigation.select_new_page(Navigation.TITLE_ACCOUNT)
 
 # Creates the navigation bar and links them to the page
 navig_bar = Navigation.NavigationBar(root, column=0, row=0, columnspan=Constants.MAX_SPAN, rowspan=1)

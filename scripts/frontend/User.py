@@ -3,7 +3,7 @@
 @description: An interface for storing user data
 @author: Michael Lapshin
 """
-
+from scripts import Warnings
 from scripts.frontend import ClientConnection
 
 # User  constants
@@ -21,10 +21,12 @@ _password = None
 def login(username, password):
     global _name, _password
 
+    Warnings.not_complete()
     if True:
         _name = username
         _password = password
     else:
+        Warnings.not_complete()
         pass
 
 
@@ -33,6 +35,8 @@ def logout():
 
     _name = None
     _password = None
+
+    Warnings.not_complete()
 
 
 def name():
@@ -45,6 +49,7 @@ def name():
 
 def is_connected():
     # pings the server and retrieves the username which the user is logged in as
+    Warnings.not_complete()
     return "Michael"
 
 
