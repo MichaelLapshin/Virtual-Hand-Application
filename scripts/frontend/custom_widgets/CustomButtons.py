@@ -75,3 +75,8 @@ class PlotButton(Button):
                         columnspan=columnspan, rowspan=rowspan,
                         text=text, command=command)
         self.anchor(tkinter.CENTER)
+
+        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
+        self.config(padx=12, pady=5)
+        self.grid(sticky='N')
+        self.grid(padx=16, pady=16)

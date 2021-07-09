@@ -4,7 +4,7 @@ from scripts import General
 from scripts.frontend import Constants
 
 
-class BaseFrame(tkinter.Frame):
+class Frame(tkinter.Frame):
 
     def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, base_frame=None):
         tkinter.Frame.__init__(self, root)

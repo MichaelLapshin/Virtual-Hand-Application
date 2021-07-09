@@ -10,12 +10,15 @@ class Frame(tkinter.Frame):
         tkinter.Frame.__init__(self, root)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
+        # Configures weights
+        self.rowconfigure(0, weight=1)
+
         # Creates the scroll bar
         self.scrollbar = tkinter.Scrollbar(self, orient=tkinter.VERTICAL)
-        self.scrollbar.grid(sticky="NS")
         self.scrollbar.grid(column=2, row=0)
         self.scrollbar.grid(columnspan=1, rowspan=1)
         self.scrollbar.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+        self.scrollbar.grid(sticky=tkinter.NS)
 
         # Initializes the list box
         self.listbox = tkinter.Listbox(self, selectmode=tkinter.SINGLE,
@@ -23,6 +26,7 @@ class Frame(tkinter.Frame):
         self.listbox.grid(column=1, row=0)
         self.listbox.grid(columnspan=1, rowspan=1)
         self.listbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+        self.listbox.grid(sticky=tkinter.NS)
 
         # Creates selectable scroll bar
         if selectable_items is True:
@@ -32,6 +36,7 @@ class Frame(tkinter.Frame):
             self.selectbox.grid(column=0, row=0)
             self.selectbox.grid(columnspan=1, rowspan=1)
             self.selectbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+            self.selectbox.grid(sticky=tkinter.NS)
 
         # Links the scrollbar to the listbox (so you can move listbox view with the scrollbar)
         self.scrollbar.config(command=self.listbox.yview)
