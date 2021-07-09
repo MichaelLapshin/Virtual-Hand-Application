@@ -4,7 +4,6 @@
 """
 import sys
 
-
 class Logger:
     def __init__(self, log_name):
         self.log_lvl = 0  # Logs everything

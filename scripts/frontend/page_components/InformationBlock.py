@@ -16,31 +16,38 @@ class Frame(tkinter.Frame):
         tkinter.Frame.__init__(
             self, root, relief=tkinter.RIDGE, bd=1,
             bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
-
         self.grid(column=column, row=row,
                   columnspan=columnspan, rowspan=rowspan,
                   padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING,
-                  sticky="NS")
+                  sticky=tkinter.EW)
+
+        # Configure weights
+        self.columnconfigure(0, weight=1)
 
         # Creates title bar
         if title is not None:
             self.titlebar = InformationLabel(self, text=title, column=0, row=0)
+            self.titlebar.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour50))
             self.titlebar.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
         # Dynamic number of columns
         self.info_frame = tkinter.Frame(self, relief=tkinter.RIDGE,
                                         bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+        self.info_frame.grid(column=0, row=1)
+        self.info_frame.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.info_frame.grid(sticky=tkinter.EW)
 
-        self.info_frame.grid(column=0, row=1, sticky=tkinter.NSEW,
-                             padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        # Configure info frame weights
+        for x in range(0, num_columns):
+            self.info_frame.columnconfigure(x, weight=1)
 
+        # Creates the info spaces
         self.info_spaces = []  # spaces[x, y] = position
         for y in range(0, num_rows):
             self.info_spaces.append([])
             for x in range(0, num_columns):
-                self.info_spaces[y].append(
-                    InformationLabel(self.info_frame,
-                                     column=x, row=y))
+                widget = InformationLabel(self.info_frame, column=x, row=y)
+                self.info_spaces[y].append(widget)
 
     def assert_within_grid(self, column, row):
         assert column >= 0 and row >= 0

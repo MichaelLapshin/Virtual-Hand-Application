@@ -5,7 +5,7 @@ from scripts.frontend import User, Constants
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton
 from scripts.frontend.custom_widgets.CustomEntry import InformationEntry
 from scripts.frontend.custom_widgets.CustomLabels import LoginLabel
-from scripts.frontend.pages.GenericPage import BaseFrame
+from scripts.frontend.pages import GenericPage
 
 # Account constants
 STATUS_LOGGED_IN = "Status: Logged in"
@@ -18,10 +18,10 @@ USERNAME_ENTRY = "Username: "
 PASSWORD_ENTRY = "Password: "
 
 
-class Frame(BaseFrame):
+class Frame(GenericPage.Frame):
 
     def __init__(self, root, base_frame=None):
-        BaseFrame.__init__(self, root=root, base_frame=base_frame)
+        GenericPage.Frame.__init__(self, root=root, base_frame=base_frame)
 
         """
             Frame configurations
