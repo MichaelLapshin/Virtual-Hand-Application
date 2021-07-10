@@ -3,8 +3,8 @@ import tkinter
 from scripts import General
 from scripts.frontend import User, Constants, Navigation
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
-from scripts.frontend.custom_widgets.CustomEntry import InformationEntry
-from scripts.frontend.custom_widgets.CustomLabels import LoginLabel
+from scripts.frontend.custom_widgets.CustomEntry import AccountEntry
+from scripts.frontend.custom_widgets.CustomLabels import AccountLabel
 from scripts.frontend.pages import GenericPage
 
 # Account constants
@@ -22,11 +22,13 @@ class Frame(GenericPage.NavigationFrame):
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
-                                   page_title=Navigation.TITLE_ACCOUNT)
+                                             page_title=Navigation.TITLE_ACCOUNT)
 
         """
             Frame configurations
         """
+
+        self.columnconfigure(0, weight=1)
 
         """
             Login/Logout buttons & labels
@@ -35,45 +37,50 @@ class Frame(GenericPage.NavigationFrame):
         self.input_username = tkinter.StringVar()
         self.input_password = tkinter.StringVar()
 
+        # Create login frame
+        self.login_frame = GenericPage.Frame(self, column=0, row=0)
+        self.login_frame.config(bd=2, bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+        self.login_frame.grid(sticky=tkinter.N)
+
         # Logged is as labels
-        self.label_status = LoginLabel(
-            self, text=STATUS_LOGGED_OUT,
+        self.label_status = AccountLabel(
+            self.login_frame, text=STATUS_LOGGED_OUT,
             column=0, row=0,
             columnspan=2, rowspan=1)
 
         # Credentials entry field
-        self.label_logged_as = LoginLabel(
-            self, text=USERNAME_ENTRY,
+        self.label_logged_as = AccountLabel(
+            self.login_frame, text=USERNAME_ENTRY,
             column=0, row=1,
             columnspan=1, rowspan=1)
 
-        self.entry_username = InformationEntry(
-            self, textvariable=self.input_username,
+        self.entry_username = AccountEntry(
+            self.login_frame, textvariable=self.input_username,
             column=1, row=1,
             columnspan=1, rowspan=1,
             width=16)
 
-        self.label_logged_as = LoginLabel(
-            self, text=PASSWORD_ENTRY,
+        self.label_logged_as = AccountLabel(
+            self.login_frame, text=PASSWORD_ENTRY,
             column=0, row=2,
             columnspan=1, rowspan=1)
 
-        self.entry_password = InformationEntry(
-            self, textvariable=self.input_password,
+        self.entry_password = AccountEntry(
+            self.login_frame, textvariable=self.input_password,
             column=1, row=2,
             columnspan=1, rowspan=1,
             width=16)
 
         # Log in button
         self.button_UserLogin = AccountButton(
-            self, command=self.login_button_function,
+            self.login_frame, command=self.login_button_function,
             text=LOGIN_TEXT,
             column=0, row=3,
             columnspan=1, rowspan=1)
 
         # Log out button
         self.button_UserLogout = AccountButton(
-            self, command=self.logout_button_function,
+            self.login_frame, command=self.logout_button_function,
             text=LOGOUT_TEXT,
             column=1, row=3,
             columnspan=1, rowspan=1)

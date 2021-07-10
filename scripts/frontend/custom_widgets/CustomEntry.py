@@ -1,6 +1,9 @@
 import tkinter
 
 # Custom Entries constants
+from scripts import General
+from scripts.frontend import Constants
+
 ENTRY_PADDING_X = 12
 ENTRY_PADDING_Y = 8
 
@@ -16,6 +19,7 @@ class Entry(tkinter.Entry):
                                textvariable=textvariable, width=width)
         self.grid(column=column, row=row,
                   columnspan=columnspan, rowspan=rowspan)
+        self.anchor(tkinter.CENTER)
 
         if text is not None:
             self.insert(0, text)
@@ -36,15 +40,22 @@ class NavigationEntry(Entry):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text, textvariable=textvariable)
-        self.anchor(tkinter.CENTER)
 
+
+class AccountEntry(Entry):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, textvariable=None, text=None):
+        Entry.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       width=width, text=text, textvariable=textvariable)
+
+        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour10))
+        self.grid(padx=16, pady=16)
 
 class InformationEntry(Entry):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, textvariable=None, text=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text, textvariable=textvariable)
-        self.anchor(tkinter.CENTER)
 
 
 class SearchEntry(Entry):
@@ -52,7 +63,6 @@ class SearchEntry(Entry):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text, textvariable=textvariable)
-        self.anchor(tkinter.CENTER)
 
 
 class PlotEntry(Entry):
@@ -60,4 +70,3 @@ class PlotEntry(Entry):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text, textvariable=textvariable)
-        self.anchor(tkinter.CENTER)

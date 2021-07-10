@@ -18,8 +18,10 @@ class Label(tkinter.Label):
                  padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None):
         tkinter.Label.__init__(self, root, text=text,
                                padx=padx, pady=pady)
-        self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
+        self.grid(column=column, row=row)
+        self.grid(columnspan=columnspan, rowspan=rowspan)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(sticky=tkinter.NSEW)
 
         # Config
         self.anchor(tkinter.CENTER)
@@ -41,7 +43,7 @@ class NavigationLabel(Label):
                        text=text)
 
 
-class LoginLabel(Label):
+class AccountLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1,
                  padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None):
         Label.__init__(self, root, column=column, row=row,
