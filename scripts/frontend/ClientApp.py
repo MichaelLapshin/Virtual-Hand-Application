@@ -18,33 +18,37 @@ root = tkinter.Tk()
 root.title(APP_TITLE)
 root.iconbitmap(default=APP_ICON)
 root.geometry(Parameters.default_resolution)
+root.columnconfigure(0, weight=1)
+root.rowconfigure(1, weight=1)
 
 # client_conn = ClientConnection()
 
+# Creates the navigation bar and links them to the page
+navig_bar = Navigation.NavigationBar(root, column=0, row=0, columnspan=Constants.MAX_SPAN, rowspan=1)
+
 # Template frame for the pages to use
-frame_window = GenericPage.BaseFrame(
+frame_window = GenericPage.Frame(
     root=root,
     column=0, row=1,
     columnspan=Constants.MAX_SPAN, rowspan=Constants.MAX_SPAN)
 frame_window.grid()
 
 # Creates and adds the pages
-Navigation.add_page_map(Navigation.TITLE_MODELS, ModelsPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_DATASETS, DatasetsPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_TRAINING_PROCESSES, TrainingProcessesPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_MODEL_PROCESSES, ModelProcessesPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_HOW_TO, HowToPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_PROJECT_INFORMATION, ProjectInformationPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_ACCOUNT, AccountPage.Frame(root, base_frame=frame_window))
-Navigation.add_page_map(Navigation.TITLE_SETTINGS, SettingsPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(ModelsPage.BaseFrame(root, base_frame=frame_window))
+navig_bar.add_page(DatasetsPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(TrainingProcessesPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(ModelProcessesPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(HowToPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(ProjectInformationPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(AccountPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(SettingsPage.Frame(root, base_frame=frame_window))
 
 # Destroys reference frame
 frame_window.destroy()
 
 # Starts at the Account page by default
-Navigation.select_new_page(Navigation.TITLE_ACCOUNT)
+navig_bar.select_new_page(Navigation.TITLE_ACCOUNT)
 
-# Creates the navigation bar and links them to the page
-navig_bar = Navigation.NavigationBar(root, column=0, row=0, columnspan=Constants.MAX_SPAN, rowspan=1)
+
 
 root.mainloop()

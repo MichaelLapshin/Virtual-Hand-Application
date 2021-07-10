@@ -4,6 +4,7 @@ from scripts import General
 from scripts.frontend import Constants
 from scripts.frontend.custom_widgets import CustomButtons
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
+from scripts.frontend.page_components import InformationBlock
 
 
 class Frame(tkinter.Frame):
@@ -24,17 +25,23 @@ class Frame(tkinter.Frame):
             self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
             self.grid(sticky=sticky)
 
+            # Title Label
+            self.title_label = InformationBlock.Frame(self, title="Prediction Preview",
+                                                      num_columns=1, num_rows=1,
+                                                      column=0, row=0)
+            self.title_label.add_info(column=0, row=0, text="Metric: Angular Velocity")
+
             # Distal Phalanges button
             self.distal_button = CustomButtons.PlotButton(
-                self, column=0, row=0,
+                self, column=0, row=1,
                 text="Distal Phalanges", command=lambda: self.printHi("A"))
             # Middle Phalanges button
             self.middle_button = CustomButtons.PlotButton(
-                self, column=0, row=1,
+                self, column=0, row=2,
                 text="Middle Phalanges", command=lambda: self.printHi("B"))
             # Proximal Phalanges button
             self.proximal_button = CustomButtons.PlotButton(
-                self, column=0, row=2,
+                self, column=0, row=3,
                 text="Proximal Phalanges", command=lambda: self.printHi("C"))
 
         def printHi(self, text):

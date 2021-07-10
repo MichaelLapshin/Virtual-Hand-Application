@@ -14,8 +14,10 @@ BUTTON_PADDING_Y = 8
 
 class Button(tkinter.Button):
 
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, padx=5, pady=5, text=None, command=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1,
+                 padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None, command=None):
         tkinter.Button.__init__(self, root, text=text, command=command, padx=padx, pady=pady)
+        self.anchor(tkinter.CENTER)
         self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
     def select(self):
@@ -40,24 +42,43 @@ class Button(tkinter.Button):
 
 
 class NavigationButton(Button):
+    UNSELECTED_COLOUR = General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40)
+    SELECTED_COLOUR = General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour50)
+
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=None):
-        Button.__init__(self, root, column=column, row=row,
+        Button.__init__(self, root,
+                        column=column, row=row,
                         columnspan=columnspan, rowspan=rowspan,
                         text=text, command=command)
-        self.anchor(tkinter.CENTER)
-        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
+
+        # Configurations
+        self.config(bg=NavigationButton.UNSELECTED_COLOUR)
         self.config(padx=8, pady=5)
         self.grid(padx=8, pady=8)
-
+        self.grid(sticky=tkinter.NSEW)
 
 class InformationButton(Button):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=None):
-        Button.__init__(self, root, column=column, row=row,
+        Button.__init__(self, root,
+                        column=column, row=row,
+                        columnspan=columnspan, rowspan=rowspan,
+                        text=text, command=command)
+        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
+        self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+
+        self.grid(sticky=tkinter.NSEW)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+
+
+class AccountButton(Button):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=None):
+        Button.__init__(self, root,
+                        column=column, row=row,
                         columnspan=columnspan, rowspan=rowspan,
                         text=text, command=command)
         self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour60))
         self.config(padx=12, pady=5)
-        self.grid(sticky='N')
+        self.grid(sticky=tkinter.N)
         self.grid(padx=16, pady=16)
 
 
@@ -66,8 +87,9 @@ class SearchButton(Button):
         Button.__init__(self, root, column=column, row=row,
                         columnspan=columnspan, rowspan=rowspan,
                         text=text, command=command)
-        self.anchor(tkinter.CENTER)
-
+        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(sticky=tkinter.NSEW)
 
 class PlotButton(Button):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=None):
@@ -78,5 +100,5 @@ class PlotButton(Button):
 
         self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
         self.config(padx=12, pady=5)
-        self.grid(sticky='N')
+        self.grid(sticky=tkinter.N)
         self.grid(padx=16, pady=16)

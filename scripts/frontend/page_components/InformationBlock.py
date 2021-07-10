@@ -4,6 +4,7 @@ from scripts import General
 from scripts.frontend import Constants
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
 
+TITLE_FONT_SIZE = 8
 
 class Frame(tkinter.Frame):
 
@@ -27,6 +28,8 @@ class Frame(tkinter.Frame):
         # Creates title bar
         if title is not None:
             self.titlebar = InformationLabel(self, text=title, column=0, row=0)
+            self.titlebar.config(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+            self.titlebar.config(font=TITLE_FONT_SIZE)
             self.titlebar.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour50))
             self.titlebar.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 

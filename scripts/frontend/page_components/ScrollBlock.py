@@ -9,9 +9,13 @@ class Frame(tkinter.Frame):
     def __init__(self, root, selectable_items=False):
         tkinter.Frame.__init__(self, root)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(sticky=tkinter.NSEW)
 
         # Configures weights
         self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=0)
 
         # Creates the scroll bar
         self.scrollbar = tkinter.Scrollbar(self, orient=tkinter.VERTICAL)
@@ -26,7 +30,7 @@ class Frame(tkinter.Frame):
         self.listbox.grid(column=1, row=0)
         self.listbox.grid(columnspan=1, rowspan=1)
         self.listbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-        self.listbox.grid(sticky=tkinter.NS)
+        self.listbox.grid(sticky=tkinter.NSEW)
 
         # Creates selectable scroll bar
         if selectable_items is True:
