@@ -1,8 +1,8 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import User, Constants
-from scripts.frontend.custom_widgets.CustomButtons import InformationButton
+from scripts.frontend import User, Constants, Navigation
+from scripts.frontend.custom_widgets.CustomButtons import AccountButton
 from scripts.frontend.custom_widgets.CustomEntry import InformationEntry
 from scripts.frontend.custom_widgets.CustomLabels import LoginLabel
 from scripts.frontend.pages import GenericPage
@@ -18,10 +18,11 @@ USERNAME_ENTRY = "Username: "
 PASSWORD_ENTRY = "Password: "
 
 
-class Frame(GenericPage.Frame):
+class Frame(GenericPage.NavigationFrame):
 
     def __init__(self, root, base_frame=None):
-        GenericPage.Frame.__init__(self, root=root, base_frame=base_frame)
+        GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
+                                   page_title=Navigation.TITLE_ACCOUNT)
 
         """
             Frame configurations
@@ -64,14 +65,14 @@ class Frame(GenericPage.Frame):
             width=16)
 
         # Log in button
-        self.button_UserLogin = InformationButton(
+        self.button_UserLogin = AccountButton(
             self, command=self.login_button_function,
             text=LOGIN_TEXT,
             column=0, row=3,
             columnspan=1, rowspan=1)
 
         # Log out button
-        self.button_UserLogout = InformationButton(
+        self.button_UserLogout = AccountButton(
             self, command=self.logout_button_function,
             text=LOGOUT_TEXT,
             column=1, row=3,

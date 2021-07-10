@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Navigation
 
 
 class Frame(tkinter.Frame):
@@ -20,4 +20,18 @@ class Frame(tkinter.Frame):
         # Default page configurations
         self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
         self.config(bd=1, relief=tkinter.RIDGE)
-        self.grid(sticky='WE', padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(sticky=tkinter.NSEW)
+
+
+class NavigationFrame(Frame):
+
+    def __init__(self, root, page_title, column=0, row=0, columnspan=1, rowspan=1, base_frame=None):
+        Frame.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       base_frame=base_frame)
+
+        self.page_title = page_title
+
+    def get_page_title(self):
+        return self.page_title

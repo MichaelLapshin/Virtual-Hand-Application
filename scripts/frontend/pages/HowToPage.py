@@ -1,13 +1,15 @@
 import tkinter
 
+from scripts.frontend import Navigation
 from scripts.frontend.page_components import InformationBlock
-from  scripts.frontend.pages import GenericPage
+from scripts.frontend.pages import GenericPage
 
-class Frame(GenericPage.Frame):
+
+class Frame(GenericPage.NavigationFrame):
 
     def __init__(self, root, base_frame=None):
-        GenericPage.Frame.__init__(self, root=root, base_frame=base_frame)
-        self.grid(sticky=tkinter.EW)
+        GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
+                                             page_title=Navigation.TITLE_HOW_TO)
 
         # Creates the info block
         self.info_block = InformationBlock.Frame(self, num_columns=4, num_rows=4, title="How to...")
