@@ -8,11 +8,11 @@ from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock
 from scripts.frontend.pages import GenericPage
 
-TITLE_MODEL_INFORMATION = "Model Information"
+TITLE_MODEL_INFORMATION = "Selected Model Information"
 
 
 class BaseFrame(GenericPage.NavigationFrame):
-    class InfoFrame(tkinter.Frame):
+    class InfoFrame(GenericPage.Frame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self,
@@ -28,7 +28,8 @@ class BaseFrame(GenericPage.NavigationFrame):
             self.rowconfigure(1, weight=0)
 
             # Information frame
-            self.info_block = InformationBlock.Frame(self, title=TITLE_MODEL_INFORMATION, num_columns=2, num_rows=3)
+            self.info_block = InformationBlock.Frame(self, title=TITLE_MODEL_INFORMATION,
+                                                     num_columns=2, num_rows=2)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -64,12 +65,10 @@ class BaseFrame(GenericPage.NavigationFrame):
             """
             # Fill in data for the information block
             self.info_block.add_info(0, 0, User.name())
-            self.info_block.add_info(0, 2, "Hello \n\n\n\n\n\n\n Hi")
             self.info_block.add_info(1, 0, "hello world!")
-            self.info_block.add_info(1, 2, "Yes, this is the one! \n oh yeah!")
             self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
 
-    class SearchFrame(tkinter.Frame):
+    class SearchFrame(GenericPage.Frame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self, root)
@@ -124,6 +123,8 @@ class BaseFrame(GenericPage.NavigationFrame):
         # Search space
         self.search_frame = BaseFrame.SearchFrame(self, column=0, row=0)
         self.search_frame.grid(sticky=tkinter.NSEW)
+
+        # Info frame
         self.info_frame = BaseFrame.InfoFrame(self, column=1, row=0)
 
         # Prediction Preview frame
