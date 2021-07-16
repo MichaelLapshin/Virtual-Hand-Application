@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.ttk
 import flask.testing
 from PIL import ImageTk, Image
 from tkinter import messagebox
@@ -98,5 +99,19 @@ for l in range(0, 100):
 
 LB.grid(row=2, column=2)
 SB.config(command=LB.yview)
+
+options = ("abc", "def", "hij")
+varr = tkinter.StringVar()
+op = tkinter.ttk.OptionMenu(root, varr, *options)
+# tkinter.tix.
+li = tkinter.Listbox(root)
+li.insert(0, "a")
+li.insert(1, "b")
+li.insert(2, "c")
+li.insert(3, "d")
+
+op.grid(column=1, row=0)
+li.grid(column=2, row=0)
+
 
 root.mainloop()

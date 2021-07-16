@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.ttk
 
 from scripts import General
 from scripts.frontend import Constants
@@ -26,11 +27,11 @@ class SortOptionMenu(OptionMenu):
 
     def __init__(self, root, column, row, columnspan=1, rowspan=1, value=None):
         # Create the options
-        self.values = ["Name", "Identification Number", "Number of Training Frames",
+        self.values = ["Name", "ID Number", "# of Training Frames",
                        "Average Loss", "Personal Rating",
                        "Newest", "Oldest",
-                       "Batch Size", "Number of Epoch",
-                       "Number of Layers", "Number of Nodes per Layer"]
+                       "Batch Size", "# of Epoch",
+                       "# of Layers", "# of Nodes per Layer"]
 
         if value is None:
             value = self.values[0]
@@ -48,7 +49,7 @@ class SortOptionMenu(OptionMenu):
                             columnspan=columnspan, rowspan=rowspan,
                             padx=8, pady=5,
                             variable=self.variable,
-                            values=self.values)
+                            values=tuple(self.values))
 
         self.anchor(tkinter.CENTER)
         self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
