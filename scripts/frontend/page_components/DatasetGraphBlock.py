@@ -69,19 +69,24 @@ class Frame(tkinter.Frame):
             self.columnconfigure(0, weight=1)
             self.columnconfigure(1, weight=1)
             self.columnconfigure(2, weight=1)
+            self.columnconfigure(3, weight=1)
 
-            # Distal Phalanges button
+            # Angular Position button
             self.distal_button = CustomButtons.InformationButton(
                 self, column=0, row=0,
                 text="Angular Position", command=None)
-            # Middle Phalanges button
+            # Angular Velocity button
             self.middle_button = CustomButtons.InformationButton(
                 self, column=1, row=0,
                 text="Angular Velocity", command=None)
-            # Proximal Phalanges button
+            # Angular Acceleration button
             self.proximal_button = CustomButtons.InformationButton(
                 self, column=2, row=0,
                 text="Angular Acceleration", command=None)
+            # Loss button
+            self.proximal_button = CustomButtons.InformationButton(
+                self, column=3, row=0,
+                text="Loss", command=None)
 
             # Increase the padding
             self.distal_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)

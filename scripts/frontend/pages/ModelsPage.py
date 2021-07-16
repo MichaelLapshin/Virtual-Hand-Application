@@ -115,7 +115,6 @@ class BaseFrame(GenericPage.NavigationFrame):
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_MODELS)
-
         # Weights
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)

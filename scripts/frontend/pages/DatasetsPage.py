@@ -114,7 +114,6 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_option_menu = SortOptionMenu(self.button_search_frame, column=1, row=0, columnspan=2)
             self.sort_option_menu.grid(sticky=tkinter.NSEW)
 
-
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_DATASETS)
@@ -133,5 +132,7 @@ class Frame(GenericPage.NavigationFrame):
         self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=1, columnspan=2)
 
 
-def destroy(self):
-    super().destroy()
+class NewDatasetFrame(GenericPage.NavigationFrame):
+
+    def destroy(self):
+        super().destroy()

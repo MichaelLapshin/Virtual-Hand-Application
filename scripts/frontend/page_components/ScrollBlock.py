@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.tix
 
 from scripts import Warnings
 from scripts.frontend import Constants
@@ -68,7 +69,6 @@ class Frame(tkinter.Frame):
 
     # More functionality methods
     def update(self):
-
         super().update()
 
     def add_to_list(self, item):
