@@ -7,7 +7,7 @@ from scripts import General
 from scripts.frontend import Constants, User
 
 from scripts.frontend.custom_widgets.CustomButtons import NavigationButton
-from scripts.frontend.custom_widgets.CustomEntry import NavigationEntry
+from scripts.frontend.custom_widgets.CustomEntries import NavigationEntry
 from scripts.frontend.custom_widgets.CustomLabels import NavigationLabel
 
 # Navigation constants
