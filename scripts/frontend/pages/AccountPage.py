@@ -3,7 +3,7 @@ import tkinter
 from scripts import General
 from scripts.frontend import User, Constants, Navigation
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
-from scripts.frontend.custom_widgets.CustomEntry import AccountEntry
+from scripts.frontend.custom_widgets.CustomEntries import AccountEntry
 from scripts.frontend.custom_widgets.CustomLabels import AccountLabel
 from scripts.frontend.pages import GenericPage
 
@@ -55,7 +55,7 @@ class Frame(GenericPage.NavigationFrame):
             columnspan=1, rowspan=1)
 
         self.entry_username = AccountEntry(
-            self.login_frame, textvariable=self.input_username,
+            self.login_frame,
             column=1, row=1,
             columnspan=1, rowspan=1,
             width=16)
@@ -66,7 +66,7 @@ class Frame(GenericPage.NavigationFrame):
             columnspan=1, rowspan=1)
 
         self.entry_password = AccountEntry(
-            self.login_frame, textvariable=self.input_password,
+            self.login_frame,
             column=1, row=2,
             columnspan=1, rowspan=1,
             width=16)
