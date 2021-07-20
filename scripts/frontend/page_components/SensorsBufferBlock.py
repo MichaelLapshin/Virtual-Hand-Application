@@ -19,7 +19,7 @@ class Frame(tkinter.Frame):
             # Creates self frame
             tkinter.Frame.__init__(
                 self, root, relief=tkinter.RIDGE, bd=1,
-                bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+                bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
@@ -27,8 +27,8 @@ class Frame(tkinter.Frame):
 
             # Title Label
             self.title_label = InformationBlock.Frame(self, title=TITLE,
-                                                      frame_colour=Constants.BASE_GREEN_COLOUR,
-                                                      label_colour=Constants.BASE_GREEN_COLOUR,
+                                                      frame_colour=Constants.COLOUR_BRAVO,
+                                                      label_colour=Constants.COLOUR_BRAVO,
                                                       num_columns=1, num_rows=1,
                                                       column=0, row=0)
             self.title_label.add_info(column=0, row=0, text="Enter new buffer size:")
@@ -57,7 +57,7 @@ class Frame(tkinter.Frame):
             # Creates self frame
             tkinter.Frame.__init__(
                 self, root, relief=tkinter.RIDGE, bd=1,
-                bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+                bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
@@ -71,7 +71,7 @@ class Frame(tkinter.Frame):
         # Creates self frame
         tkinter.Frame.__init__(
             self, root, relief=tkinter.RIDGE, bd=1,
-            bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+            bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)

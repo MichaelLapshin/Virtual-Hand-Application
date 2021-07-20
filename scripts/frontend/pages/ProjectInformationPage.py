@@ -10,5 +10,8 @@ class Frame(GenericPage.NavigationFrame):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_PROJECT_INFORMATION)
 
+    def update_content(self):
+        pass
+
     def destroy(self):
         super().destroy()

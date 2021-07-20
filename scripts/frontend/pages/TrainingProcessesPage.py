@@ -19,7 +19,7 @@ class Frame(GenericPage.NavigationFrame):
                                        root,
                                        column=column, row=row,
                                        columnspan=columnspan, rowspan=rowspan)
-            self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
             self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
             # Configure weights
@@ -38,7 +38,7 @@ class Frame(GenericPage.NavigationFrame):
             self.button_frame = GenericPage.Frame(self,
                                                   column=0, row=1,
                                                   columnspan=1, rowspan=1)
-            self.button_frame.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+            self.button_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
             self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
             # Configure button frame weights
@@ -72,7 +72,7 @@ class Frame(GenericPage.NavigationFrame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self, root)
-            self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(sticky=tkinter.NSEW)
@@ -90,7 +90,7 @@ class Frame(GenericPage.NavigationFrame):
             self.button_frame = GenericPage.Frame(self,
                                                   column=0, row=0,
                                                   columnspan=1, rowspan=1)
-            self.button_frame.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+            self.button_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
             self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
             # Configure button frame weights
@@ -112,11 +112,14 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_option_menu = SortOptionMenu(self.button_search_frame, column=1, row=0)
             self.sort_option_menu.grid(sticky=tkinter.NSEW)
 
+        def update_content(self):
+            self.scroll_models_block.update_content()
+
     class CompleteSearchFrame(GenericPage.Frame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self, root)
-            self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(sticky=tkinter.NSEW)
@@ -134,7 +137,7 @@ class Frame(GenericPage.NavigationFrame):
             self.button_frame = GenericPage.Frame(self,
                                                   column=0, row=0,
                                                   columnspan=1, rowspan=1)
-            self.button_frame.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+            self.button_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
             self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
             # Configure button frame weights
@@ -156,6 +159,9 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_option_menu = SortOptionMenu(self.button_search_frame, column=1, row=0)
             self.sort_option_menu.grid(sticky=tkinter.NSEW)
 
+        def update_content(self):
+            self.scroll_models_block.update_content()
+
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_TRAINING_PROCESSES)
@@ -166,14 +172,18 @@ class Frame(GenericPage.NavigationFrame):
         self.columnconfigure(2, weight=3)
 
         # Search space
-        self.search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
-        self.search_frame = Frame.CompleteSearchFrame(self, column=1, row=0)
+        self.queue_search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
+        self.complete_search_frame = Frame.CompleteSearchFrame(self, column=1, row=0)
 
         # Info frame
         self.info_frame = Frame.InfoFrame(self, column=2, row=0)
 
         # Prediction Preview frame
         self.prediction_preview_block = PredictionPreviewBlock.Frame(self, column=0, row=1, columnspan=3)
+
+    def update_content(self):
+        self.queue_search_frame.update_content()
+        self.complete_search_frame.update_content()
 
     def destroy(self):
         super().destroy()

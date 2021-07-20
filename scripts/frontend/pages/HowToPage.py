@@ -27,5 +27,8 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block.add_info(column=2, row=2, text="View a Training Process")
         self.info_block.add_info(column=3, row=2, text="View a Model Process")
 
+    def update_content(self):
+        pass
+
     def destroy(self):
         super().destroy()

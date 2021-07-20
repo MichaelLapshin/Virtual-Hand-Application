@@ -10,3 +10,7 @@ def washed_colour_rgb(colour, percent):
 
 def washed_colour_hex(colour, percent):
     return '#%02x%02x%02x' % washed_colour_rgb(colour, percent)
+
+
+def hex_to_rgb(hex_code):
+    return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
