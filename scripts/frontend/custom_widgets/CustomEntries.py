@@ -53,7 +53,7 @@ class AccountEntry(Entry):
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text)
 
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour10))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_A))
         self.grid(padx=16, pady=16)
 
 class InformationEntry(Entry):

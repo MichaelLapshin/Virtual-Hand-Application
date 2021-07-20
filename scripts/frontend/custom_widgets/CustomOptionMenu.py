@@ -52,7 +52,7 @@ class SortOptionMenu(OptionMenu):
                             values=tuple(self.values))
 
         self.anchor(tkinter.CENTER)
-        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour40))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
 

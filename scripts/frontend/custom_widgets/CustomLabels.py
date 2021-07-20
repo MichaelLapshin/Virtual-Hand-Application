@@ -4,9 +4,6 @@ import tkinter
 from scripts import General
 from scripts.frontend import Constants
 
-LABEL_PADDING_X = 12
-LABEL_PADDING_Y = 8
-
 """
     Parent generic label
 """
@@ -51,7 +48,7 @@ class AccountLabel(Label):
                        padx=padx, pady=pady,
                        text=text)
         # Colour
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
         # Padding
         self.config(padx=12, pady=10)
@@ -65,7 +62,7 @@ class InformationLabel(Label):
                        text=text)
 
         # Colour
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
         # Grid
         self.grid(sticky=tkinter.NSEW)
@@ -78,7 +75,7 @@ class SearchLabel(Label):
                        columnspan=columnspan, rowspan=rowspan,
                        padx=padx, pady=pady,
                        text=text)
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour40))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
         self.config(bd=1, relief=tkinter.RIDGE)
         self.grid(sticky=tkinter.NSEW)
 

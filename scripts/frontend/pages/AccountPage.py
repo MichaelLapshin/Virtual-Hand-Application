@@ -39,7 +39,7 @@ class Frame(GenericPage.NavigationFrame):
 
         # Create login frame
         self.login_frame = GenericPage.Frame(self, column=0, row=0)
-        self.login_frame.config(bd=2, bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+        self.login_frame.config(bd=2, bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
         self.login_frame.grid(sticky=tkinter.N)
 
         # Logged is as labels
@@ -119,6 +119,9 @@ class Frame(GenericPage.NavigationFrame):
 
             # Update the labels
             self.label_status.config(text=STATUS_LOGGED_OUT)
+
+    def update_content(self):
+        pass
 
     def destroy(self):
         # Destroys login widgets

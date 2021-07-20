@@ -3,9 +3,11 @@ import tkinter.tix
 
 from scripts import Warnings
 from scripts.frontend import Constants
+from scripts.frontend.custom_widgets import CustomLabels
 
 
 class Frame(tkinter.Frame):
+    _selected = "Number of Selected Items: "
 
     def __init__(self, root, selectable_items=False):
         tkinter.Frame.__init__(self, root)
@@ -52,6 +54,14 @@ class Frame(tkinter.Frame):
             self.listbox.insert(i, str(i) + " item")
             self.selectbox.insert(i, str(i))
 
+        # Selected count
+        self.selected_count_label = self.selected_count_label = CustomLabels.SearchLabel(
+            self,
+            column=0, row=2,
+            columnspan=3,
+            text=Frame._selected + str(self.num_selected()))
+        self.selected_count_label.grid_remove()
+
     # Synchronous scrolling of both list boxes
     def scroll(self, *args):
         self.listbox.yview(*args)
@@ -68,8 +78,16 @@ class Frame(tkinter.Frame):
         self.scrollbar.set(*args)
 
     # More functionality methods
-    def update(self):
-        super().update()
+    def update_content(self):
+        # Selected Count
+        if self.num_selected() != 0:
+            self.selected_count_label.config(text=Frame._selected + str(self.num_selected()))
+            self.selected_count_label.grid()
+        else:
+            self.selected_count_label.grid_remove()
+
+    def num_selected(self):
+        return len(self.selectbox.curselection())
 
     def add_to_list(self, item):
         Warnings.not_complete()

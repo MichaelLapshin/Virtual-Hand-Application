@@ -33,7 +33,7 @@ class NavigationBar(tkinter.Frame):
         """
             Navigation Bar configurations
         """
-        self.config(bg=General.washed_colour_hex(Constants.BASE_BLUE_COLOUR, Constants.Colour20))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
         self.config(bd=1, relief=tkinter.RIDGE)
 
         # Grid configurations
@@ -48,7 +48,7 @@ class NavigationBar(tkinter.Frame):
         new_button = NavigationButton(
             self,
             column=self.num_buttons(), row=0,
-            columnspan=1, rowspan=Constants.MAX_SPAN,
+            columnspan=1, rowspan=1,
             text=page.get_page_title(),
             command=lambda: self.select_new_page(page.get_page_title()))
         page.grid_remove()
@@ -88,6 +88,9 @@ class NavigationBar(tkinter.Frame):
 
     def num_buttons(self):
         return len(self.buttons_page_map)
+
+    def update_content(self):
+        self.current_page.update_content()
 
     def destroy(self):
         # Destroys navigation buttons

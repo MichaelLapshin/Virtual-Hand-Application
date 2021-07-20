@@ -18,7 +18,7 @@ class Frame(tkinter.Frame):
             self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
         # Default page configurations
-        self.config(bg=General.washed_colour_hex(Constants.BASE_GREEN_COLOUR, Constants.Colour20))
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
         self.config(bd=1, relief=tkinter.RIDGE)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
