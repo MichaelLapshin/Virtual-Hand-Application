@@ -4,23 +4,23 @@ from scripts import General
 from scripts.frontend import Constants
 from scripts.frontend.custom_widgets import CustomButtons
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 from scripts.frontend.page_components import InformationBlock
 
 TITLE = "Prediction Preview"
 
 
-class Frame(tkinter.Frame):
+class Frame(tkinter.Frame, WidgetInterface):
     """
         Button box
     """
 
-    class ButtonFrame(tkinter.Frame):
+    class ButtonFrame(tkinter.Frame, WidgetInterface):
 
         def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.NS):
             # Creates self frame
             tkinter.Frame.__init__(
-                self, root, relief=tkinter.RIDGE, bd=1,
-                bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+                self, root, relief=tkinter.RIDGE, bd=1)
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
@@ -28,8 +28,8 @@ class Frame(tkinter.Frame):
 
             # Title Label
             self.title_label = InformationBlock.Frame(self, title=TITLE,
-                                                      frame_colour=Constants.COLOUR_BRAVO,
-                                                      label_colour=Constants.COLOUR_BRAVO,
+                                                      frame_colour= Constants.COLOUR_BRAVO,
+                                                      label_colour= Constants.COLOUR_BRAVO,
                                                       num_columns=1, num_rows=1,
                                                       column=0, row=0)
             self.title_label.add_info(column=0, row=0, text="Units: Degrees Angular Velocity")
@@ -47,6 +47,19 @@ class Frame(tkinter.Frame):
                 self, column=0, row=3,
                 text="Proximal Phalanges", command=lambda: self.printHi("C"))
 
+        def update_colour(self):
+            super().update_colour()
+
+            self.distal_button.update_colour()
+            self.middle_button.update_colour()
+            self.proximal_button.update_colour()
+
+            self.title_label.set_label_colour(Constants.COLOUR_BRAVO)
+            self.title_label.set_frame_colour(Constants.COLOUR_BRAVO)
+            self.title_label.update_colour()
+
+            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+
         def printHi(self, text):
             print(text)
 
@@ -54,17 +67,20 @@ class Frame(tkinter.Frame):
         Image box
     """
 
-    class ImageFrame(tkinter.Frame):
+    class ImageFrame(tkinter.Frame, WidgetInterface):
 
         def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.NSEW):
             # Creates self frame
             tkinter.Frame.__init__(
-                self, root, relief=tkinter.RIDGE, bd=1,
-                bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+                self, root, relief=tkinter.RIDGE, bd=1)
             self.grid(column=column, row=row)
             self.grid(columnspan=columnspan, rowspan=rowspan)
             self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
             self.grid(sticky=sticky)
+
+        def update_colour(self):
+            super().update_colour()
+            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
     """
         Self methods
@@ -73,8 +89,7 @@ class Frame(tkinter.Frame):
     def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.EW):
         # Creates self frame
         tkinter.Frame.__init__(
-            self, root, relief=tkinter.RIDGE, bd=1,
-            bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+            self, root, relief=tkinter.RIDGE, bd=1)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
@@ -86,3 +101,10 @@ class Frame(tkinter.Frame):
         # Frame
         self.button_frame = Frame.ButtonFrame(self, column=0, row=0)
         self.image_frame = Frame.ImageFrame(self, column=1, row=0)
+
+    def update_colour(self):
+        super().update_colour()
+        self.button_frame.update_colour()
+        self.image_frame.update_colour()
+
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))

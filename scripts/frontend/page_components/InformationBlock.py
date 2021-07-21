@@ -4,23 +4,29 @@ import tkinter.font
 from scripts import General
 from scripts.frontend import Constants
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 TITLE_FONT_SIZE = 8
 
 
-class Frame(tkinter.Frame):
+class Frame(tkinter.Frame, WidgetInterface):
 
     def __init__(self, root, num_columns, num_rows,
-                 frame_colour=Constants.COLOUR_ALPHA, label_colour=Constants.COLOUR_BRAVO,
+                 frame_colour, label_colour,
                  title=None, column=0, row=0, columnspan=1, rowspan=1):
+
+        # Asserts dimensions
         assert num_columns > 0 and num_rows > 0
         self.num_columns = num_columns
         self.num_rows = num_rows
 
+        # Saves the colour
+        self.frame_colour = frame_colour
+        self.label_colour = label_colour
+
         # Creates self frame
-        tkinter.Frame.__init__(
-            self, root, relief=tkinter.RIDGE, bd=1,
-            bg=General.washed_colour_hex(frame_colour, Constants.ColourGrad_B))
+        tkinter.Frame.__init__(self, root, relief=tkinter.RIDGE, bd=1)
+
         self.grid(column=column, row=row,
                   columnspan=columnspan, rowspan=rowspan,
                   padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING,
@@ -35,12 +41,10 @@ class Frame(tkinter.Frame):
             self.titlebar = InformationLabel(self, text=title, column=0, row=0)
             self.titlebar.config(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
             self.titlebar.config(font=TITLE_FONT_SIZE)
-            self.titlebar.config(bg=General.washed_colour_hex(label_colour, Constants.ColourGrad_D))
             self.titlebar.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
         # Dynamic number of columns
-        self.info_frame = tkinter.Frame(self, relief=tkinter.RIDGE,
-                                        bg=General.washed_colour_hex(frame_colour, Constants.ColourGrad_B))
+        self.info_frame = tkinter.Frame(self, relief=tkinter.RIDGE)
         self.info_frame.grid(column=0, row=1)
         self.info_frame.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.info_frame.grid(sticky=tkinter.NSEW)
@@ -55,9 +59,27 @@ class Frame(tkinter.Frame):
             self.info_spaces.append([])
             for x in range(0, num_columns):
                 widget = InformationLabel(self.info_frame, column=x, row=y)
-                widget.config(bg=General.washed_colour_hex(label_colour, Constants.ColourGrad_C))
+                # widget.config(bg=General.washed_colour_hex(label_colour, Constants.ColourGrad_C))
                 self.info_spaces[y].append(widget)
 
+    def update_colour(self):
+        super().update_colour()
+        self.titlebar.update_colour()
+        for y in range(0, len(self.info_spaces)):
+            for x in range(0, len(self.info_spaces[y])):
+                self.info_spaces[y][x].update_colour()
+
+        self.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
+        self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
+        self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Constants.ColourGrad_D))
+
+    def set_frame_colour(self, colour):
+        self.frame_colour = colour
+
+    def set_label_colour(self, colour):
+        self.label_colour = colour
+
+    # Functionality Methods
     def assert_within_grid(self, column, row):
         assert column >= 0 and row >= 0
         assert column < self.num_columns and row < self.num_rows

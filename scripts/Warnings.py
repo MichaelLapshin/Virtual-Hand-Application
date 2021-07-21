@@ -1,9 +1,9 @@
 from tkinter import messagebox
 import inspect
 
-NOT_COMPLETE_MESSAGE = "Warning. This part of the program is not yet complete."
-NOT_WORKING_MESSAGE = "Warning. This part of the program is not working."
-NOT_TO_REACH_MESSAGE = "Warning. The code has entered a part of the code that should never be reached."
+NOT_COMPLETE_MESSAGE = "This part of the program is not yet complete."
+NOT_WORKING_MESSAGE = "This part of the program is not working."
+NOT_TO_REACH_MESSAGE = "The code has entered a part of the code that should never be reached."
 
 """
     Warning messages to use
@@ -17,7 +17,7 @@ def generic_warning(message, external_frame, popup):
                       "\n    Line #:    " + str(external_frame[1][2])
     print(prepare_message)
     if popup:
-        messagebox.showwarning(prepare_message)
+        messagebox.showwarning(title="Warning!", message=prepare_message)
     return message
 
 

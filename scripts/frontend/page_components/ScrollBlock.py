@@ -4,9 +4,10 @@ import tkinter.tix
 from scripts import Warnings
 from scripts.frontend import Constants
 from scripts.frontend.custom_widgets import CustomLabels
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 
-class Frame(tkinter.Frame):
+class Frame(tkinter.Frame, WidgetInterface):
     _selected = "Number of Selected Items: "
 
     def __init__(self, root, selectable_items=False):
@@ -61,6 +62,10 @@ class Frame(tkinter.Frame):
             columnspan=3,
             text=Frame._selected + str(self.num_selected()))
         self.selected_count_label.grid_remove()
+
+    def update_colour(self):
+        super().update_colour()
+        self.selected_count_label.update_colour()
 
     # Synchronous scrolling of both list boxes
     def scroll(self, *args):

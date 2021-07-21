@@ -1,10 +1,11 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import Constants, Navigation
+from scripts.frontend import Constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 
-class Frame(tkinter.Frame):
+class Frame(tkinter.Frame, WidgetInterface):
 
     def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, base_frame=None):
         tkinter.Frame.__init__(self, root)
@@ -18,10 +19,16 @@ class Frame(tkinter.Frame):
             self.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
         # Default page configurations
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
         self.config(bd=1, relief=tkinter.RIDGE)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
+
+    def update_content(self):
+        pass
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
 
 
 class NavigationFrame(Frame):

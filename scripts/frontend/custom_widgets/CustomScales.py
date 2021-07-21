@@ -2,13 +2,14 @@ import tkinter
 
 from scripts import General
 from scripts.frontend import Constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 """
     Parent generic scales
 """
 
 
-class Scale(tkinter.Scale):
+class Scale(tkinter.Scale, WidgetInterface):
 
     def __init__(self, root, column, row, from_, to, resolution, variable, columnspan=1, rowspan=1, label=None):
         tkinter.Scale.__init__(self, root,
@@ -39,6 +40,12 @@ class SettingsScale(Scale):
                        columnspan=columnspan, rowspan=rowspan,
                        label=label)
 
-        self.config(activebackground=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
         # self.config(digits=tkinter.DoubleVar)
         self.config(orient=tkinter.HORIZONTAL)
+
+    def update_colour(self):
+        super().update_colour()
+
+        self.config(activebackground=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(highlightbackground=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(troughcolor=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_A))

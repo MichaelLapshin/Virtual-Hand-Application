@@ -3,19 +3,21 @@ import tkinter.ttk
 
 from scripts import General
 from scripts.frontend import Constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 """
     Parent generic option menu
 """
 
 
-class OptionMenu(tkinter.OptionMenu):
+class OptionMenu(tkinter.OptionMenu,WidgetInterface):
 
     def __init__(self, root, column, row, variable, values, columnspan=1, rowspan=1, padx=5, pady=5):
         tkinter.OptionMenu.__init__(self, root, variable, *values)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
         self.grid(padx=padx, pady=pady)
+
 
 
 """
@@ -52,9 +54,12 @@ class SortOptionMenu(OptionMenu):
                             values=tuple(self.values))
 
         self.anchor(tkinter.CENTER)
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
 
     def get_value(self):
         return self.variable.get()

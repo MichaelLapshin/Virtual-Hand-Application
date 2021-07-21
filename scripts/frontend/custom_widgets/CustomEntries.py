@@ -3,6 +3,7 @@ import tkinter
 # Custom Entries constants
 from scripts import General
 from scripts.frontend import Constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 ENTRY_PADDING_X = 12
 ENTRY_PADDING_Y = 8
@@ -12,7 +13,7 @@ ENTRY_PADDING_Y = 8
 """
 
 
-class Entry(tkinter.Entry):
+class Entry(tkinter.Entry, WidgetInterface):
 
     def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
         self._textvariable = tkinter.StringVar()
@@ -35,6 +36,7 @@ class Entry(tkinter.Entry):
     def enable(self):
         self.config(state=tkinter.NORMAL)
 
+
 """
     Custom entry
 """
@@ -53,8 +55,11 @@ class AccountEntry(Entry):
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text)
 
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_A))
         self.grid(padx=16, pady=16)
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_A))
 
 class InformationEntry(Entry):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
