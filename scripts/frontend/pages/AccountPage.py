@@ -39,7 +39,7 @@ class Frame(GenericPage.NavigationFrame):
 
         # Create login frame
         self.login_frame = GenericPage.Frame(self, column=0, row=0)
-        self.login_frame.config(bd=2, bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+        self.login_frame.config(bd=2)
         self.login_frame.grid(sticky=tkinter.N)
 
         # Logged is as labels
@@ -49,7 +49,7 @@ class Frame(GenericPage.NavigationFrame):
             columnspan=2, rowspan=1)
 
         # Credentials entry field
-        self.label_logged_as = AccountLabel(
+        self.label_logged_as_username = AccountLabel(
             self.login_frame, text=USERNAME_ENTRY,
             column=0, row=1,
             columnspan=1, rowspan=1)
@@ -60,7 +60,7 @@ class Frame(GenericPage.NavigationFrame):
             columnspan=1, rowspan=1,
             width=16)
 
-        self.label_logged_as = AccountLabel(
+        self.label_logged_as_password = AccountLabel(
             self.login_frame, text=PASSWORD_ENTRY,
             column=0, row=2,
             columnspan=1, rowspan=1)
@@ -119,6 +119,19 @@ class Frame(GenericPage.NavigationFrame):
 
             # Update the labels
             self.label_status.config(text=STATUS_LOGGED_OUT)
+
+    def update_colour(self):
+        super().update_colour()
+        self.login_frame.update_colour()
+        self.label_status.update_colour()
+        self.label_logged_as_username.update_colour()
+        self.entry_username.update_colour()
+        self.label_logged_as_password.update_colour()
+        self.entry_password.update_colour()
+        self.button_UserLogin.update_colour()
+        self.button_UserLogout.update_colour()
+
+        self.login_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
 
     def update_content(self):
         pass

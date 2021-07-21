@@ -60,13 +60,14 @@ navig_bar.add_page(ModelProcessesPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(HowToPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(ProjectInformationPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(AccountPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(SettingsPage.Frame(root, base_frame=frame_window))
+navig_bar.add_page(SettingsPage.Frame(root, base_frame=frame_window, navig_bar=navig_bar))
 
 # Destroys reference frame
 frame_window.destroy()
 
 # Starts at the Account page by default
 navig_bar.select_new_page(Navigation.TITLE_ACCOUNT)
+navig_bar.update_colour()
 
 
 class UpdateThread(threading.Thread):
@@ -97,3 +98,5 @@ root.mainloop()
 
 # Ending functions
 updater.stop()
+
+print("The client application has ended.")

@@ -1,6 +1,6 @@
 import tkinter
 
-from scripts.frontend import Navigation
+from scripts.frontend import Navigation, Constants
 from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage
 
@@ -12,7 +12,11 @@ class Frame(GenericPage.NavigationFrame):
                                              page_title=Navigation.TITLE_HOW_TO)
 
         # Creates the info block
-        self.info_block = InformationBlock.Frame(self, num_columns=4, num_rows=4, title="How to...")
+        self.info_block = InformationBlock.Frame(self,
+                                                 num_columns=4, num_rows=4,
+                                                 title="How to...",
+                                                 frame_colour=Constants.COLOUR_ALPHA,
+                                                 label_colour=Constants.COLOUR_BRAVO)
         self.columnconfigure(0, weight=1)
 
         # First row titles
@@ -26,6 +30,13 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block.add_info(column=1, row=2, text="")
         self.info_block.add_info(column=2, row=2, text="View a Training Process")
         self.info_block.add_info(column=3, row=2, text="View a Model Process")
+
+    def update_colour(self):
+        super().update_colour()
+
+        self.info_block.set_frame_colour(Constants.COLOUR_BRAVO)
+        self.info_block.set_label_colour(Constants.COLOUR_BRAVO)
+        self.info_block.update_colour()
 
     def update_content(self):
         pass

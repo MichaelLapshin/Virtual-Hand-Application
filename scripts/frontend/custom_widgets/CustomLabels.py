@@ -1,15 +1,17 @@
 import tkinter
+import tkinter.font
 
 # Custom Labels constants
 from scripts import General
 from scripts.frontend import Constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 """
     Parent generic label
 """
 
 
-class Label(tkinter.Label):
+class Label(tkinter.Label, WidgetInterface):
 
     def __init__(self, root, column, row, columnspan=1, rowspan=1,
                  padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None):
@@ -25,6 +27,9 @@ class Label(tkinter.Label):
         self.config(bd=1, relief=tkinter.RIDGE)
         self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
 
 """
     Custom label
@@ -47,12 +52,11 @@ class AccountLabel(Label):
                        columnspan=columnspan, rowspan=rowspan,
                        padx=padx, pady=pady,
                        text=text)
-        # Colour
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
         # Padding
         self.config(padx=12, pady=10)
         self.grid(padx=16, pady=16)
+
 
 
 class InformationLabel(Label):
@@ -60,12 +64,13 @@ class InformationLabel(Label):
         Label.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        text=text)
-
-        # Colour
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
-
         # Grid
         self.grid(sticky=tkinter.NSEW)
+
+    def update_colour(self):
+        super().update_colour()
+        # Colour
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
 
 class SearchLabel(Label):
@@ -75,9 +80,12 @@ class SearchLabel(Label):
                        columnspan=columnspan, rowspan=rowspan,
                        padx=padx, pady=pady,
                        text=text)
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
         self.config(bd=1, relief=tkinter.RIDGE)
         self.grid(sticky=tkinter.NSEW)
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
 
 
 class PlotLabel(Label):
@@ -87,3 +95,24 @@ class PlotLabel(Label):
                        columnspan=columnspan, rowspan=rowspan,
                        padx=padx, pady=pady,
                        text=text)
+
+
+class TitleLabel(Label):
+    TITLE_FONT_SIZE = 18
+
+    def __init__(self, root, column, row, columnspan=1, rowspan=1,
+                 padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None):
+        Label.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       padx=padx, pady=pady,
+                       text=text)
+
+        # Title configurations
+        self.config(font=tkinter.font.Font(size=TitleLabel.TITLE_FONT_SIZE))
+        self.config(padx=Constants.LONG_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(padx=Constants.LONG_SPACING, pady=Constants.STANDARD_SPACING)
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+

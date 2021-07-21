@@ -11,6 +11,8 @@ from scripts.frontend.custom_widgets.CustomEntries import NavigationEntry
 from scripts.frontend.custom_widgets.CustomLabels import NavigationLabel
 
 # Navigation constants
+from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
+
 TITLE_MODELS = "Models"
 TITLE_DATASETS = "Datasets"
 TITLE_TRAINING_PROCESSES = "Training Processes"
@@ -21,7 +23,7 @@ TITLE_ACCOUNT = "Account"
 TITLE_SETTINGS = "Settings"
 
 
-class NavigationBar(tkinter.Frame):
+class NavigationBar(tkinter.Frame, WidgetInterface):
 
     def __init__(self, root, column, row, columnspan=1, rowspan=1):
         tkinter.Frame.__init__(self, root)
@@ -33,7 +35,6 @@ class NavigationBar(tkinter.Frame):
         """
             Navigation Bar configurations
         """
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
         self.config(bd=1, relief=tkinter.RIDGE)
 
         # Grid configurations
@@ -88,6 +89,21 @@ class NavigationBar(tkinter.Frame):
 
     def num_buttons(self):
         return len(self.buttons_page_map)
+
+    def update_current_page_colour(self):
+        self.current_page.update_colour()
+
+    def update_all_page_colour(self):
+        for page in self.buttons_page_map.values():
+            page.update_colour()
+
+        self.update_colour()
+
+    def update_colour(self):
+        for button in self.buttons_page_map.keys():
+            button.update_colour()
+
+        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
 
     def update_content(self):
         self.current_page.update_content()
