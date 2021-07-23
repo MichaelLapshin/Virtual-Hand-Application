@@ -34,7 +34,7 @@ class Frame(GenericPage.NavigationFrame):
     def update_colour(self):
         super().update_colour()
 
-        self.info_block.set_frame_colour(Constants.COLOUR_BRAVO)
+        self.info_block.set_frame_colour(Constants.COLOUR_ALPHA)
         self.info_block.set_label_colour(Constants.COLOUR_BRAVO)
         self.info_block.update_colour()
 
