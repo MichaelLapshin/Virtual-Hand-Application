@@ -98,7 +98,7 @@ class PlotLabel(Label):
 
 
 class TitleLabel(Label):
-    TITLE_FONT_SIZE = 18
+    TITLE_FONT_SIZE = 16
 
     def __init__(self, root, column, row, columnspan=1, rowspan=1,
                  padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING, text=None):

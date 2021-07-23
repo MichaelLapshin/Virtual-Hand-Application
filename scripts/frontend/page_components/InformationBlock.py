@@ -37,6 +37,7 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.rowconfigure(1, weight=1)
 
         # Creates title bar
+        self.titlebar = None
         if title is not None:
             self.titlebar = InformationLabel(self, text=title, column=0, row=0)
             self.titlebar.config(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
@@ -64,14 +65,19 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def update_colour(self):
         super().update_colour()
-        self.titlebar.update_colour()
+
+        if self.titlebar is not None:
+            self.titlebar.update_colour()
+
         for y in range(0, len(self.info_spaces)):
             for x in range(0, len(self.info_spaces[y])):
                 self.info_spaces[y][x].update_colour()
 
         self.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
         self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
-        self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Constants.ColourGrad_D))
+
+        if self.titlebar is not None:
+            self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Constants.ColourGrad_D))
 
     def set_frame_colour(self, colour):
         self.frame_colour = colour
@@ -90,8 +96,21 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def set_font(self, column, row, font_size):
         self.assert_within_grid(column, row)
-        font = tkinter.font.Font(size=12)
+        font = tkinter.font.Font(size=font_size)
         self.info_spaces[row][column].config(font=font)
+
+    def set_justify(self, column, row, justify):
+        self.assert_within_grid(column, row)
+        self.info_spaces[row][column].config(justify=justify)
+
+    def set_column_weight(self, column, weight):
+        self.info_frame.columnconfigure(column, weight=weight)
+
+    def set_row_weight(self, row, weight):
+        self.info_frame.rowconfigure(row, weight=weight)
+
+    def set_anchor(self, column, row, anchor):
+        self.info_spaces[row][column].config(anchor=anchor)
 
     def add_info(self, column, row, text):
         self.assert_within_grid(column, row)
