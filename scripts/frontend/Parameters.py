@@ -4,4 +4,4 @@
 @author: Michael Lapshin
 """
 
-default_resolution = "1000x800"
+default_resolution = "1000x870"
