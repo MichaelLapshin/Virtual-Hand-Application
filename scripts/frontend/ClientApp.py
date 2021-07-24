@@ -38,7 +38,7 @@ root = tkinter.Tk()
 root.title(APP_TITLE)
 root.iconbitmap(default=APP_ICON)
 root.geometry(Constants.default_resolution)
-root.tk.call('tk', 'scaling', Constants.GUI_Scale)
+root.tk.call('tk', 'scaling', Parameters.GUI_Scale)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
@@ -53,7 +53,7 @@ frame_window = GenericPage.Frame(
 frame_window.grid()
 
 # Creates and adds the pages
-navig_bar.add_page(ModelsPage.BaseFrame(root, base_frame=frame_window))
+navig_bar.add_page(ModelsPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(DatasetsPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(TrainingProcessesPage.Frame(root, base_frame=frame_window))
 navig_bar.add_page(ModelProcessesPage.Frame(root, base_frame=frame_window))

@@ -94,7 +94,7 @@ class Frame(GenericPage.NavigationFrame):
         Parameters.process_file_parameters()
 
         # Updating Settings variables
-        self.scale_variable.set(Constants.GUI_Scale)
+        self.scale_variable.set(Parameters.GUI_Scale)
         self.delay_variable.set(Parameters.UPDATE_DELAY_MS)
 
         self.alpha_colour_variable = Parameters.COLOUR_ALPHA

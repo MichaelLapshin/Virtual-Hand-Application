@@ -59,14 +59,12 @@ class Database:
     DEFAULT_PASSWORD = "password"
     DEFAULT_DATABASE = "database"
 
-    def __init__(self):
+    def __init__(self, database=None):
         self.connection = None
         self.cursor = None
 
-    def __init__(self, database):
-        self.connection = None
-        self.cursor = None
-        self.connect(database=database)
+        if database is not None:
+            self.connect(database=database)
 
     def create_new_tables(self):
         assert self.cursor is not None
