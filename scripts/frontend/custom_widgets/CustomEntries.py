@@ -2,7 +2,7 @@ import tkinter
 
 # Custom Entries constants
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 ENTRY_PADDING_X = 12
@@ -59,7 +59,7 @@ class AccountEntry(Entry):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_A))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_A))
 
 class InformationEntry(Entry):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):

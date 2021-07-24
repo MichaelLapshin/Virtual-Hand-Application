@@ -2,7 +2,7 @@ import tkinter
 from scripts import Warnings, General
 
 # Custom Buttons constants
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 BUTTON_PADDING_X = 12
@@ -58,8 +58,8 @@ class NavigationButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        NavigationButton.UNSELECTED_COLOUR = General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C)
-        NavigationButton.SELECTED_COLOUR = General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_D)
+        NavigationButton.UNSELECTED_COLOUR = General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C)
+        NavigationButton.SELECTED_COLOUR = General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_D)
 
         self.config(bg=NavigationButton.UNSELECTED_COLOUR)
 
@@ -78,7 +78,7 @@ class InformationButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
 class AccountButton(Button):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=Warnings.not_complete):
@@ -92,7 +92,7 @@ class AccountButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_E))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_E))
 
 
 class SearchButton(Button):
@@ -105,7 +105,7 @@ class SearchButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
 
 class PlotButton(Button):
@@ -121,7 +121,7 @@ class PlotButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
 
 class SettingsButton(Button):
@@ -137,4 +137,4 @@ class SettingsButton(Button):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))

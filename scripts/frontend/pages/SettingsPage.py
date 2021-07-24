@@ -2,7 +2,7 @@ import tkinter
 import tkinter.colorchooser
 
 from scripts import General
-from scripts.frontend import Navigation, Constants
+from scripts.frontend import Navigation, Constants, Parameters
 from scripts.frontend.custom_widgets import CustomButtons, CustomScales, CustomLabels
 from scripts.frontend.pages import GenericPage
 
@@ -79,26 +79,26 @@ class Frame(GenericPage.NavigationFrame):
 
     # General Methods
     def save_to_constants_file(self):
-        Constants.clear_file_constants()
+        Parameters.clear_file_parameters()
 
         # Add GUI variables
-        Constants.add_file_constant("GUI_Scale = " + str(self.scale_variable.get()))
-        Constants.add_file_constant("UPDATE_DELAY_MS = " + str(self.delay_variable.get()))
+        Parameters.add_file_parameters("GUI_Scale = " + str(self.scale_variable.get()))
+        Parameters.add_file_parameters("UPDATE_DELAY_MS = " + str(self.delay_variable.get()))
 
         # Add Colours
-        Constants.add_file_constant("COLOUR_ALPHA = " + str(self.alpha_colour_variable))
-        Constants.add_file_constant("COLOUR_BRAVO = " + str(self.bravo_colour_variable))
+        Parameters.add_file_parameters("COLOUR_ALPHA = " + str(self.alpha_colour_variable))
+        Parameters.add_file_parameters("COLOUR_BRAVO = " + str(self.bravo_colour_variable))
 
     def update_program_constants(self):
         # Write to the constants program file
-        Constants.process_file_constants()
+        Parameters.process_file_parameters()
 
         # Updating Settings variables
         self.scale_variable.set(Constants.GUI_Scale)
-        self.delay_variable.set(Constants.UPDATE_DELAY_MS)
+        self.delay_variable.set(Parameters.UPDATE_DELAY_MS)
 
-        self.alpha_colour_variable = Constants.COLOUR_ALPHA
-        self.bravo_colour_variable = Constants.COLOUR_BRAVO
+        self.alpha_colour_variable = Parameters.COLOUR_ALPHA
+        self.bravo_colour_variable = Parameters.COLOUR_BRAVO
 
         # Updates the program configurations
         # self.root.tk.call('tk', 'scaling', Constants.GUI_Scale)
@@ -106,7 +106,7 @@ class Frame(GenericPage.NavigationFrame):
         self.update_colour()
 
     def reset_all_settings(self):
-        Constants.clear_file_constants()
+        Parameters.clear_file_parameters()
 
     def update_content(self):
         super().update_content()
@@ -124,7 +124,7 @@ class Frame(GenericPage.NavigationFrame):
 
         # Update colour button colours
         self.update_colour_button_colour()
-        self.settings_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+        self.settings_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
     def destroy(self):
         super().destroy()

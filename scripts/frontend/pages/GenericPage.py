@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 
@@ -28,7 +28,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
 
 class NavigationFrame(Frame):

@@ -4,7 +4,7 @@ from tkinter import messagebox
 from tkinter import filedialog
 
 from scripts import General
-from scripts.frontend import Constants, User
+from scripts.frontend import Constants, User, Parameters
 
 from scripts.frontend.custom_widgets.CustomButtons import NavigationButton
 from scripts.frontend.custom_widgets.CustomEntries import NavigationEntry
@@ -103,7 +103,7 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         for button in self.buttons_page_map.keys():
             button.update_colour()
 
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
 
     def update_content(self):
         self.current_page.update_content()

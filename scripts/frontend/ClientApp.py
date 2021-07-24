@@ -21,7 +21,7 @@ APP_TITLE = "Virtual-Hand"
 APP_ICON = "images\\virtualhand_icons\\virtualhand_icon_YuG_1.ico"
 
 # Process User Constants File
-Constants.process_file_constants()
+Parameters.process_file_parameters()
 
 """
     Client connection to the server
@@ -37,7 +37,7 @@ Constants.process_file_constants()
 root = tkinter.Tk()
 root.title(APP_TITLE)
 root.iconbitmap(default=APP_ICON)
-root.geometry(Parameters.default_resolution)
+root.geometry(Constants.default_resolution)
 root.tk.call('tk', 'scaling', Constants.GUI_Scale)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -84,7 +84,7 @@ class UpdateThread(threading.Thread):
         while self.running:
             self.navig_bar.update_content()
 
-            time.sleep(Constants.UPDATE_DELAY_MS / 1000.0)
+            time.sleep(Parameters.UPDATE_DELAY_MS / 1000.0)
 
     def stop(self):
         self.running = False
