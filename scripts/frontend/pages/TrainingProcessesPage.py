@@ -133,7 +133,7 @@ class Frame(GenericPage.NavigationFrame):
 
         def update_colour(self):
             super().update_colour()
-            self.scroll_models_block.update_content()
+            self.scroll_models_block.update_colour()
             self.button_frame.update_colour()
             self.new_button.update_colour()
             self.search_button.update_colour()
@@ -194,7 +194,7 @@ class Frame(GenericPage.NavigationFrame):
 
         def update_colour(self):
             super().update_colour()
-            self.scroll_models_block.update_content()
+            self.scroll_models_block.update_colour()
             self.button_frame.update_colour()
             self.new_button.update_colour()
             self.search_button.update_colour()
