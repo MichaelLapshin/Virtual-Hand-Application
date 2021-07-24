@@ -60,22 +60,11 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         # Asserts that the page exists
         assert new_page_name is not None
 
-        # Sets old page button back to blue
-        if self.current_page is not None:
-            for b in self.buttons_page_map.keys():
-                if b.cget("text") == self.current_page.get_page_title():
-                    b.config(bg=NavigationButton.UNSELECTED_COLOUR)
-
-        # Sets current page button to green
-        for b in self.buttons_page_map.keys():
-            if b.cget("text") == new_page_name:
-                b.config(bg=NavigationButton.SELECTED_COLOUR)
-
         # Replaces old page with the new
         new_page = None
         for p in self.buttons_page_map.values():
             if p.get_page_title() == new_page_name:
-                new_page = p;
+                new_page = p
 
         assert new_page is not None
 
@@ -85,7 +74,19 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         new_page.grid()
         self.current_page = new_page
 
+        # Updates button colour
+        self.update_navig_buttons_colour()
+
         return self.current_page
+
+    def update_navig_buttons_colour(self):
+        # Sets button colours
+        if self.current_page is not None:
+            for b in self.buttons_page_map.keys():
+                if b.cget("text") == self.current_page.get_page_title():
+                    b.config(bg=NavigationButton.SELECTED_COLOUR)
+                else:
+                    b.config(bg=NavigationButton.UNSELECTED_COLOUR)
 
     def num_buttons(self):
         return len(self.buttons_page_map)
@@ -103,6 +104,7 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         for button in self.buttons_page_map.keys():
             button.update_colour()
 
+        self.update_navig_buttons_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
 
     def update_content(self):

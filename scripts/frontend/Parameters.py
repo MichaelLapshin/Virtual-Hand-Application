@@ -8,6 +8,7 @@ _user_settings_file = "Parameters.txt"
 
 # Updating
 UPDATE_DELAY_MS = 500
+GUI_Scale = 1.2
 
 # Colour
 COLOUR_ALPHA = (91, 155, 213)

@@ -10,5 +10,3 @@ default_resolution = "1000x800"
 LONG_SPACING = 20
 STANDARD_SPACING = 5
 SHORT_SPACING = 2
-GUI_Scale = 1.2
-
