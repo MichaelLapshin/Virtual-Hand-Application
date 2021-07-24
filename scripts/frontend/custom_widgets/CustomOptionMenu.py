@@ -2,7 +2,7 @@ import tkinter
 import tkinter.ttk
 
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 """
@@ -59,7 +59,7 @@ class SortOptionMenu(OptionMenu):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
     def get_value(self):
         return self.variable.get()

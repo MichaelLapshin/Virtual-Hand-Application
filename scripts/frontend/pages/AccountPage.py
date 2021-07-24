@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import User, Constants, Navigation
+from scripts.frontend import User, Constants, Navigation, Parameters
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
 from scripts.frontend.custom_widgets.CustomEntries import AccountEntry
 from scripts.frontend.custom_widgets.CustomLabels import AccountLabel
@@ -131,7 +131,7 @@ class Frame(GenericPage.NavigationFrame):
         self.button_UserLogin.update_colour()
         self.button_UserLogout.update_colour()
 
-        self.login_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+        self.login_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
     def update_content(self):
         pass

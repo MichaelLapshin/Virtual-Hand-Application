@@ -2,7 +2,7 @@ import tkinter
 import tkinter.font
 
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
@@ -60,7 +60,7 @@ class Frame(tkinter.Frame, WidgetInterface):
             self.info_spaces.append([])
             for x in range(0, num_columns):
                 widget = InformationLabel(self.info_frame, column=x, row=y)
-                # widget.config(bg=General.washed_colour_hex(label_colour, Constants.ColourGrad_C))
+                # widget.config(bg=General.washed_colour_hex(label_colour, Parameters.ColourGrad_C))
                 self.info_spaces[y].append(widget)
 
     def update_colour(self):
@@ -73,11 +73,11 @@ class Frame(tkinter.Frame, WidgetInterface):
             for x in range(0, len(self.info_spaces[y])):
                 self.info_spaces[y][x].update_colour()
 
-        self.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
-        self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Constants.ColourGrad_B))
+        self.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
+        self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
 
         if self.titlebar is not None:
-            self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Constants.ColourGrad_D))
+            self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Parameters.ColourGrad_D))
 
     def set_frame_colour(self, colour):
         self.frame_colour = colour

@@ -1,6 +1,6 @@
 import tkinter
 
-from scripts.frontend import Navigation, Constants
+from scripts.frontend import Navigation, Constants, Parameters
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage
@@ -24,8 +24,8 @@ class Frame(GenericPage.NavigationFrame):
         self.credits = InformationBlock.Frame(self,
                                               column=0, row=1,
                                               num_columns=2, num_rows=1,
-                                              frame_colour=Constants.COLOUR_ALPHA,
-                                              label_colour=Constants.COLOUR_BRAVO)
+                                              frame_colour=Parameters.COLOUR_ALPHA,
+                                              label_colour=Parameters.COLOUR_BRAVO)
         self.credits.add_info(column=0, row=0, text="Author: Michael Lapshin\n\n"
                                                     "Project: On-going since November 2020")
 
@@ -43,8 +43,8 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block = InformationBlock.Frame(self,
                                                  column=0, row=2,
                                                  num_columns=3, num_rows=6,
-                                                 frame_colour=Constants.COLOUR_ALPHA,
-                                                 label_colour=Constants.COLOUR_BRAVO)
+                                                 frame_colour=Parameters.COLOUR_ALPHA,
+                                                 label_colour=Parameters.COLOUR_BRAVO)
         self.info_block.set_column_weight(2, weight=2)
 
         # Main Components
@@ -132,12 +132,12 @@ class Frame(GenericPage.NavigationFrame):
 
         self.settings_title.update_colour()
 
-        self.credits.set_frame_colour(Constants.COLOUR_ALPHA)
-        self.credits.set_label_colour(Constants.COLOUR_BRAVO)
+        self.credits.set_frame_colour(Parameters.COLOUR_ALPHA)
+        self.credits.set_label_colour(Parameters.COLOUR_BRAVO)
         self.credits.update_colour()
 
-        self.info_block.set_frame_colour(Constants.COLOUR_ALPHA)
-        self.info_block.set_label_colour(Constants.COLOUR_BRAVO)
+        self.info_block.set_frame_colour(Parameters.COLOUR_ALPHA)
+        self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
         self.info_block.update_colour()
 
     def update_content(self):

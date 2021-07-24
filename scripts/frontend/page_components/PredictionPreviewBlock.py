@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets import CustomButtons
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
@@ -28,8 +28,8 @@ class Frame(tkinter.Frame, WidgetInterface):
 
             # Title Label
             self.title_label = InformationBlock.Frame(self, title=TITLE,
-                                                      frame_colour= Constants.COLOUR_BRAVO,
-                                                      label_colour= Constants.COLOUR_BRAVO,
+                                                      frame_colour= Parameters.COLOUR_BRAVO,
+                                                      label_colour= Parameters.COLOUR_BRAVO,
                                                       num_columns=1, num_rows=1,
                                                       column=0, row=0)
             self.title_label.add_info(column=0, row=0, text="Units: Degrees Angular Velocity")
@@ -54,11 +54,11 @@ class Frame(tkinter.Frame, WidgetInterface):
             self.middle_button.update_colour()
             self.proximal_button.update_colour()
 
-            self.title_label.set_label_colour(Constants.COLOUR_BRAVO)
-            self.title_label.set_frame_colour(Constants.COLOUR_BRAVO)
+            self.title_label.set_label_colour(Parameters.COLOUR_BRAVO)
+            self.title_label.set_frame_colour(Parameters.COLOUR_BRAVO)
             self.title_label.update_colour()
 
-            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
         def printHi(self, text):
             print(text)
@@ -80,7 +80,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
         def update_colour(self):
             super().update_colour()
-            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
     """
         Self methods
@@ -107,4 +107,4 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.button_frame.update_colour()
         self.image_frame.update_colour()
 
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))

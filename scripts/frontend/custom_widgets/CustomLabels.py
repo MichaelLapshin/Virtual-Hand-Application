@@ -3,7 +3,7 @@ import tkinter.font
 
 # Custom Labels constants
 from scripts import General
-from scripts.frontend import Constants
+from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 """
@@ -29,7 +29,7 @@ class Label(tkinter.Label, WidgetInterface):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
 """
     Custom label
@@ -70,7 +70,7 @@ class InformationLabel(Label):
     def update_colour(self):
         super().update_colour()
         # Colour
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
 
 class SearchLabel(Label):
@@ -85,7 +85,7 @@ class SearchLabel(Label):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_C))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
 
 class PlotLabel(Label):
@@ -114,5 +114,5 @@ class TitleLabel(Label):
 
     def update_colour(self):
         super().update_colour()
-        self.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
 

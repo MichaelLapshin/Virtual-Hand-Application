@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General, Warnings
-from scripts.frontend import User, Constants, Navigation
+from scripts.frontend import User, Constants, Navigation, Parameters
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
@@ -29,8 +29,8 @@ class Frame(GenericPage.NavigationFrame):
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_MODEL_INFORMATION,
                                                      num_columns=2, num_rows=2,
-                                                     frame_colour=Constants.COLOUR_ALPHA,
-                                                     label_colour=Constants.COLOUR_BRAVO)
+                                                     frame_colour=Parameters.COLOUR_ALPHA,
+                                                     label_colour=Parameters.COLOUR_BRAVO)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -77,12 +77,12 @@ class Frame(GenericPage.NavigationFrame):
             self.game_engine_button.update_colour()
             self.delete_button.update_colour()
 
-            self.info_block.set_label_colour(Constants.COLOUR_BRAVO)
-            self.info_block.set_frame_colour(Constants.COLOUR_BRAVO)
+            self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
+            self.info_block.set_frame_colour(Parameters.COLOUR_BRAVO)
             self.info_block.update_colour()
 
-            self.button_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
-            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
+            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
     class SearchFrame(GenericPage.Frame):
 
@@ -138,9 +138,9 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_label.update_colour()
             self.sort_option_menu.update_colour()
 
-            self.button_frame.config(bg=General.washed_colour_hex(Constants.COLOUR_ALPHA, Constants.ColourGrad_B))
+            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
             self.button_search_frame.config(bg=self.button_frame.cget("bg"))
-            self.config(bg=General.washed_colour_hex(Constants.COLOUR_BRAVO, Constants.ColourGrad_B))
+            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
         def update_content(self):
             self.scroll_models_block.update_content()
