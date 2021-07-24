@@ -4,38 +4,30 @@
 """
 import sys
 
-class Logger:
-    def __init__(self, log_name):
-        self.log_lvl = 0  # Logs everything
-        sys.stdout = open("..\\logs\\" + log_name + ".log", 'w')
-
-    def __init__(self, file_name, log_lvl):
+class Log:
+    def __init__(self, file_name, log_lvl=00):
         self.__init__(file_name)
         self.log_lvl = log_lvl
+        self.file = open("..\\logs\\" + file_name + ".log", 'w')
 
     def print_on_lvl(self, text, lvl):
         if self.log_lvl <= lvl:
-            print(text)
+            self.file.write(text + "\n")
 
     def log(self, text):
-        if self.log_lvl <= 0:
-            print(text)
+        self.print_on_lvl(text, 0)
 
     def info(self, text):
-        if self.log_lvl <= 1:
-            print(text)
+        self.print_on_lvl(text, 1)
 
     def debug(self, text):
-        if self.log_lvl <= 2:
-            print(text)
+        self.print_on_lvl(text, 2)
 
     def critical(self, text):
-        if self.log_lvl <= 3:
-            print(text)
+        self.print_on_lvl(text, 3)
 
     def error(self, text):
-        if self.log_lvl <= 4:
-            print(text)
+        self.print_on_lvl(text, 4)
 
     def set_log_lvl(self, log_lvl):
         self.log_lvl = log_lvl
