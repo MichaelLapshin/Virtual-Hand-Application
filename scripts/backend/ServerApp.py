@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = os.urandom(16)  # Random secret key
 db = Database()
 
 # Logger
-logger = Logger("ServerApp", log_lvl=4)
+logger = Logger.Log("ServerApp", log_lvl=4)
 
 if __name__ == '__main__':
     app.run()
