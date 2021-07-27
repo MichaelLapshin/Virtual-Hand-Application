@@ -1,5 +1,4 @@
-import tkinter
-
+import datetime
 
 def washed_colour_rgb(colour, percent):
     return (
@@ -14,3 +13,6 @@ def washed_colour_hex(colour, percent):
 
 def hex_to_rgb(hex_code):
     return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
+
+def get_current_slashed_date():
+    return datetime.datetime.today().strftime('%d-%m-%Y')

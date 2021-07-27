@@ -15,7 +15,7 @@ ENTRY_PADDING_Y = 8
 
 class Entry(tkinter.Entry, WidgetInterface):
 
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=10, text=None):
         self._textvariable = tkinter.StringVar()
 
         tkinter.Entry.__init__(self, root,
@@ -29,6 +29,9 @@ class Entry(tkinter.Entry, WidgetInterface):
 
     def get_entry(self):
         return self._textvariable
+
+    def set_entry(self, value):
+        self._textvariable.set(value=value)
 
     def disable(self):
         self.config(state=tkinter.DISABLED)
@@ -61,11 +64,22 @@ class AccountEntry(Entry):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_A))
 
-class InformationEntry(Entry):
+
+class InfoEntry(Entry):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text)
+        self.grid(sticky=tkinter.EW)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+
+class InfoEntryEntry(Entry):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+        Entry.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       width=width, text=text)
+        self.grid(sticky=tkinter.EW)
+        self.grid(padx=Constants.LONG_SPACING, pady=Constants.STANDARD_SPACING)
 
 
 class SearchEntry(Entry):
@@ -82,5 +96,3 @@ class PlotEntry(Entry):
                        width=width, text=text)
         self.config(width=12)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
-
-

@@ -27,8 +27,6 @@ class Frame(tkinter.Frame, WidgetInterface):
 
             # Title Label
             self.title_label = InformationBlock.Frame(self, title=TITLE,
-                                                      frame_colour=Parameters.COLOUR_BRAVO,
-                                                      label_colour=Parameters.COLOUR_BRAVO,
                                                       num_columns=1, num_rows=1,
                                                       column=0, row=0)
             self.title_label.add_info(column=0, row=0, text="Enter new buffer size:")

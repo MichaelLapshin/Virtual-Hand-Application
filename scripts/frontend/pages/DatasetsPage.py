@@ -1,12 +1,13 @@
 import tkinter
 
 from scripts import General, Warnings
-from scripts.frontend import Navigation, Constants, Parameters
-from scripts.frontend.custom_widgets import CustomButtons
+from scripts.frontend import Navigation, Constants, Parameters, User
+from scripts.frontend.custom_widgets import CustomButtons, CustomLabels, CustomOptionMenu
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock
+from scripts.frontend.page_components import InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, \
+    InfoInputBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
@@ -53,6 +54,7 @@ class Frame(GenericPage.NavigationFrame):
         self.new_frame.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.view_frame.update_content()
         self.new_frame.update_content()
 
@@ -79,9 +81,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_SELECTED_DATASET_INFORMATION,
-                                                     num_columns=2, num_rows=2,
-                                                     frame_colour=Parameters.COLOUR_ALPHA,
-                                                     label_colour=Parameters.COLOUR_BRAVO)
+                                                     num_columns=2, num_rows=2)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -195,6 +195,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
         def update_content(self):
+            super().update_content()
             self.scroll_models_block.update_content()
 
         def set_switch_frame_command(self, command):
@@ -224,13 +225,15 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.search_frame.update_content()
 
     def set_switch_to_new_frame(self, command):
         self.search_frame.set_switch_frame_command(command=command)
 
+
 class NewFrame(GenericPage.NavigationFrame):
-    class InfoFrame(GenericPage.Frame):
+    class DataRecInfoFrame(GenericPage.Frame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self,
@@ -246,9 +249,7 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_NEW_DATASET_INFORMATION,
-                                                     num_columns=2, num_rows=2,
-                                                     frame_colour=Parameters.COLOUR_ALPHA,
-                                                     label_colour=Parameters.COLOUR_BRAVO)
+                                                     num_columns=2, num_rows=2)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -299,75 +300,6 @@ class NewFrame(GenericPage.NavigationFrame):
             self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
-    class SearchFrame(GenericPage.Frame):
-
-        def __init__(self, root, column, row, columnspan=1, rowspan=1):
-            GenericPage.Frame.__init__(self, root)
-            self.grid(column=column, row=row)
-            self.grid(columnspan=columnspan, rowspan=rowspan)
-            self.grid(sticky=tkinter.NS)
-
-            # Configure weights
-            self.rowconfigure(1, weight=1)
-            self.columnconfigure(0, weight=1)
-
-            # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
-            self.scroll_models_block.grid(column=0, row=1)
-            self.scroll_models_block.grid(columnspan=1, rowspan=1)
-
-            # Buttons frame
-            self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=0,
-                                                  columnspan=1, rowspan=1)
-            self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure button frame weights
-            self.button_frame.rowconfigure(0, weight=1)
-            self.button_frame.rowconfigure(1, weight=1)
-            self.button_frame.columnconfigure(0, weight=1)
-            self.button_frame.columnconfigure(1, weight=1)
-            self.button_frame.columnconfigure(2, weight=1)
-
-            # Search buttons & widgets
-            self.cancel_dataset_button = SearchButton(
-                self.button_frame, column=0, row=0, text="Cancel", command=Warnings.not_complete)
-            self.merge_selected_button = SearchButton(
-                self.button_frame, column=1, row=0, text="Merge Selected", command=Warnings.not_complete)
-            self.search_button = SearchButton(
-                self.button_frame, column=2, row=0, text="Search", command=Warnings.not_complete)
-
-            # Sorting
-            self.button_search_frame = tkinter.Frame(self.button_frame)
-            self.button_search_frame.grid(column=0, row=1, columnspan=3, sticky=tkinter.NSEW)
-            self.button_search_frame.columnconfigure(1, weight=1)
-
-            self.sort_label = SearchLabel(self.button_search_frame, column=0, row=0, text="Sort by:")
-            self.sort_option_menu = SortOptionMenu(self.button_search_frame, column=1, row=0, columnspan=2)
-            self.sort_option_menu.grid(sticky=tkinter.NSEW)
-
-        def update_colour(self):
-            super().update_colour()
-            self.scroll_models_block.update_colour()
-            self.button_frame.update_colour()
-            self.cancel_dataset_button.update_colour()
-            self.merge_selected_button.update_colour()
-            self.search_button.update_colour()
-
-            self.sort_label.update_colour()
-            self.sort_option_menu.update_colour()
-
-            self.cancel_dataset_button.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
-            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
-            self.button_search_frame.config(bg=self.button_frame.cget("bg"))
-            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
-
-        def update_content(self):
-            self.scroll_models_block.update_content()
-
-        def set_switch_frame_command(self, command):
-            self.cancel_dataset_button.config(command=command)
-
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_DATASETS)
@@ -375,24 +307,54 @@ class NewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
 
-        # Search space
-        self.search_frame = NewFrame.SearchFrame(self, column=0, row=0)
-        self.search_frame.grid(sticky=tkinter.NSEW)
+        # Cancel Button
+        self.cancel_new_dataset = CustomButtons.SearchButton(self, column=0, row=0, text="View Datasets")
 
-        # Info frame
-        self.info_frame = NewFrame.InfoFrame(self, column=1, row=0)
+        # Frames
+        self.general_options = ["Name", "Owner", "Date created", "Access Permissions"]
+        self.general_info_frame = InfoInputBlock.Frame(self,
+                                                       column=0, row=1,
+                                                       options=self.general_options,
+                                                       title="General Information")
+        self.general_info_frame.set_entry_value("Owner", User.get_name())
+        self.general_info_frame.disable_entry("Owner")
 
-        # Prediction Preview frame
-        self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=1, columnspan=2)
+        self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
+        self.general_info_frame.disable_entry("Date created")
+
+        self.general_info_frame.set_perm_option_meny("Access Permissions")
+
+        # Cam Control Info
+        self.cam_control_options = ["Width", "Height", "Zoom %", "Field of View"]
+        self.cam_control_frame = InfoInputBlock.Frame(self,
+                                                      column=0, row=2,
+                                                      options=self.cam_control_options,
+                                                      title="Camera Control")
+
+        self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, column=1, row=0, rowspan=3)
 
     def update_colour(self):
         super().update_colour()
-        self.search_frame.update_colour()
-        self.info_frame.update_colour()
-        self.graph_frame.update_colour()
+
+        # Label colour
+        self.general_info_frame.set_frame_colour(Parameters.COLOUR_ALPHA)
+        self.general_info_frame.set_label_colour(Parameters.COLOUR_BRAVO)
+
+        self.cam_control_frame.set_frame_colour(Parameters.COLOUR_ALPHA)
+        self.cam_control_frame.set_label_colour(Parameters.COLOUR_BRAVO)
+
+        # Update colour
+        self.cancel_new_dataset.update_colour()
+        self.general_info_frame.update_colour()
+        self.cam_control_frame.update_colour()
+        self.data_rec_info_frame.update_colour()
 
     def update_content(self):
-        self.search_frame.update_content()
+        super().update_content()
+        self.general_info_frame.update_content()
+        self.cam_control_frame.update_content()
+        self.data_rec_info_frame.update_content()
+        self.cancel_new_dataset.update_content()
 
     def set_switch_to_view_frame(self, command):
-        self.search_frame.set_switch_frame_command(command=command)
+        self.cancel_new_dataset.config(command=command)

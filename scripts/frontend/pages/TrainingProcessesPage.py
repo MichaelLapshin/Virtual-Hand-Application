@@ -28,9 +28,7 @@ class Frame(GenericPage.NavigationFrame):
 
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_MODEL_INFORMATION,
-                                                     num_columns=2, num_rows=2,
-                                                     frame_colour=Parameters.COLOUR_ALPHA,
-                                                     label_colour=Parameters.COLOUR_BRAVO)
+                                                     num_columns=2, num_rows=2)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -64,7 +62,7 @@ class Frame(GenericPage.NavigationFrame):
                 Additional information
             """
             # Fill in data for the information block
-            self.info_block.add_info(0, 0, User.name())
+            self.info_block.add_info(0, 0, User.get_name())
             self.info_block.add_info(1, 0, "hello world!")
             self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
 
@@ -129,6 +127,7 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_option_menu.grid(sticky=tkinter.NSEW)
 
         def update_content(self):
+            super().update_content()
             self.scroll_models_block.update_content()
 
         def update_colour(self):
@@ -190,6 +189,7 @@ class Frame(GenericPage.NavigationFrame):
             self.sort_option_menu.grid(sticky=tkinter.NSEW)
 
         def update_content(self):
+            super().update_content()
             self.scroll_models_block.update_content()
 
         def update_colour(self):
@@ -233,6 +233,7 @@ class Frame(GenericPage.NavigationFrame):
         self.prediction_preview_block.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.queue_search_frame.update_content()
         self.complete_search_frame.update_content()
 

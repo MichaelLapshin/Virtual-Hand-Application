@@ -84,6 +84,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     # More functionality methods
     def update_content(self):
+        super().update_content()
         # Selected Count
         if self.num_selected() != 0:
             self.selected_count_label.config(text=Frame._selected + str(self.num_selected()))

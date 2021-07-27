@@ -2,6 +2,7 @@ import tkinter
 
 from scripts import General, Warnings
 from scripts.frontend import User, Constants, Navigation, Parameters
+from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
@@ -53,13 +54,9 @@ class Frame(GenericPage.NavigationFrame):
         self.new_frame.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.view_frame.update_content()
         self.new_frame.update_content()
-
-    def destroy(self):
-        super().destroy()
-        self.view_frame.destroy()
-        self.new_frame.destroy()
 
 
 class ViewFrame(GenericPage.NavigationFrame):
@@ -79,9 +76,8 @@ class ViewFrame(GenericPage.NavigationFrame):
 
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_SELECTED_MODEL_INFORMATION,
-                                                     num_columns=2, num_rows=2,
-                                                     frame_colour=Parameters.COLOUR_ALPHA,
-                                                     label_colour=Parameters.COLOUR_BRAVO)
+                                                     num_columns=2, num_rows=2)
+
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -118,7 +114,7 @@ class ViewFrame(GenericPage.NavigationFrame):
                 Additional information
             """
             # Fill in data for the information block
-            self.info_block.add_info(0, 0, User.name())
+            self.info_block.add_info(0, 0, User.get_name())
             self.info_block.add_info(1, 0, "hello world!")
             self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
 
@@ -198,6 +194,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
         def update_content(self):
+            super().update_content()
             self.scroll_models_block.update_content()
 
         def set_switch_frame_command(self, command):
@@ -227,6 +224,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.prediction_preview_block.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.search_frame.update_content()
 
     def destroy(self):
@@ -237,7 +235,46 @@ class ViewFrame(GenericPage.NavigationFrame):
 
 
 class NewFrame(GenericPage.NavigationFrame):
-    class InfoFrame(GenericPage.Frame):
+    class DatasetInfoFrame(GenericPage.Frame):
+
+        def __init__(self, root, column, row, columnspan=1, rowspan=1):
+            GenericPage.Frame.__init__(self,
+                                       root,
+                                       column=column, row=row,
+                                       columnspan=columnspan, rowspan=rowspan)
+            self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+
+            # Configure weights
+            self.columnconfigure(0, weight=1)
+            self.rowconfigure(0, weight=1)
+
+            # Information frame
+            self.info_block = InformationBlock.Frame(self, title=TITLE_SELECTED_DATABASE_INFORMATION,
+                                                     num_columns=2, num_rows=2)
+            self.info_block.config()
+            self.info_block.grid(column=0, row=0)
+            self.info_block.grid(columnspan=1, rowspan=1)
+
+            self.info_block.set_font(0, 0, 0)
+            self.info_block.set_font(1, 0, 0)
+
+            """
+                Additional information
+            """
+            # Fill in data for the information block
+            self.info_block.add_info(0, 0, User.get_name())
+            self.info_block.add_info(1, 0, "hello world!")
+            self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
+
+        def update_colour(self):
+            super().update_colour()
+            self.info_block.set_frame_colour(Parameters.COLOUR_BRAVO)
+            self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
+            self.info_block.update_colour()
+
+            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
+
+    class NewModelInfoFrame(GenericPage.Frame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self,
@@ -253,9 +290,7 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Information frame
             self.info_block = InformationBlock.Frame(self, title=TITLE_SELECTED_DATABASE_INFORMATION,
-                                                     num_columns=2, num_rows=2,
-                                                     frame_colour=Parameters.COLOUR_ALPHA,
-                                                     label_colour=Parameters.COLOUR_BRAVO)
+                                                     num_columns=2, num_rows=2)
             self.info_block.config()
             self.info_block.grid(column=0, row=0)
             self.info_block.grid(columnspan=1, rowspan=1)
@@ -292,7 +327,7 @@ class NewFrame(GenericPage.NavigationFrame):
                 Additional information
             """
             # Fill in data for the information block
-            self.info_block.add_info(0, 0, User.name())
+            self.info_block.add_info(0, 0, User.get_name())
             self.info_block.add_info(1, 0, "hello world!")
             self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
 
@@ -322,17 +357,20 @@ class NewFrame(GenericPage.NavigationFrame):
             self.grid(sticky=tkinter.NS)
 
             # Configure weights
-            self.rowconfigure(1, weight=1)
+            self.rowconfigure(2, weight=1)
             self.columnconfigure(0, weight=1)
+
+            # Select Dataset title
+            self.select_dataset_label = CustomLabels.TitleLabel(self, column=0, row=0, text="Select Datasets")
 
             # Scroll block
             self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
-            self.scroll_models_block.grid(column=0, row=1)
+            self.scroll_models_block.grid(column=0, row=2)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
             # Buttons frame
             self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=0,
+                                                  column=0, row=1,
                                                   columnspan=1, rowspan=1)
             self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
@@ -344,7 +382,7 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Search buttons & widgets
             self.cancel_button = SearchButton(self.button_frame, column=0, row=0, text="Cancel",
-                                           command=Warnings.not_complete)
+                                              command=Warnings.not_complete)
             self.search_button = SearchButton(self.button_frame, column=1, row=0, text="Search",
                                               command=Warnings.not_complete)
 
@@ -362,6 +400,7 @@ class NewFrame(GenericPage.NavigationFrame):
             self.scroll_models_block.update_colour()
             self.button_frame.update_colour()
 
+            self.select_dataset_label.update_colour()
             self.cancel_button.update_colour()
             self.search_button.update_colour()
             self.sort_label.update_colour()
@@ -373,6 +412,8 @@ class NewFrame(GenericPage.NavigationFrame):
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
         def update_content(self):
+            super().update_content()
+
             self.scroll_models_block.update_content()
 
         def set_switch_frame_command(self, command):
@@ -386,25 +427,29 @@ class NewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=3)
 
         # Search space
-        self.search_frame = NewFrame.SearchFrame(self, column=0, row=0)
+        self.search_frame = NewFrame.SearchFrame(self, column=0, row=0, rowspan=2)
         self.search_frame.grid(sticky=tkinter.NSEW)
 
         # Info frame
-        self.info_frame = NewFrame.InfoFrame(self, column=1, row=0)
-
-        # Prediction Preview frame
-        self.prediction_preview_block = PredictionPreviewBlock.Frame(self, column=0, row=1, columnspan=2)
+        self.database_info_frame = NewFrame.DatasetInfoFrame(self, column=1, row=0)
+        self.new_model_info_frame = NewFrame.NewModelInfoFrame(self, column=1, row=1)
 
     def update_colour(self):
         super().update_colour()
         self.search_frame.update_colour()
-        self.info_frame.update_colour()
-        self.prediction_preview_block.update_colour()
+        self.database_info_frame.update_colour()
+        self.new_model_info_frame.update_colour()
 
     def update_content(self):
+        super().update_content()
         self.search_frame.update_content()
+        self.database_info_frame.update_content()
+        self.new_model_info_frame.update_content()
 
     def destroy(self):
+        self.search_frame.update_content()
+        self.database_info_frame.update_content()
+        self.new_model_info_frame.update_content()
         super().destroy()
 
     def set_switch_to_view_frame(self, command):

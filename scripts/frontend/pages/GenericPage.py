@@ -24,6 +24,7 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.grid(sticky=tkinter.NSEW)
 
     def update_content(self):
+        super().update_content()
         pass
 
     def update_colour(self):

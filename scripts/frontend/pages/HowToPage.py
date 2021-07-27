@@ -14,9 +14,7 @@ class Frame(GenericPage.NavigationFrame):
         # Creates the info block
         self.info_block = InformationBlock.Frame(self,
                                                  num_columns=4, num_rows=4,
-                                                 title="How to...",
-                                                 frame_colour=Parameters.COLOUR_ALPHA,
-                                                 label_colour=Parameters.COLOUR_BRAVO)
+                                                 title="How to...")
         self.columnconfigure(0, weight=1)
 
         # First row titles
@@ -39,6 +37,7 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block.update_colour()
 
     def update_content(self):
+        super().update_content()
         pass
 
     def destroy(self):

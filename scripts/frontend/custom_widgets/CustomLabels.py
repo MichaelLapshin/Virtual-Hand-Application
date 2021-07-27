@@ -31,6 +31,7 @@ class Label(tkinter.Label, WidgetInterface):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
+
 """
     Custom label
 """
@@ -58,7 +59,6 @@ class AccountLabel(Label):
         self.grid(padx=16, pady=16)
 
 
-
 class InformationLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None):
         Label.__init__(self, root, column=column, row=row,
@@ -66,12 +66,26 @@ class InformationLabel(Label):
                        text=text)
         # Grid
         self.grid(sticky=tkinter.NSEW)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
     def update_colour(self):
         super().update_colour()
         # Colour
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
+class InfoEntryLabel(Label):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None):
+        Label.__init__(self, root, column=column, row=row,
+                       columnspan=columnspan, rowspan=rowspan,
+                       text=text)
+        # Grid
+        self.grid(sticky=tkinter.NSEW)
+        self.grid(padx=Constants.LONG_SPACING, pady=Constants.STANDARD_SPACING)
+
+    def update_colour(self):
+        super().update_colour()
+        # Colour
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
 class SearchLabel(Label):
     def __init__(self, root, column, row, columnspan=1, rowspan=1,
@@ -115,4 +129,3 @@ class TitleLabel(Label):
     def update_colour(self):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
-
