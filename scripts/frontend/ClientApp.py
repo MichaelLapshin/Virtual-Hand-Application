@@ -79,14 +79,17 @@ class UpdateThread(threading.Thread):
         threading.Thread.__init__(self)
         self.navig_bar = navig_bar
         self.running = True
+        self.daemon = True
 
     def run(self):
+
         while self.running:
             self.navig_bar.update_content()
-
             time.sleep(Parameters.UPDATE_DELAY_MS / 1000.0)
+        print("The update thread has stopped.")
 
     def stop(self):
+        print("Stopping the update thread...")
         self.running = False
 
 

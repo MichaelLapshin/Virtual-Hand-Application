@@ -23,9 +23,7 @@ class Frame(GenericPage.NavigationFrame):
         # Credits
         self.credits = InformationBlock.Frame(self,
                                               column=0, row=1,
-                                              num_columns=2, num_rows=1,
-                                              frame_colour=Parameters.COLOUR_ALPHA,
-                                              label_colour=Parameters.COLOUR_BRAVO)
+                                              num_columns=2, num_rows=1)
         self.credits.add_info(column=0, row=0, text="Author: Michael Lapshin\n\n"
                                                     "Project: On-going since November 2020")
 
@@ -42,9 +40,7 @@ class Frame(GenericPage.NavigationFrame):
         # Creates the info block
         self.info_block = InformationBlock.Frame(self,
                                                  column=0, row=2,
-                                                 num_columns=3, num_rows=6,
-                                                 frame_colour=Parameters.COLOUR_ALPHA,
-                                                 label_colour=Parameters.COLOUR_BRAVO)
+                                                 num_columns=3, num_rows=6)
         self.info_block.set_column_weight(2, weight=2)
 
         # Main Components
@@ -141,6 +137,7 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block.update_colour()
 
     def update_content(self):
+        super().update_content()
         pass
 
     def destroy(self):

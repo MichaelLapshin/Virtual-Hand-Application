@@ -39,7 +39,7 @@ def logout():
     Warnings.not_complete()
 
 
-def name():
+def get_name():
     global _name
 
     if _name is None:

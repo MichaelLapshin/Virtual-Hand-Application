@@ -12,7 +12,6 @@ TITLE_FONT_SIZE = 8
 class Frame(tkinter.Frame, WidgetInterface):
 
     def __init__(self, root, num_columns, num_rows,
-                 frame_colour, label_colour,
                  title=None, column=0, row=0, columnspan=1, rowspan=1):
 
         # Asserts dimensions
@@ -21,8 +20,8 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.num_rows = num_rows
 
         # Saves the colour
-        self.frame_colour = frame_colour
-        self.label_colour = label_colour
+        self.frame_colour = None
+        self.label_colour = None
 
         # Creates self frame
         tkinter.Frame.__init__(self, root, relief=tkinter.RIDGE, bd=1)

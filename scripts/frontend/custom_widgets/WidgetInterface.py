@@ -7,3 +7,8 @@ class WidgetInterface:
         # Warnings.not_to_reach()
         # assert False
         pass
+
+    def update_content(self):
+        # Warnings.not_to_reach()
+        # assert False
+        pass

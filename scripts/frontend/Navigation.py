@@ -101,6 +101,7 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         self.update_colour()
 
     def update_colour(self):
+        super().update_colour()
         for button in self.buttons_page_map.keys():
             button.update_colour()
 
@@ -108,6 +109,7 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
 
     def update_content(self):
+        super().update_content()
         self.current_page.update_content()
 
     def destroy(self):

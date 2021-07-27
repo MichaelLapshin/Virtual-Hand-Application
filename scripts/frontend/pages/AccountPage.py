@@ -134,6 +134,7 @@ class Frame(GenericPage.NavigationFrame):
         self.login_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
     def update_content(self):
+        super().update_content()
         pass
 
     def destroy(self):
