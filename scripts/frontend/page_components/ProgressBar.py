@@ -15,15 +15,25 @@ class Frame(tkinter.Frame, WidgetInterface):
         tkinter.Frame.__init__(self, root)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(sticky=tkinter.NSEW)
+
+        # Weights
+        self.columnconfigure(0, weight=1)
 
         # Display related
         self.metric_text = metric_text
         self.is_percentage = is_default_percentage
 
         # Objects
-        self.metric_switch_button = CustomButtons.InformationButton(self, column=0, row=0, command=self.switch_metric)
-        self.progress_bar = CustomCanvas.Canvas(self, column=0, row=1)
+        self.progress_bar = CustomCanvas.Canvas(self, column=0, row=0)
         self.progress_bar.config(height=Constants.LONG_SPACING)
+        self.progress_bar.grid(sticky=tkinter.NSEW)
+
+        self.metric_switch_button = CustomButtons.InformationButton(self, column=0, row=0, command=self.switch_metric)
+        self.metric_switch_button.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+        self.metric_switch_button.grid(padx=Constants.STANDARD_SPACING * 2, pady=Constants.STANDARD_SPACING * 2)
+        # self.metric_switch_button.grid(sticky=tkinter.NSEW)
 
         # Count-related
         self.max_count = max_count
