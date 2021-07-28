@@ -68,11 +68,11 @@ class Frame(tkinter.Frame, WidgetInterface):
             k.update_colour()
             self.entries.get(k).update_colour()
 
-        self.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
+        self.config(bg=self.frame_colour)
         # self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
 
         if self.titlebar is not None:
-            self.titlebar.config(bg=General.washed_colour_hex(self.label_colour, Parameters.ColourGrad_D))
+            self.titlebar.config(bg=self.label_colour)
 
     def set_frame_colour(self, colour):
         self.frame_colour = colour
@@ -95,7 +95,7 @@ class Frame(tkinter.Frame, WidgetInterface):
             if name + Frame.VAR_PADDING == k.cget("text"):
                 self.entries.get(k).enable()
 
-    def set_perm_option_meny(self, name):
+    def set_perm_option_menu(self, name):
         for k in self.entries.keys():
             if name + Frame.VAR_PADDING == k.cget("text"):
                 self.entries.get(k).destroy()
