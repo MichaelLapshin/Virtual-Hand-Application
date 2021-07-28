@@ -256,16 +256,28 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Main frames
             self.process_frame = GenericPage.Frame(self, column=1, row=0)
+            self.process_frame.columnconfigure(0, weight=1)
+            self.process_frame.columnconfigure(1, weight=1)
+            self.process_frame.rowconfigure(1, weight=1)
+            self.process_frame.rowconfigure(2, weight=1)
 
             # self.camera
 
             # Progress start/stop
+            self.start_stop_title = CustomLabels.TitleLabel(self.process_frame,
+                                                            column=0, row=0, columnspan=2,
+                                                            text="Data Recording Controller")
             self.start_progress_button = CustomButtons.InformationButton(self.process_frame,
-                                                                         column=0, row=0, text="Start Data Gathering")
+                                                                         column=0, row=1, text="Start Data Gathering")
             self.stop_progress_button = CustomButtons.InformationButton(self.process_frame,
-                                                                        column=1, row=0, text="Stop Data Gathering")
-            self.progress_bar = ProgressBar.Frame(self.process_frame, column=0, row=1, columnspan=2,
+                                                                        column=1, row=1, text="Stop Data Gathering")
+            self.progress_bar = ProgressBar.Frame(self.process_frame, column=0, row=2, columnspan=2,
                                                   metric_text=" seconds", max_count=100)
+
+            # Progress start/stop configuration
+            self.start_stop_title.grid(padx=Constants.STANDARD_SPACING)
+            self.start_progress_button.grid(sticky=tkinter.EW, padx=Constants.LONG_SPACING)
+            self.stop_progress_button.grid(sticky=tkinter.EW, padx=Constants.LONG_SPACING)
 
         def update_colour(self):
             # Set colour
@@ -283,10 +295,13 @@ class NewFrame(GenericPage.NavigationFrame):
             self.input_frame.update_colour()
             self.process_frame.update_colour()
             self.progress_bar.update_colour()
+            self.start_stop_title.update_colour()
             self.start_progress_button.update_colour()
             self.stop_progress_button.update_colour()
 
             # Set colours
+            self.start_stop_title.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_D))
+            self.process_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
         def update_content(self):
@@ -326,6 +341,10 @@ class NewFrame(GenericPage.NavigationFrame):
                                                       column=0, row=2,
                                                       options=self.cam_control_options,
                                                       title="Camera Control")
+        self.apply_cam_settings = CustomButtons.SearchButton(self.cam_control_frame,
+                                                             column=0, row=4, columnspan=2,
+                                                             command=self.apply_cam_settings_command,
+                                                             text="Apply Camera Settings")
 
         self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, column=1, row=0, rowspan=3)
 
@@ -348,6 +367,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.general_info_frame.update_colour()
         self.cam_control_frame.update_colour()
         self.data_rec_info_frame.update_colour()
+        self.apply_cam_settings.update_colour()
 
     def update_content(self):
         super().update_content()
@@ -355,6 +375,10 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cam_control_frame.update_content()
         self.data_rec_info_frame.update_content()
         self.cancel_new_dataset.update_content()
+        self.apply_cam_settings.update_content()
 
     def set_switch_to_view_frame(self, command):
         self.cancel_new_dataset.config(command=command)
+
+    def apply_cam_settings_command(self):
+        Warnings.not_complete()

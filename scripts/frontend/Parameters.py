@@ -14,6 +14,10 @@ GUI_Scale = 1.2
 COLOUR_ALPHA = (91, 155, 213)
 COLOUR_BRAVO = (146, 208, 80)
 
+# Nice Colour Option
+# COLOUR_ALPHA = (242, 91, 0)  # Orange
+# COLOUR_BRAVO = (80, 90, 103)  # Grey
+
 # Colour Gradients
 ColourGrad_A = 0.10
 ColourGrad_B = 0.20
