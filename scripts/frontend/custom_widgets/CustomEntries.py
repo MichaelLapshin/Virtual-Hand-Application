@@ -79,7 +79,7 @@ class InfoEntryEntry(Entry):
                        columnspan=columnspan, rowspan=rowspan,
                        width=width, text=text)
         self.grid(sticky=tkinter.EW)
-        self.grid(padx=Constants.LONG_SPACING, pady=Constants.STANDARD_SPACING)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
 
 class SearchEntry(Entry):

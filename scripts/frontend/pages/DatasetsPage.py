@@ -6,8 +6,8 @@ from scripts.frontend.custom_widgets import CustomButtons, CustomLabels, CustomO
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, \
-    InfoInputBlock
+from scripts.frontend.page_components import \
+    InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
@@ -244,68 +244,64 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Configure weights
             self.columnconfigure(0, weight=1)
-            self.rowconfigure(0, weight=1)
-            self.rowconfigure(1, weight=0)
+            self.columnconfigure(1, weight=1)
+            self.rowconfigure(0, weight=0)
+            self.rowconfigure(1, weight=1)
 
-            # Information frame
-            self.info_block = InformationBlock.Frame(self, title=TITLE_NEW_DATASET_INFORMATION,
-                                                     num_columns=2, num_rows=2)
-            self.info_block.config()
-            self.info_block.grid(column=0, row=0)
-            self.info_block.grid(columnspan=1, rowspan=1)
+            # Data Recording Information
+            self.record_options = ["Recording delay (seconds)", "Training length (seconds)", "Frames per second"]
+            self.input_frame = InfoInputBlock.Frame(self, column=0, row=0,
+                                                    options=self.record_options,
+                                                    title="Data Recording Information")
 
-            # Buttons Frame
-            self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=1,
-                                                  columnspan=1, rowspan=1)
-            self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+            # Main frames
+            self.process_frame = GenericPage.Frame(self, column=1, row=0)
 
-            # Configure button frame weights
-            self.button_frame.columnconfigure(0, weight=1)
-            self.button_frame.columnconfigure(1, weight=1)
-            self.button_frame.columnconfigure(2, weight=1)
-            self.button_frame.columnconfigure(3, weight=1)
+            # self.camera
 
-            # Create buttons
-            self.favourite_button = \
-                InformationButton(self.button_frame, column=0, row=0, text="Favourite", command=Warnings.not_complete)
-            self.duplicate_button = \
-                InformationButton(self.button_frame, column=1, row=0, text="Duplicate", command=Warnings.not_complete)
-            self.smooth_button = \
-                InformationButton(self.button_frame, column=2, row=0, text="Smooth Dataset",
-                                  command=Warnings.not_complete)
-            self.delete_button = \
-                InformationButton(self.button_frame, column=3, row=0, text="Delete", command=Warnings.not_complete)
-
-            """
-                Additional information
-            """
-            # Fill in data for the information block
-            self.info_block.add_info(1, 0, "hello world!")
-            self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
+            # Progress start/stop
+            self.start_progress_button = CustomButtons.InformationButton(self.process_frame,
+                                                                         column=0, row=0, text="Start Data Gathering")
+            self.stop_progress_button = CustomButtons.InformationButton(self.process_frame,
+                                                                        column=1, row=0, text="Stop Data Gathering")
+            self.progress_bar = ProgressBar.Frame(self.process_frame, column=0, row=1, columnspan=2,
+                                                  metric_text=" seconds", max_count=100)
 
         def update_colour(self):
-            super().update_colour()
-            self.button_frame.update_colour()
+            # Set colour
+            self.input_frame.set_frame_colour(
+                General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
+            self.input_frame.set_label_colour(
+                General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_D))
 
-            self.favourite_button.update_colour()
-            self.duplicate_button.update_colour()
-            self.smooth_button.update_colour()
-            self.delete_button.update_colour()
+            self.progress_bar.set_background_colour(
+                General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
+            self.progress_bar.set_progress_colour(
+                General.washed_colour_hex(Constants.COLOUR_GREEN, Parameters.ColourGrad_F))
 
-            self.info_block.set_frame_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.update_colour()
+            # Update colour
+            self.input_frame.update_colour()
+            self.process_frame.update_colour()
+            self.progress_bar.update_colour()
+            self.start_progress_button.update_colour()
+            self.stop_progress_button.update_colour()
 
-            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
+            # Set colours
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
+
+        def update_content(self):
+            self.input_frame.update_content()
+            self.process_frame.update_content()
+            self.progress_bar.update_content()
+            self.start_progress_button.update_content()
+            self.stop_progress_button.update_content()
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_DATASETS)
         # Weights
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=3)
+        self.columnconfigure(1, weight=5)
 
         # Cancel Button
         self.cancel_new_dataset = CustomButtons.SearchButton(self, column=0, row=0, text="View Datasets")
@@ -322,7 +318,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
         self.general_info_frame.disable_entry("Date created")
 
-        self.general_info_frame.set_perm_option_meny("Access Permissions")
+        self.general_info_frame.set_perm_option_menu("Access Permissions")
 
         # Cam Control Info
         self.cam_control_options = ["Width", "Height", "Zoom %", "Field of View"]
@@ -337,11 +333,15 @@ class NewFrame(GenericPage.NavigationFrame):
         super().update_colour()
 
         # Label colour
-        self.general_info_frame.set_frame_colour(Parameters.COLOUR_ALPHA)
-        self.general_info_frame.set_label_colour(Parameters.COLOUR_BRAVO)
+        self.general_info_frame.set_frame_colour(
+            General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
+        self.general_info_frame.set_label_colour(
+            General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_D))
 
-        self.cam_control_frame.set_frame_colour(Parameters.COLOUR_ALPHA)
-        self.cam_control_frame.set_label_colour(Parameters.COLOUR_BRAVO)
+        self.cam_control_frame.set_frame_colour(
+            General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
+        self.cam_control_frame.set_label_colour(
+            General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_D))
 
         # Update colour
         self.cancel_new_dataset.update_colour()
