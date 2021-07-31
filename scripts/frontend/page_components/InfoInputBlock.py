@@ -1,7 +1,7 @@
 import tkinter
 import tkinter.font
 
-from scripts import General
+from scripts import General, Warnings
 from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets import CustomEntries, CustomLabels, CustomOptionMenu
 from scripts.frontend.custom_widgets.CustomLabels import InformationLabel
@@ -100,3 +100,10 @@ class Frame(tkinter.Frame, WidgetInterface):
             if name + Frame.VAR_PADDING == k.cget("text"):
                 self.entries.get(k).destroy()
                 self.entries[k] = CustomOptionMenu.PermissionsOptionMenu(self, column=1, row=k.grid_info()["row"])
+
+    def get_value(self, name):
+        for k in self.entries.keys():
+            if name + Frame.VAR_PADDING == k.cget("text"):
+                return self.entries[k].get()
+        Warnings.not_to_reach()
+        return None

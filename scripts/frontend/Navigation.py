@@ -110,6 +110,9 @@ class NavigationBar(tkinter.Frame, WidgetInterface):
 
     def update_content(self):
         super().update_content()
+        """
+            Updates current page (not the others)
+        """
         self.current_page.update_content()
 
     def destroy(self):
