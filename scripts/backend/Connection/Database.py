@@ -120,12 +120,12 @@ class Database:
         self.connection = sqlite3.connect("..\\..\\db\\" + database)
         self.cursor = self.connection.cursor()
 
-    def __get_table(self, table_name):
+    def _get_table(self, table_name):
         # self.cursor.execute("FROM . " + table_name + " GET *")
         self.cursor.execute("SELECT * FROM " + table_name)
         return
 
-    def __add_table_record(self, table_name, record_dictionary):
+    def _add_table_record(self, table_name, record_dictionary):
         sql_keys = ""
         for k in record_dictionary.getkeys():
             sql_keys += ":" + k + ","
@@ -133,14 +133,14 @@ class Database:
 
         self.cursor.execute("INSERT INTO " + table_name + "VALUES (" + sql_keys + ")", record_dictionary)
 
-    def __delete_table_record(self, table_name,  oid):
+    def _delete_table_record(self, table_name,  oid):
         self.cursor.execute("DELETE from " + table_name + " WHERE oid=" + oid)
 
-    def __update_table_record(self, table_name, ):
+    def _update_table_record(self, table_name, ):
         self.cursor.execute()
 
     def get_graphs(self):
-        return self.get_table("Graphs")
+        return self._get_table("Graphs")
 
     def save(self):
         self.cursor.commit()
