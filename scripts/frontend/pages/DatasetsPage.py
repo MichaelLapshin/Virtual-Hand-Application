@@ -297,7 +297,9 @@ class NewFrame(GenericPage.NavigationFrame):
             self.stop_progress_button.grid(sticky=tkinter.EW, padx=Constants.LONG_SPACING)
 
             # Camera + default parameters
-            self.hand_angler = None
+            self.hand_angler = MediapipHandAngler.HandAngleReader()
+            self.hand_angler.start()
+
             self.camera_frame = GenericPage.Frame(self, column=0, row=1, columnspan=2)
             self.camera_frame.columnconfigure(0, weight=1)
             self.camera_frame.rowconfigure(0, weight=1)
@@ -342,8 +344,8 @@ class NewFrame(GenericPage.NavigationFrame):
             self.stop_progress_button.update_content()
 
             # Paint the camera
-            if (self.hand_angler is not None) and (self.hand_angler.get_image() is not None):
-                image = Image.fromarray(self.hand_angler.get_image())
+            if (self.hand_angler is not None) and (self.hand_angler.get_raw_image() is not None):
+                image = Image.fromarray(self.hand_angler.get_processed_image())
 
                 # Resize image
                 ratio = self.camera_frame.winfo_width() / float(image.width)
@@ -358,26 +360,20 @@ class NewFrame(GenericPage.NavigationFrame):
                 self.camera_label.config(image=imageTk)
                 self.camera_label.image = imageTk
 
-        def restart_hand_angler(self, width=None, height=None, zoom_percent=None):
+        def reconfigure_hand_angler(self, width=None, height=None, zoom_percent=None):
             # Checks if the reset is allowed
-            can_reset = True
-            can_reset &= InputConstraints.assert_int_positive("Width", int(width))
-            can_reset &= InputConstraints.assert_int_positive("Height", int(height))
-            can_reset &= InputConstraints.assert_int_positive("Zoom %", int(zoom_percent))
-            can_reset &= InputConstraints.assert_int_positive("Frames per second",
-                                                              int(self.input_frame.get_value("Frames per second")))
+            reconfigure = True
+            reconfigure &= InputConstraints.assert_int_positive("Width", width)
+            reconfigure &= InputConstraints.assert_int_positive("Height", height)
+            reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
+            reconfigure &= InputConstraints.assert_int_positive("Frames per second",
+                                                                self.input_frame.get_value("Frames per second"))
 
             # Performs reset if allowed
-            if can_reset is True:
-                if (self.hand_angler is not None) and self.hand_angler.is_running():
-                    self.hand_angler.stop()
-
-                self.hand_angler = MediapipHandAngler.HandAngleReader(
+            if reconfigure is True:
+                self.hand_angler.set_configurations(
                     width=int(width), height=int(height), zoom=int(zoom_percent),
                     frames_per_second=int(self.input_frame.get_value("Frames per second")))
-                self.hand_angler.start()
-
-            Warnings.not_complete()  # TODO, remove this soon
 
         def stop_hand_angler(self):
             if (self.hand_angler is not None) \
@@ -426,7 +422,7 @@ class NewFrame(GenericPage.NavigationFrame):
                                                       title="Camera Control")
         self.apply_cam_settings = CustomButtons.SearchButton(self.cam_control_frame,
                                                              column=0, row=4, columnspan=2,
-                                                             command=self.restart_hand_angler,
+                                                             command=self.reconfigure_hand_angler,
                                                              text="Apply Camera Settings")
         # Give default camera settings variables
         self.cam_control_frame.set_entry_value("Width", Constants.CAMERA_DEFAULT_RESOLUTION_X)
@@ -465,20 +461,16 @@ class NewFrame(GenericPage.NavigationFrame):
     def set_switch_to_view_frame(self, command):
         self.cancel_new_dataset.config(command=command)
 
-    def restart_hand_angler(self):
-        self.data_rec_info_frame.restart_hand_angler(self.cam_control_frame.get_value("Width"),
-                                                     self.cam_control_frame.get_value("Height"),
-                                                     self.cam_control_frame.get_value("Zoom %"))
+    def reconfigure_hand_angler(self):
+        self.data_rec_info_frame.reconfigure_hand_angler(self.cam_control_frame.get_value("Width"),
+                                                         self.cam_control_frame.get_value("Height"),
+                                                         self.cam_control_frame.get_value("Zoom %"))
 
     def start_new_frame_processes(self):
-        # Starts hand angler
-        if self.data_rec_info_frame.hand_angler is None:
-            self.restart_hand_angler()
-        elif self.data_rec_info_frame.hand_angler.is_running() is False:
-            self.data_rec_info_frame.hand_angler.start()
-        else:
-            Warnings.not_to_reach()
+        # Starts watching hand angler
+        assert self.data_rec_info_frame.hand_angler is not None
+        self.data_rec_info_frame.hand_angler.watch()
 
     def stop_new_frame_processes(self):
         # Stop hand angler
-        self.data_rec_info_frame.stop_hand_angler()
+        self.data_rec_info_frame.hand_angler.stop_watching()

@@ -6,6 +6,7 @@
 """
 
 import os
+import time
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import numpy
@@ -49,31 +50,34 @@ def extract_coord(joint):
 
 class HandAngleReader(threading.Thread):
 
-    def __init__(self, width, height, zoom, frames_per_second, video_source=0):
+    def __init__(self, video_source=0):
         threading.Thread.__init__(self)  # calls constructor of the Thread class
         self._daemon = True
         self._running = False
 
+        # Image capturing-related variables
+        self._video_source = video_source
+        self._cap = cv2.VideoCapture()
+        self._mp_drawing = mp.solutions.drawing_utils
+        self._mp_hands = mp.solutions.hands
+        self._raw_image = None
+        self._image = None
+
+        # of the form: limb_angles[finger, limb] ; finger(thumb -> pinky), limb(proximal -> distal)
+        self._limb_angles = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+    def set_configurations(self, width, height, zoom, frames_per_second):
         # Stores the inputs locally
         self._width = width
         self._height = height
         self._zoom = zoom
         self._frames_per_second = frames_per_second
 
-        # Image capturing-related variables
-        self._mp_drawing = mp.solutions.drawing_utils
-        self._mp_hands = mp.solutions.hands
-        self._image = None
-
         # For webcam input:
-        self._cap = cv2.VideoCapture(video_source)
         self._cap.set(cv2.CAP_PROP_FRAME_WIDTH, self._width)  # Sets Width of the video feed
         self._cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self._height)  # Sets Height of the video feed
         self._cap.set(cv2.CAP_PROP_ZOOM, self._zoom)  # Sets Zoom of the video feed
         self._cap.set(cv2.CAP_PROP_FPS, self._frames_per_second)  # Sets FPS of the video feed
-
-        # of the form: limb_angles[finger, limb] ; finger(thumb -> pinky), limb(proximal -> distal)
-        self._limb_angles = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
     # Continuously reads from the camera feed
     def run(self):
@@ -82,38 +86,34 @@ class HandAngleReader(threading.Thread):
         # Processes and displays video feed
         with self._mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.85,
                                   min_tracking_confidence=0.1, static_image_mode=False) as hands:
-            while self._cap.isOpened() and self._running:
-                # success, orig_image = self.cap.read()
-                success, image = self._cap.read()
-                # shape = (640, 480)
-                # image = orig_image[
-                #         int(shape[0] / 2 - self.resolution_x / 2):int(shape[0] / 2 + self.resolution_x / 2),
-                #         int(shape[1] / 2 - self.resolution_y / 2):int(shape[1] / 2 + self.resolution_y / 2), :].copy()
+            while self._running:
+                time.sleep(1)
 
-                # TODO, implement un-distorting code for the image (to improve accuracy of the captured images)
-                #      - https://docs.opencv.org/4.5.2/dc/dbb/tutorial_py_calibration.html
-                #      - https://docs.opencv.org/3.4/d4/d94/tutorial_camera_calibration.html
+                while self._cap.isOpened() and self._running:
+                    success, image = self._cap.read()
 
-                if not success:
-                    print("Ignoring empty camera frame.")
-                    continue
+                    # TODO, implement un-distorting code for the image (to improve accuracy of the captured images)
+                    #      - https://docs.opencv.org/4.5.2/dc/dbb/tutorial_py_calibration.html
+                    #      - https://docs.opencv.org/3.4/d4/d94/tutorial_camera_calibration.html
 
-                # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
-                image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-                # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                # image = cv2.flip(image, 1)
+                    if not success:
+                        # print("Ignoring empty camera frame.")
+                        continue
 
-                # To improve performance, optionally mark the image as not writeable to pass by reference.
-                image.flags.writeable = False
-                results = hands.process(image)
+                    # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
+                    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
 
-                self.process_limb_angles(results=results)
+                    # To improve performance, optionally mark the image as not writeable to pass by reference.
+                    image.flags.writeable = False
+                    results = hands.process(image)
 
-                self._image = image  # Deep copy?
-                # self.display_image(results=results, image=image)
+                    self.process_limb_angles(results=results)
 
-                if cv2.waitKey(5) & 0xFF == 27:
-                    break
+                    self._raw_image = image  # Deep copy?
+                    self.process_image(results=results, image=image)
+
+                    if cv2.waitKey(5) & 0xFF == 27:
+                        break
 
         self._cap.release()
 
@@ -143,19 +143,33 @@ class HandAngleReader(threading.Thread):
             # nulls the data if the hand cannot be detected
             self._limb_angles = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
-    def get_image(self):
+    def get_raw_image(self):
+        return self._raw_image
+
+    def get_processed_image(self):
         return self._image
 
     # Displays the image
-    def display_image(self, results, image):
+    def process_image(self, results, image):
         # Draw the hand annotations on the image.
         image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        if results.multi_hand_landmarks:
 
+        if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 self._mp_drawing.draw_landmarks(image, hand_landmarks, self._mp_hands.HAND_CONNECTIONS)
-        cv2.imshow('MediaPipe Hands', image)
+
+        self._image = image
+
+    def watch(self):
+        assert self._cap.isOpened() is False
+        self._cap.open(self._video_source, cv2.CAP_DSHOW)
+
+    def stop_watching(self):
+        if self._cap.isOpened():
+            self._cap.release()
+
+    def is_watching(self):
+        return self._cap.isOpened()
 
     def start(self):
         self._running = True
