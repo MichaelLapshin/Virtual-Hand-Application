@@ -101,6 +101,12 @@ class Frame(tkinter.Frame, WidgetInterface):
                 self.entries.get(k).destroy()
                 self.entries[k] = CustomOptionMenu.PermissionsOptionMenu(self, column=1, row=k.grid_info()["row"])
 
+    def set_video_source_option_menu(self, name):
+        for k in self.entries.keys():
+            if name + Frame.VAR_PADDING == k.cget("text"):
+                self.entries.get(k).destroy()
+                self.entries[k] = CustomOptionMenu.VideoSourceOptionMenu(self, column=1, row=k.grid_info()["row"])
+
     def get_value(self, name):
         for k in self.entries.keys():
             if name + Frame.VAR_PADDING == k.cget("text"):

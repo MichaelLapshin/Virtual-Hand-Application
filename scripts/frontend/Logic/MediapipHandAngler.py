@@ -50,13 +50,12 @@ def extract_coord(joint):
 
 class HandAngleReader(threading.Thread):
 
-    def __init__(self, video_source=0):
+    def __init__(self):
         threading.Thread.__init__(self)  # calls constructor of the Thread class
         self._daemon = True
         self._running = False
 
         # Image capturing-related variables
-        self._video_source = video_source
         self._cap = cv2.VideoCapture()
         self._mp_drawing = mp.solutions.drawing_utils
         self._mp_hands = mp.solutions.hands
@@ -66,8 +65,9 @@ class HandAngleReader(threading.Thread):
         # of the form: limb_angles[finger, limb] ; finger(thumb -> pinky), limb(proximal -> distal)
         self._limb_angles = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
-    def set_configurations(self, width, height, zoom, frames_per_second):
+    def set_configurations(self, video_source, width, height, zoom, frames_per_second):
         # Stores the inputs locally
+        self._video_source = video_source
         self._width = width
         self._height = height
         self._zoom = zoom

@@ -14,9 +14,13 @@ class OptionMenu(tkinter.OptionMenu, WidgetInterface):
 
     def __init__(self, root, column, row, variable, values, columnspan=1, rowspan=1, padx=5, pady=5):
         tkinter.OptionMenu.__init__(self, root, variable, *values)
+        self._variable = variable
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
         self.grid(padx=padx, pady=pady)
+
+    def get(self):
+        return self._variable.get()
 
 
 """
@@ -60,9 +64,6 @@ class SortOptionMenu(OptionMenu):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
 
-    def get_value(self):
-        return self.variable.get()
-
 
 class PermissionsOptionMenu(OptionMenu):
 
@@ -95,5 +96,33 @@ class PermissionsOptionMenu(OptionMenu):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_A))
 
-    def get_value(self):
-        return self.variable.get()
+
+class VideoSourceOptionMenu(OptionMenu):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, value="0"):
+        # Create the options
+        self.values = ["0", "1", "2"]
+
+        if value is None:
+            value = self.values[0]
+
+        # Create the variable
+        self.variable = tkinter.StringVar()
+        self.variable.set(value)
+
+        # Checks if the default value is valid
+        assert (value in self.values)
+
+        # Configure
+        OptionMenu.__init__(self, root,
+                            column=column, row=row,
+                            columnspan=columnspan, rowspan=rowspan,
+                            padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING,
+                            variable=self.variable,
+                            values=tuple(self.values))
+
+        self.anchor(tkinter.CENTER)
+        self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+
+    def update_colour(self):
+        super().update_colour()
+        self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_A))
