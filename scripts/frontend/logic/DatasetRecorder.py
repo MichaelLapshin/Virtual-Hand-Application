@@ -44,7 +44,6 @@ class Recorder(threading.Thread):
     def run(self):
         # Pre-running
         self._success = False
-        self.sensor_listener.start_running()
         self.sensor_listener.start_reading()
 
         # Assert that they are running and are producing data
@@ -118,12 +117,10 @@ class Recorder(threading.Thread):
             while time_ms() - zero_time_ms < 1000 / float(self.frames_per_second) * frame_num:
                 time.sleep(0.001)
 
-            # current_sensor_data = None
-            # # Waits until new sensor data is available
-            # while current_sensor_data is None:
+            # Waits until new sensor data is available
             current_sensor_data = self.sensor_listener.get_readings_frame()
 
-            # Stores the data
+            """Stores the data"""
 
             # Adds sensor data
             for key in key_list:

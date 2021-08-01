@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 
 from scripts import General, Warnings, InputConstraints
 from scripts.frontend import Navigation, Constants, Parameters, User
-from scripts.frontend.Logic import MediapipHandAngler, SensorListener, DatasetRecorder
+from scripts.frontend.logic import MediapipHandAngler, SensorListener, DatasetRecorder
 from scripts.frontend.custom_widgets import CustomButtons, CustomLabels, CustomOptionMenu, CustomCanvas
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
@@ -422,7 +422,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cam_control_frame.set_entry_value("Frames per second", Constants.CAMERA_DEFAULT_FRAMES_PER_SECOND)
 
         """
-            Logic threads and objects
+            logic threads and objects
         """
 
         # Setup Hand Angler
@@ -525,6 +525,7 @@ class NewFrame(GenericPage.NavigationFrame):
             if self.sensor_listener is None:
                 try:
                     self.sensor_listener = SensorListener.SensorReadingsListener()
+                    self.sensor_listener.start_running()
                     self.sensor_listener.start()
                 except:
                     self.sensor_listener = None
