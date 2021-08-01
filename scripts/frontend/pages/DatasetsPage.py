@@ -360,9 +360,10 @@ class NewFrame(GenericPage.NavigationFrame):
                 self.camera_label.config(image=imageTk)
                 self.camera_label.image = imageTk
 
-        def reconfigure_hand_angler(self, width=None, height=None, zoom_percent=None):
+        def reconfigure_hand_angler(self, video_source, width, height, zoom_percent):
             # Checks if the reset is allowed
             reconfigure = True
+            reconfigure &= InputConstraints.assert_int_non_negative("Video source", video_source)
             reconfigure &= InputConstraints.assert_int_positive("Width", width)
             reconfigure &= InputConstraints.assert_int_positive("Height", height)
             reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
@@ -372,7 +373,7 @@ class NewFrame(GenericPage.NavigationFrame):
             # Performs reset if allowed
             if reconfigure is True:
                 self.hand_angler.set_configurations(
-                    width=int(width), height=int(height), zoom=int(zoom_percent),
+                    video_source=int(video_source), width=int(width), height=int(height), zoom=int(zoom_percent),
                     frames_per_second=int(self.input_frame.get_value("Frames per second")))
 
         def stop_hand_angler(self):
@@ -390,15 +391,15 @@ class NewFrame(GenericPage.NavigationFrame):
         # Weights
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=5)
-        self.rowconfigure(0, weight=1)
+        # self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=4)
-        self.rowconfigure(2, weight=3)
+        self.rowconfigure(2, weight=4)
 
         # Cancel Button
         self.cancel_new_dataset = CustomButtons.SearchButton(self, column=0, row=0, text="View Datasets")
 
         # Frames
-        self.general_options = ["Name", "Owner", "Date created", "Access Permissions"]
+        self.general_options = ["Name", "Owner", "Date created", "Access permissions"]
         self.general_info_frame = InfoInputBlock.Frame(self,
                                                        column=0, row=1,
                                                        options=self.general_options,
@@ -409,25 +410,29 @@ class NewFrame(GenericPage.NavigationFrame):
         self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
         self.general_info_frame.disable_entry("Date created")
 
-        self.general_info_frame.set_perm_option_menu("Access Permissions")
+        self.general_info_frame.set_perm_option_menu("Access permissions")
 
         # Data recording frame
         self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, column=1, row=0, rowspan=3)
 
         # Cam Control Info
-        self.cam_control_options = ["Width", "Height", "Zoom %"]  # TODO, rename 'Zoom %' since it might be a percentage
+        self.cam_control_options = ["Video source", "Width", "Height",
+                                    "Zoom %"]  # TODO, rename 'Zoom %' since it might be a percentage
         self.cam_control_frame = InfoInputBlock.Frame(self,
                                                       column=0, row=2,
                                                       options=self.cam_control_options,
                                                       title="Camera Control")
+        self.cam_control_frame.set_video_source_option_menu("Video source")
         self.apply_cam_settings = CustomButtons.SearchButton(self.cam_control_frame,
-                                                             column=0, row=4, columnspan=2,
+                                                             column=0, row=5, columnspan=2,
                                                              command=self.reconfigure_hand_angler,
                                                              text="Apply Camera Settings")
+
         # Give default camera settings variables
         self.cam_control_frame.set_entry_value("Width", Constants.CAMERA_DEFAULT_RESOLUTION_X)
         self.cam_control_frame.set_entry_value("Height", Constants.CAMERA_DEFAULT_RESOLUTION_Y)
         self.cam_control_frame.set_entry_value("Zoom %", Constants.CAMERA_DEFAULT_ZOOM_PERCENT)
+        self.reconfigure_hand_angler()
 
     def update_colour(self):
         super().update_colour()
@@ -462,7 +467,8 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cancel_new_dataset.config(command=command)
 
     def reconfigure_hand_angler(self):
-        self.data_rec_info_frame.reconfigure_hand_angler(self.cam_control_frame.get_value("Width"),
+        self.data_rec_info_frame.reconfigure_hand_angler(self.cam_control_frame.get_value("Video source"),
+                                                         self.cam_control_frame.get_value("Width"),
                                                          self.cam_control_frame.get_value("Height"),
                                                          self.cam_control_frame.get_value("Zoom %"))
 
