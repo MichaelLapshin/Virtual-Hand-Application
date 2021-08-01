@@ -117,9 +117,6 @@ class HandAngleReader(threading.Thread):
 
         self._cap.release()
 
-    def is_running(self):
-        return self._running
-
     # Obtains the limb angles from the image processing results
     def process_limb_angles(self, results):
         # Processes the hand data into angles
@@ -149,7 +146,6 @@ class HandAngleReader(threading.Thread):
     def get_processed_image(self):
         return self._image
 
-    # Displays the image
     def process_image(self, results, image):
         # Draw the hand annotations on the image.
         image.flags.writeable = True
@@ -160,7 +156,8 @@ class HandAngleReader(threading.Thread):
 
         self._image = image
 
-    def watch(self):
+    # Start/Stop methods
+    def start_watching(self):
         assert self._cap.isOpened() is False
         self._cap.open(self._video_source, cv2.CAP_DSHOW)
 
@@ -177,6 +174,9 @@ class HandAngleReader(threading.Thread):
 
     def stop(self):
         self._running = False
+
+    def is_running(self):
+        return self._running
 
     # Getters for limb angles
     def get_all_limb_angles(self):

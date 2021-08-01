@@ -3,6 +3,6 @@
 /logs/
 
 # Ignore model data
-/models/
-/training_datasets/
-
+/temp_models/
+/temp_datasets/
+/AppData/

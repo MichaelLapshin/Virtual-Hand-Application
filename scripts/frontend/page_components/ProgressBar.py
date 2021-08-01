@@ -39,10 +39,24 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.max_count = max_count
         self.count = -1
         self.old_count = -2
+        self.reset()
 
         # Colour (None makes it mandatory to set)
         self.background_colour = None
         self.progress_colour = None
+
+    def set_metric_text(self, text):
+        self.metric_text = text
+
+    def set_max_count(self, new_max_count):
+        self.max_count = new_max_count
+
+    def set_count(self, new_count):
+        self.count = new_count
+
+    def reset(self):
+        self.count = -1
+        self.old_count = -2
 
     def switch_metric(self):
         self.is_percentage = not self.is_percentage

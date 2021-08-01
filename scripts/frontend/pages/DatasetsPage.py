@@ -5,13 +5,14 @@ from PIL import Image, ImageTk
 
 from scripts import General, Warnings, InputConstraints
 from scripts.frontend import Navigation, Constants, Parameters, User
-from scripts.frontend.Logic import MediapipHandAngler
+from scripts.frontend.Logic import MediapipHandAngler, SensorListener, DatasetRecorder
 from scripts.frontend.custom_widgets import CustomButtons, CustomLabels, CustomOptionMenu, CustomCanvas
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.page_components import \
-    InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar
+    InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
+    StatusIndicator
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
@@ -251,7 +252,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 class NewFrame(GenericPage.NavigationFrame):
     class DataRecInfoFrame(GenericPage.Frame):
 
-        def __init__(self, root, column, row, columnspan=1, rowspan=1):
+        def __init__(self, root, hand_angler, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self,
                                        root,
                                        column=column, row=row,
@@ -265,13 +266,16 @@ class NewFrame(GenericPage.NavigationFrame):
             self.rowconfigure(1, weight=1)
 
             # Data Recording Information
-            self.record_options = ["Recording delay (seconds)", "Training length (seconds)", "Frames per second"]
+            self.record_options = ["Sensor zeroing delay (seconds)", "Training length (seconds)", "Frames per second"]
             self.input_frame = InfoInputBlock.Frame(self, column=0, row=0,
                                                     options=self.record_options,
                                                     title="Data Recording Information")
 
             # Input frame
-            self.input_frame.set_entry_value("Frames per second", Constants.CAMERA_DEFAULT_FRAMES_PER_SECOND)
+            self.input_frame.set_entry_value("Sensor zeroing delay (seconds)",
+                                             Constants.RECORDING_DEFAULT_SENSOR_ZEROING_DELAY)
+            self.input_frame.set_entry_value("Training length (seconds)", Constants.RECORDING_DEFAULT_TRAINING_LENGTH)
+            self.input_frame.set_entry_value("Frames per second", Constants.RECORDING_DEFAULT_FRAMES_PER_SECOND)
 
             # Main frames
             self.process_frame = GenericPage.Frame(self, column=1, row=0)
@@ -282,23 +286,24 @@ class NewFrame(GenericPage.NavigationFrame):
 
             # Progress start/stop
             self.start_stop_title = CustomLabels.TitleLabel(self.process_frame,
-                                                            column=0, row=0, columnspan=2,
+                                                            column=0, row=0, columnspan=3,
                                                             text="Data Recording Control Panel")
             self.start_progress_button = CustomButtons.InformationButton(self.process_frame,
                                                                          column=0, row=1, text="Start Data Gathering")
+            self.status_label = StatusIndicator.Label(self.process_frame, column=1, row=1)
             self.stop_progress_button = CustomButtons.InformationButton(self.process_frame,
-                                                                        column=1, row=1, text="Stop Data Gathering")
-            self.progress_bar = ProgressBar.Frame(self.process_frame, column=0, row=2, columnspan=2,
+                                                                        column=2, row=1, text="Stop Data Gathering")
+            self.progress_bar = ProgressBar.Frame(self.process_frame, column=0, row=2, columnspan=3,
                                                   metric_text=" seconds", max_count=100)
 
             # Progress start/stop configuration
             self.start_stop_title.grid(padx=Constants.STANDARD_SPACING)
             self.start_progress_button.grid(sticky=tkinter.EW, padx=Constants.LONG_SPACING)
+            self.status_label.grid(padx=Constants.SHORT_SPACING)
             self.stop_progress_button.grid(sticky=tkinter.EW, padx=Constants.LONG_SPACING)
 
             # Camera + default parameters
-            self.hand_angler = MediapipHandAngler.HandAngleReader()
-            self.hand_angler.start()
+            self.hand_angler = hand_angler
 
             self.camera_frame = GenericPage.Frame(self, column=0, row=1, columnspan=2)
             self.camera_frame.columnconfigure(0, weight=1)
@@ -324,6 +329,7 @@ class NewFrame(GenericPage.NavigationFrame):
             self.progress_bar.update_colour()
             self.start_stop_title.update_colour()
             self.start_progress_button.update_colour()
+            self.status_label.update_colour()
             self.stop_progress_button.update_colour()
             self.camera_frame.update_colour()
             self.camera_label.update_colour()
@@ -341,6 +347,7 @@ class NewFrame(GenericPage.NavigationFrame):
             self.camera_label.update_content()
 
             self.start_progress_button.update_content()
+            self.status_label.update_content()
             self.stop_progress_button.update_content()
 
             # Paint the camera
@@ -349,7 +356,7 @@ class NewFrame(GenericPage.NavigationFrame):
 
                 # Resize image
                 ratio = self.camera_frame.winfo_width() / float(image.width)
-                if int(ratio * image.height) > self.winfo_height():
+                if int(ratio * image.height) > self.camera_frame.winfo_height():
                     ratio = self.camera_frame.winfo_height() / float(image.height)
                     image = image.resize((int(ratio * image.width), int(ratio * image.height)))
                 else:
@@ -359,22 +366,6 @@ class NewFrame(GenericPage.NavigationFrame):
                 imageTk = ImageTk.PhotoImage(image=image)
                 self.camera_label.config(image=imageTk)
                 self.camera_label.image = imageTk
-
-        def reconfigure_hand_angler(self, video_source, width, height, zoom_percent):
-            # Checks if the reset is allowed
-            reconfigure = True
-            reconfigure &= InputConstraints.assert_int_non_negative("Video source", video_source)
-            reconfigure &= InputConstraints.assert_int_positive("Width", width)
-            reconfigure &= InputConstraints.assert_int_positive("Height", height)
-            reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
-            reconfigure &= InputConstraints.assert_int_positive("Frames per second",
-                                                                self.input_frame.get_value("Frames per second"))
-
-            # Performs reset if allowed
-            if reconfigure is True:
-                self.hand_angler.set_configurations(
-                    video_source=int(video_source), width=int(width), height=int(height), zoom=int(zoom_percent),
-                    frames_per_second=int(self.input_frame.get_value("Frames per second")))
 
         def stop_hand_angler(self):
             if (self.hand_angler is not None) \
@@ -393,7 +384,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=5)
         # self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=4)
-        self.rowconfigure(2, weight=4)
+        self.rowconfigure(2, weight=5)
 
         # Cancel Button
         self.cancel_new_dataset = CustomButtons.SearchButton(self, column=0, row=0, text="View Datasets")
@@ -412,19 +403,15 @@ class NewFrame(GenericPage.NavigationFrame):
 
         self.general_info_frame.set_perm_option_menu("Access permissions")
 
-        # Data recording frame
-        self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, column=1, row=0, rowspan=3)
-
         # Cam Control Info
-        self.cam_control_options = ["Video source", "Width", "Height",
-                                    "Zoom %"]  # TODO, rename 'Zoom %' since it might be a percentage
+        self.cam_control_options = ["Video source", "Width", "Height", "Zoom %", "Frames per second"]
         self.cam_control_frame = InfoInputBlock.Frame(self,
                                                       column=0, row=2,
                                                       options=self.cam_control_options,
                                                       title="Camera Control")
         self.cam_control_frame.set_video_source_option_menu("Video source")
         self.apply_cam_settings = CustomButtons.SearchButton(self.cam_control_frame,
-                                                             column=0, row=5, columnspan=2,
+                                                             column=0, row=6, columnspan=2,
                                                              command=self.reconfigure_hand_angler,
                                                              text="Apply Camera Settings")
 
@@ -432,6 +419,25 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cam_control_frame.set_entry_value("Width", Constants.CAMERA_DEFAULT_RESOLUTION_X)
         self.cam_control_frame.set_entry_value("Height", Constants.CAMERA_DEFAULT_RESOLUTION_Y)
         self.cam_control_frame.set_entry_value("Zoom %", Constants.CAMERA_DEFAULT_ZOOM_PERCENT)
+        self.cam_control_frame.set_entry_value("Frames per second", Constants.CAMERA_DEFAULT_FRAMES_PER_SECOND)
+
+        """
+            Logic threads and objects
+        """
+
+        # Setup Hand Angler
+        self.hand_angler = MediapipHandAngler.HandAngleReader()
+        self.hand_angler.start()
+
+        # Setup Sensor Reader & Data Recorder
+        self.sensor_listener = None
+        self.data_recorder = None
+
+        # Data recording frame
+        self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, hand_angler=self.hand_angler,
+                                                             column=1, row=0, rowspan=3)
+        self.data_rec_info_frame.start_progress_button.config(command=self.start_dataset_recording)
+        self.data_rec_info_frame.stop_progress_button.config(command=self.stop_dataset_recording)
         self.reconfigure_hand_angler()
 
     def update_colour(self):
@@ -463,20 +469,100 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cancel_new_dataset.update_content()
         self.apply_cam_settings.update_content()
 
+        if self.data_recorder is not None:
+            self.data_rec_info_frame.status_label.set_status(self.data_recorder.is_running())
+
+    def destroy(self):
+        if self.data_recorder is not None:
+            self.data_recorder.stop()
+        if self.sensor_listener is not None:
+            self.sensor_listener.stop_reading()
+            self.sensor_listener.stop_running()
+        if self.hand_angler is not None:
+            self.hand_angler.stop_watching()
+            self.hand_angler.stop()
+        super().destroy()
+
     def set_switch_to_view_frame(self, command):
         self.cancel_new_dataset.config(command=command)
 
     def reconfigure_hand_angler(self):
-        self.data_rec_info_frame.reconfigure_hand_angler(self.cam_control_frame.get_value("Video source"),
-                                                         self.cam_control_frame.get_value("Width"),
-                                                         self.cam_control_frame.get_value("Height"),
-                                                         self.cam_control_frame.get_value("Zoom %"))
+        video_source = self.cam_control_frame.get_value("Video source")
+        width = self.cam_control_frame.get_value("Width")
+        height = self.cam_control_frame.get_value("Height")
+        zoom_percent = self.cam_control_frame.get_value("Zoom %")
+        frames_per_second = self.cam_control_frame.get_value("Frames per second")
+
+        # Checks if the reset is allowed
+        reconfigure = True
+        reconfigure &= InputConstraints.assert_int_non_negative("Video source", video_source)
+        reconfigure &= InputConstraints.assert_int_positive("Width", width)
+        reconfigure &= InputConstraints.assert_int_positive("Height", height)
+        reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
+        reconfigure &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
+
+        # Performs reset if allowed
+        if reconfigure is True:
+            self.hand_angler.set_configurations(
+                video_source=int(video_source), width=int(width), height=int(height), zoom=int(zoom_percent),
+                frames_per_second=int(frames_per_second))
+
+    def start_dataset_recording(self):
+        # Retrieves the data
+        init_sleep_seconds = self.data_rec_info_frame.input_frame.get_value("Sensor zeroing delay (seconds)")
+        training_length_seconds = self.data_rec_info_frame.input_frame.get_value("Training length (seconds)")
+        frames_per_second = self.data_rec_info_frame.input_frame.get_value("Frames per second")
+
+        # Assert the training constrains
+        begin_training = True
+        begin_training &= InputConstraints.assert_int_range_inclusive("Sensor zeroing delay (seconds)",
+                                                                      init_sleep_seconds, 5, 60)
+        begin_training &= InputConstraints.assert_int_positive("Training length (seconds)", training_length_seconds)
+        begin_training &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
+
+        if (begin_training is True) and (self.data_recorder is None or self.data_recorder.is_running() is False):
+            # Sets up the sensor lost
+            if self.sensor_listener is None:
+                try:
+                    self.sensor_listener = SensorListener.SensorReadingsListener()
+                    self.sensor_listener.start()
+                except:
+                    self.sensor_listener = None
+                    InputConstraints.warn(
+                        "Warning, was not able to establish communications with COM3 port.\n" +
+                        "Please ensure that the sensor reading device is connected.")
+
+            if self.sensor_listener is not None:
+                # Starts the data processing
+                self.data_recorder = DatasetRecorder.Recorder(sensor_listener=self.sensor_listener,
+                                                              hand_angler=self.hand_angler,
+                                                              init_sleep_seconds=int(init_sleep_seconds),
+                                                              training_length_seconds=int(training_length_seconds),
+                                                              frames_per_second=int(frames_per_second),
+                                                              progress_bar=self.data_rec_info_frame.progress_bar)
+                self.data_recorder.start()
+
+    def stop_dataset_recording(self):
+        self.data_rec_info_frame.progress_bar.reset()
+
+        if (self.sensor_listener is None) or (self.data_recorder is None) or (self.data_recorder.is_running() is False):
+            InputConstraints.warn("The dataset recording process is not running.")
+        else:
+            if self.data_recorder is not None:
+                self.data_recorder.stop()
+            self.sensor_listener.stop_reading()
 
     def start_new_frame_processes(self):
         # Starts watching hand angler
         assert self.data_rec_info_frame.hand_angler is not None
-        self.data_rec_info_frame.hand_angler.watch()
+        self.hand_angler.start_watching()
+
+        if self.sensor_listener is not None:
+            self.sensor_listener.start_reading()
 
     def stop_new_frame_processes(self):
         # Stop hand angler
-        self.data_rec_info_frame.hand_angler.stop_watching()
+        self.hand_angler.stop_watching()
+
+        if self.sensor_listener is not None:
+            self.sensor_listener.stop_reading()

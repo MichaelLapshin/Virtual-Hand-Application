@@ -4,6 +4,9 @@ from tkinter import messagebox
 def warn(message):
     messagebox.showwarning(title="Warning!", message=message)
 
+def error(message):
+    messagebox.showerror(title="Error!", message=message)
+
 
 """
     General
