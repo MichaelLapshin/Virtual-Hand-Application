@@ -2,8 +2,17 @@
 *.log
 /logs/
 
-# Ignore model data
-/temp_models/
-/temp_datasets/
-/databases/
-/AppData/
+# Ignore Client Data
+/AppData-Client/
+/AppData-Client/temp-models/
+/AppData-Client/temp-datasets/
+/AppData-Client/temp-images-models/
+/AppData-Client/temp-images-datasets/
+
+# Ignore Server Data
+/AppData-Server/
+/AppData-Server/databases/
+/AppData-Server/models/
+/AppData-Server/datasets/
+/AppData-Server/images-models/
+/AppData-Server/images-datasets/

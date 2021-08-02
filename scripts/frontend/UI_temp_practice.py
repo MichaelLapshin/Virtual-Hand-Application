@@ -23,10 +23,12 @@ e.insert(0, "Enter your name")  # Default text inside the textbox
 e.delete(0, tkinter.END)
 e.insert(0, "My name is something")
 
+
 def myClick(myParameter):
     print("This button was clicked " + myParameter)
     myLabel3 = tkinter.Label(root, text=e.get())
     myLabel3.grid(row=4, column=1)
+
 
 # Label widget
 myLabel1 = tkinter.Label(root, text="Hello World!", image=my_image)
@@ -45,17 +47,18 @@ frame.grid(row=5, column=6, padx=50, pady=50)  # This is padding outside the fra
 flabel1 = tkinter.Label(frame, text="This another label!")
 flabel1.grid(row=1, column=1)
 
+
 def printVar(val):
     print(val.get())  # .get() gets the value of the IntVar() object
     print("slider = " + str(vertical.get()))
     print("checkbox = " + str(checkvar.get()))
     print("List box selected = " + str(LB.curselection()))
 
-myRadVariable=tkinter.IntVar()
+
+myRadVariable = tkinter.IntVar()
 
 flabel1 = tkinter.Button(frame, text="This is my new frame!", command=lambda: printVar(myRadVariable))
 flabel1.grid(row=0, column=0)
-
 
 radbutton1 = tkinter.Radiobutton(frame, text="Rad Button 1", variable=myRadVariable, value=1)
 radbutton2 = tkinter.Radiobutton(frame, text="Rad Button 1", variable=myRadVariable, value=2)
@@ -89,7 +92,6 @@ options = ["option A", "option B", "option C"]
 drop = tkinter.OptionMenu(root, dropVariable, *options)
 drop.grid(row=3, column=1)
 
-
 SB = tkinter.Scrollbar(root)
 SB.grid(row=2, column=1)
 
@@ -112,6 +114,5 @@ li.insert(3, "d")
 
 op.grid(column=1, row=0)
 li.grid(column=2, row=0)
-
 
 root.mainloop()

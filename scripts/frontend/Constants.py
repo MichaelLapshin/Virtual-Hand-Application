@@ -6,6 +6,9 @@
 
 default_resolution = "1000x800"
 
+# Server constants
+SERVER_IP_ADDRESS = "localhost"
+
 # GUI Spacing
 LONG_SPACING = 20
 STANDARD_SPACING = 5
@@ -35,8 +38,11 @@ RECORDING_DEFAULT_TRAINING_LENGTH = 30
 
 # Training related constants
 TRAIN_ZEROING_DELAY_S = 5
-TRAIN_BASE_RELATIVE_PATH = "C:\\Git\\Virtual-Hand-Application\\temp_datasets\\"  # Makes sure the end the path with '\\'
+TRAIN_BASE_RELATIVE_PATH = "C:\\Git\\Virtual-Hand-Application\\AppData-Client\\temp-datasets\\"  # Makes sure the end the path with '\\'
 TRAIN_TEMP_SAVE_NAME = "temp_raw_dataset.hdf5"
 
 # Database constants
-DATABASE_RELATIVE_PATH = "..\\..\\databases\\"  # Makes sure the end the path with '\\'
+DEFAULT_USER = "admin"
+DEFAULT_PASSWORD = "password"
+DEFAULT_DATABASE_NAME = "database"
+DATABASE_ABSOLUTE_PATH = "C:\\Git\\Virtual-Hand-Application\\AppData-Server\\databases\\"  # Makes sure the end the path with '\\'
