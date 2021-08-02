@@ -5,4 +5,5 @@
 # Ignore model data
 /temp_models/
 /temp_datasets/
+/databases/
 /AppData/

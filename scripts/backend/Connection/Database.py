@@ -1,5 +1,7 @@
 import sqlite3
 
+from scripts.frontend import Constants
+
 """
 Tables:
 - Users
@@ -117,7 +119,7 @@ class Database:
     def connect(self, database):
         assert self.connection is None
 
-        self.connection = sqlite3.connect("..\\..\\db\\" + database)
+        self.connection = sqlite3.connect(Constants.DATABASE_RELATIVE_PATH + database)
         self.cursor = self.connection.cursor()
 
     def _get_table(self, table_name):

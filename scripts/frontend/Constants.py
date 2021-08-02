@@ -37,3 +37,6 @@ RECORDING_DEFAULT_TRAINING_LENGTH = 30
 TRAIN_ZEROING_DELAY_S = 5
 TRAIN_BASE_RELATIVE_PATH = "C:\\Git\\Virtual-Hand-Application\\temp_datasets\\"  # Makes sure the end the path with '\\'
 TRAIN_TEMP_SAVE_NAME = "temp_raw_dataset.hdf5"
+
+# Database constants
+DATABASE_RELATIVE_PATH = "..\\..\\databases\\"  # Makes sure the end the path with '\\'
