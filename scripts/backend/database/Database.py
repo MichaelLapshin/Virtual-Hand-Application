@@ -1,5 +1,6 @@
 import sqlite3
 
+from scripts import Warnings
 from scripts.frontend import Constants
 
 """
@@ -55,33 +56,35 @@ Tables:
     + 
 """
 
+connection = None
+cursor = None
 
-class Database:
-    DEFAULT_USER = "admin"
-    DEFAULT_PASSWORD = "password"
-    DEFAULT_DATABASE = "database"
+# Loads or spawn in a new Database
+def connect(database_name):
+    global cursor, connection
 
-    def __init__(self, database=None):
-        self.connection = None
-        self.cursor = None
+    assert connection is None
 
-        if database is not None:
-            self.connect(database=database)
+    connection = sqlite3.connect(Constants.DATABASE_ABSOLUTE_PATH + database_name)
+    cursor = connection.cursor()
 
-    def create_new_tables(self):
-        assert self.cursor is not None
 
-        # Create Users table
-        self.cursor.execute("""CREATE TABLE Users (
-                        ID_Self        INTEGER PRIMARY KEY,
+def create_new_tables():
+    global cursor
+
+    assert cursor is not None
+
+    # Create Users table
+    cursor.execute("""CREATE TABLE Users (
+                        ID_Database        INTEGER PRIMARY KEY,
                         Name           TEXT,
                         Password       TEXT, 
                         Permission     INTEGER NOT NULL,
                         ID_Models      INTEGER, 
                         ID_Datasets    INTEGER)""")
 
-        # Create Models Table
-        self.cursor.execute("""CREATE TABLE Models (
+    # Create Models Table
+    cursor.execute("""CREATE TABLE Models (
                         ID_Self        INTEGER PRIMARY KEY,
                         Name           TEXT,
                         Date_Created   DATE,
@@ -93,17 +96,17 @@ class Database:
                         Num_Layers     INTEGER ,
                         Num_Nodes      INTEGER )""")
 
-        # # Create Raw_datasets
-        # self.cursor.execute("""CREATE TABLE RawDatasets (
-        #                 ID_Self        INTEGER PRIMARY KEY,
-        #                 Name           TEXT,
-        #                 ID_Owner       INTEGER,
-        #                 Date_Created   DATE,
-        #                 FPS            INTEGER,
-        #                 Num_Frames     INTEGER )""")
+    # # Create Raw_datasets
+    # self.cursor.execute("""CREATE TABLE RawDatasets (
+    #                 ID_Self        INTEGER PRIMARY KEY,
+    #                 Name           TEXT,
+    #                 ID_Owner       INTEGER,
+    #                 Date_Created   DATE,
+    #                 FPS            INTEGER,
+    #                 Num_Frames     INTEGER )""")
 
-        # Create Datasets
-        self.cursor.execute("""CREATE TABLE Datasets (
+    # Create Datasets
+    cursor.execute("""CREATE TABLE Datasets (
                         ID_Self        INTEGER PRIMARY KEY,
                         ID_Owner       INTEGER,
                         ID_Dataset     INTEGER,
@@ -115,49 +118,73 @@ class Database:
                         Angle_Savagol_Distance     INTEGER,
                         Angle_Savagol_Degree       INTEGER)""")
 
-    # Loads or spawn in a new Database
-    def connect(self, database):
-        assert self.connection is None
 
-        self.connection = sqlite3.connect(Constants.DATABASE_RELATIVE_PATH + database)
-        self.cursor = self.connection.cursor()
+def _get_table(table_name):
+    global cursor
 
-    def _get_table(self, table_name):
-        # self.cursor.execute("FROM . " + table_name + " GET *")
-        self.cursor.execute("SELECT * FROM " + table_name)
-        return
+    # Database.cursor.execute("FROM . " + table_name + " GET *")
+    Warnings.not_complete()
+    cursor.execute("SELECT * FROM " + table_name)
+    return
 
-    def _add_table_record(self, table_name, record_dictionary):
-        sql_keys = ""
-        for k in record_dictionary.getkeys():
-            sql_keys += ":" + k + ","
-        sql_keys.strip(",")
 
-        self.cursor.execute("INSERT INTO " + table_name + "VALUES (" + sql_keys + ")", record_dictionary)
+def _add_table_record(table_name, record_dictionary):
+    global cursor
 
-    def _delete_table_record(self, table_name,  oid):
-        self.cursor.execute("DELETE from " + table_name + " WHERE oid=" + oid)
+    Warnings.not_complete()
+    sql_keys = ""
+    for k in record_dictionary.getkeys():
+        sql_keys += ":" + k + ","
+    sql_keys.strip(",")
 
-    def _update_table_record(self, table_name, ):
-        self.cursor.execute()
+    cursor.execute("INSERT INTO " + table_name + "VALUES (" + sql_keys + ")", record_dictionary)
 
-    def get_graphs(self):
-        return self._get_table("Graphs")
 
-    def save(self):
-        self.cursor.commit()
+def _delete_table_record(table_name, oid):
+    global cursor
 
-    def shutdown(self):
-        # Saves the changes
-        self.cursor.commit()
+    Warnings.not_complete()
+    cursor.execute("DELETE from " + table_name + " WHERE oid=" + oid)
 
-        # Closes the connections
-        self.cursor.close()
-        self.connection.close()
 
-        # Nullifies the objects
-        self.cursor = None
-        self.connection = None
+def _update_table_record(table_name, ):
+    global cursor
 
-    def add_user(self, user_name, password):
-        self.cursor.execute()  # TODO, finish this function
+    Warnings.not_complete()
+    cursor.execute()
+
+
+def get_graphs():
+    global cursor, connection
+
+    Warnings.not_complete()
+    return _get_table("Graphs")
+
+
+def save():
+    global cursor
+
+    Warnings.not_complete()
+    cursor.commit()
+
+
+def shutdown():
+    global cursor, connection
+
+    # Saves the changes
+    cursor.commit()
+
+    # Closes the connections
+    cursor.close()
+    connection.close()
+
+    # Nullifies the objects
+    cursor = None
+    connection = None
+
+
+def add_user(user_name, password):
+    global cursor, connection
+
+    cursor.execute()  # TODO, finish this function
+    Warnings.not_complete()

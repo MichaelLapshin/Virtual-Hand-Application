@@ -1,39 +1,13 @@
-"""
-[ServerApp.py]
-@description: In charge of the connections between client GUI and server database
-@author: Michael Lapshin
-"""
-
 import flask
-import flask_login
 
-from Session import Session
-from scripts import Logger, Question
-from Database import Database
-import os
+from scripts import Warnings
+from scripts.backend.database import Database
+from scripts.backend.connection import Session
 
-# Questionnaire for the server setup
+account_api = flask.Blueprint('account_api', __name__)
 
 
-# Flask application + configurations
-app = flask.Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(16)  # Random secret key
-
-# Database
-db = Database()
-
-# Logger
-logger = Logger.Log("ServerApp", log_lvl=4)
-
-if __name__ == '__main__':
-    app.run()
-
-@app.route('/')
-def is_running_window():
-    return "Virtual-Hand-Application Server is running."
-
-
-@app.route('/login/create-user')
+@account_api.route('/create-user')
 def create_user():
     user = flask.request.args['user']
     password = flask.request.args['password']
@@ -43,7 +17,7 @@ def create_user():
     return "Created new user '" + user + "'."
 
 
-@app.route('/user/login')
+@account_api.route('/login')
 def login():
     user = flask.request.args['user']
     password = flask.request.args['password']
@@ -59,11 +33,10 @@ def login():
         return "Logged in as '" + Session.get_name(flask.session) + "'."
 
 
-@app.route("/user/logout")
+@account_api.route("/logout")
 def logout():
     if Session.is_logged_in(flask.session):
         Session.logout(flask.session)
         return "Signed-out as user '" + flask.session["user"] + "'."
     else:
         return "Cannot logout; not signed in as any user."
-
