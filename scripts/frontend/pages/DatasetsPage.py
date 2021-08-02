@@ -403,6 +403,11 @@ class NewFrame(GenericPage.NavigationFrame):
 
         self.general_info_frame.set_perm_option_menu("Access permissions")
 
+        self.upload_dataset_button = CustomButtons.SearchButton(self.general_info_frame,
+                                                                column=0, row=5, columnspan=2,
+                                                                command=self.upload_dataset_to_server,
+                                                                text="Upload Dataset to Server")
+
         # Cam Control Info
         self.cam_control_options = ["Video source", "Width", "Height", "Zoom %", "Frames per second"]
         self.cam_control_frame = InfoInputBlock.Frame(self,
@@ -457,6 +462,7 @@ class NewFrame(GenericPage.NavigationFrame):
         # Update colour
         self.cancel_new_dataset.update_colour()
         self.general_info_frame.update_colour()
+        self.upload_dataset_button.update_colour()
         self.cam_control_frame.update_colour()
         self.data_rec_info_frame.update_colour()
         self.apply_cam_settings.update_colour()
@@ -464,6 +470,7 @@ class NewFrame(GenericPage.NavigationFrame):
     def update_content(self):
         super().update_content()
         self.general_info_frame.update_content()
+        self.upload_dataset_button.update_content()
         self.cam_control_frame.update_content()
         self.data_rec_info_frame.update_content()
         self.cancel_new_dataset.update_content()
@@ -471,6 +478,12 @@ class NewFrame(GenericPage.NavigationFrame):
 
         if self.data_recorder is not None:
             self.data_rec_info_frame.status_label.set_status(self.data_recorder.is_running())
+
+        # Enables uploading to the server
+        if (self.data_recorder is not None) and (self.data_recorder.is_successful() is True):
+            self.upload_dataset_button.enable()
+        else:
+            self.upload_dataset_button.disable()
 
     def destroy(self):
         if self.data_recorder is not None:
@@ -482,6 +495,14 @@ class NewFrame(GenericPage.NavigationFrame):
             self.hand_angler.stop_watching()
             self.hand_angler.stop()
         super().destroy()
+
+    def upload_dataset_to_server(self):
+        # Assertions
+        assert self.data_recorder is not None
+        assert self.data_recorder.is_successful()
+
+        # Uploads the dataset to the server
+        Warnings.not_complete()
 
     def set_switch_to_view_frame(self, command):
         self.cancel_new_dataset.config(command=command)
