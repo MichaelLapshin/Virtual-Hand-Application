@@ -1,14 +1,8 @@
 import tkinter
-from PIL import ImageTk, Image
-from tkinter import messagebox
-from tkinter import filedialog
 
-from scripts import General
-from scripts.frontend import Constants, User, Parameters
+from scripts import General, Parameters, Constants
 
 from scripts.frontend.custom_widgets.CustomButtons import NavigationButton
-from scripts.frontend.custom_widgets.CustomEntries import NavigationEntry
-from scripts.frontend.custom_widgets.CustomLabels import NavigationLabel
 
 # Navigation constants
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface

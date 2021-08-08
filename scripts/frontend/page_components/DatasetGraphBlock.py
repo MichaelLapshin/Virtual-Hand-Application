@@ -1,11 +1,9 @@
 import tkinter
 
-from scripts import General, Warnings
-from scripts.frontend import Constants, Parameters
+from scripts import General, Warnings, Parameters, Constants
 from scripts.frontend.custom_widgets import CustomButtons
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 from scripts.frontend.page_components import InformationBlock
-from scripts.frontend.pages import GenericPage
 
 TITLE = "Dataset Graphs"
 

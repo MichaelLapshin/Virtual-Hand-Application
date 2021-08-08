@@ -1,7 +1,6 @@
 import sqlite3
 
-from scripts import Warnings
-from scripts.frontend import Constants
+from scripts import Warnings, Constants, Log, Parameters
 
 """
 Tables:
@@ -27,7 +26,7 @@ Tables:
         + Layer_Types: layer types
         + Num_Layers: number of layers
         + Num_Nodes: nodes per layer
-- RawDatasets
+- RawDatasets 
     + Name: name
     + ID_Self: id #
     + ID_Owner: id # of owner
@@ -59,64 +58,126 @@ Tables:
 connection = None
 cursor = None
 
+
 # Loads or spawn in a new Database
-def connect(database_name):
+def connect(database_name=Constants.DEFAULT_DATABASE_NAME):
     global cursor, connection
 
     assert connection is None
 
-    connection = sqlite3.connect(Constants.DATABASE_ABSOLUTE_PATH + database_name)
-    cursor = connection.cursor()
+    try:
+        connection = sqlite3.connect(Parameters.PROJECT_PATH + Constants.DATABASE_PATH + database_name,
+                                     check_same_thread=False)
+        cursor = connection.cursor()
+    except:
+        return False
+    return True
 
 
-def create_new_tables():
+def disconnect():
+    global cursor, connection
+
+    # Closes the connections
+    cursor.close()
+    connection.close()
+
+    # Nullifies the objects
+    cursor = None
+    connection = None
+
+
+def create_users_table():
+    global cursor
+    # Create Users table
+    cursor.execute("""CREATE TABLE Users (
+                            ID             INTEGER PRIMARY KEY,
+                            Name           TEXT UNIQUE NOT NULL,
+                            Password       TEXT NOT NULL, 
+                            Permission     INTEGER NOT NULL,
+                            ID_Models      INTEGER, 
+                            ID_Datasets    INTEGER)""")
+
+
+def create_datasets_table():
+    global cursor
+    # Create Datasets
+    cursor.execute("""CREATE TABLE Datasets (
+                            ID             INTEGER PRIMARY KEY,
+                            Name           TEXT UNIQUE NOT NULL,
+                            ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
+                            Date_Created   DATE,
+                            Permission     INTEGER NOT NULL,
+                            FPS            INTEGER NOT NULL,
+                            Sensor_Savagol_Distance    REAL,
+                            Sensor_Savagol_Degree      REAL,
+                            Angle_Savagol_Distance     REAL,
+                            Angle_Savagol_Degree       REAL)""")
+
+
+def create_dataset_dependency_table():
+    global cursor
+    # Create Datasets
+    cursor.execute("""CREATE TABLE DatasetDependency (
+                                ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                                ID_Dependency   INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE)""")
+
+
+def create_models_table():
+    global cursor
+    # Create Models Table
+    cursor.execute("""CREATE TABLE Models (
+                            ID             INTEGER PRIMARY KEY,
+                            Name           TEXT NOT NULL,
+                            ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
+                            Date_Created   DATE,
+                            View_Domain    INTEGER NOT NULL,
+                            ID_Dataset     INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                            Batch_Size     INTEGER NOT NULL,
+                            Num_Epochs     INTEGER NOT NULL,
+                            Layer_Types    TEXT NOT NULL,
+                            Num_Layers     INTEGER NOT NULL,
+                            Num_Nodes      INTEGER NOT NULL)""")
+
+
+def create_all_new_tables(replace=False):
     global cursor
 
     assert cursor is not None
 
-    # Create Users table
-    cursor.execute("""CREATE TABLE Users (
-                        ID_Database        INTEGER PRIMARY KEY,
-                        Name           TEXT,
-                        Password       TEXT, 
-                        Permission     INTEGER NOT NULL,
-                        ID_Models      INTEGER, 
-                        ID_Datasets    INTEGER)""")
+    Log.info("Creating database tables...")
 
-    # Create Models Table
-    cursor.execute("""CREATE TABLE Models (
-                        ID_Self        INTEGER PRIMARY KEY,
-                        Name           TEXT,
-                        Date_Created   DATE,
-                        View_Domain    INTEGER NOT NULL,
-                        ID_Datasets    NOT NULL,
-                        Batch_Size     INTEGER,
-                        Num_Epochs     INTEGER,
-                        Layer_Types    TEXT,
-                        Num_Layers     INTEGER ,
-                        Num_Nodes      INTEGER )""")
+    # Creating the new tables
+    _create_table_check(table_name="Users", create_tables_function=create_users_table, replace=replace)
+    _create_table_check(table_name="Datasets", create_tables_function=create_datasets_table, replace=replace)
+    _create_table_check(table_name="DatasetDependency", create_tables_function=create_dataset_dependency_table,
+                        replace=replace)
+    _create_table_check(table_name="Models", create_tables_function=create_models_table, replace=replace)
 
-    # # Create Raw_datasets
-    # self.cursor.execute("""CREATE TABLE RawDatasets (
-    #                 ID_Self        INTEGER PRIMARY KEY,
-    #                 Name           TEXT,
-    #                 ID_Owner       INTEGER,
-    #                 Date_Created   DATE,
-    #                 FPS            INTEGER,
-    #                 Num_Frames     INTEGER )""")
 
-    # Create Datasets
-    cursor.execute("""CREATE TABLE Datasets (
-                        ID_Self        INTEGER PRIMARY KEY,
-                        ID_Owner       INTEGER,
-                        ID_Dataset     INTEGER,
-                        Date_Created   DATE,
-                        FPS_Old        INTEGER,
-                        FPS_New        INTEGER,
-                        Sensor_Savagol_Distance    INTEGER,
-                        Sensor_Savagol_Degree      INTEGER,
-                        Angle_Savagol_Distance     INTEGER,
-                        Angle_Savagol_Degree       INTEGER)""")
+def _create_table_check(table_name, create_tables_function, replace):
+    global cursor, connection
+
+    # Checks for the user table
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='" + table_name + "'")
+    exists_user = cursor.fetchone() is not None
+
+    Log.info("The '" + table_name + "' table exists: " + str(exists_user))
+
+    # Logic for creating the tables
+    if exists_user is True:
+        if replace is True:
+            # Drop the table
+            cursor.execute("DROP TABLE IF EXISTS " + table_name)
+
+            # Create new table
+            create_tables_function()
+            connection.commit()
+
+            # Create new table
+            Log.info("Replaced the '" + table_name + "' table")
+    else:
+        create_tables_function()
+        Log.info("Created the '" + table_name + "' table")
 
 
 def _get_table(table_name):
@@ -129,7 +190,7 @@ def _get_table(table_name):
 
 
 def _add_table_record(table_name, record_dictionary):
-    global cursor
+    global cursor, connection
 
     Warnings.not_complete()
     sql_keys = ""
@@ -138,53 +199,20 @@ def _add_table_record(table_name, record_dictionary):
     sql_keys.strip(",")
 
     cursor.execute("INSERT INTO " + table_name + "VALUES (" + sql_keys + ")", record_dictionary)
+    connection.commit()
 
 
 def _delete_table_record(table_name, oid):
-    global cursor
+    global cursor, connection
 
     Warnings.not_complete()
     cursor.execute("DELETE from " + table_name + " WHERE oid=" + oid)
+    connection.commit()
 
 
 def _update_table_record(table_name, ):
-    global cursor
+    global cursor, connection
 
     Warnings.not_complete()
     cursor.execute()
-
-
-def get_graphs():
-    global cursor, connection
-
-    Warnings.not_complete()
-    return _get_table("Graphs")
-
-
-def save():
-    global cursor
-
-    Warnings.not_complete()
-    cursor.commit()
-
-
-def shutdown():
-    global cursor, connection
-
-    # Saves the changes
-    cursor.commit()
-
-    # Closes the connections
-    cursor.close()
-    connection.close()
-
-    # Nullifies the objects
-    cursor = None
-    connection = None
-
-
-def add_user(user_name, password):
-    global cursor, connection
-
-    cursor.execute()  # TODO, finish this function
-    Warnings.not_complete()
+    connection.commit()

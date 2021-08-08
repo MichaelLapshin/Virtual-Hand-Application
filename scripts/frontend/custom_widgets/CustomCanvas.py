@@ -1,7 +1,6 @@
 import tkinter
 
-from scripts import Warnings, General
-from scripts.frontend import Constants, Parameters
+from scripts import General, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 

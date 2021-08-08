@@ -1,8 +1,7 @@
 import tkinter
 import tkinter.tix
 
-from scripts import Warnings
-from scripts.frontend import Constants
+from scripts import Warnings, Constants
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 

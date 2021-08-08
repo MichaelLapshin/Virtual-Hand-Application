@@ -1,8 +1,7 @@
 import tkinter
-from scripts import Warnings, General
+from scripts import Warnings, General, Parameters, Constants
 
 # Custom Buttons constants
-from scripts.frontend import Constants, Parameters
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
 BUTTON_PADDING_X = 12

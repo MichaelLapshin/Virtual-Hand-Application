@@ -1,7 +1,7 @@
 import tkinter
 
-from scripts import General, Warnings
-from scripts.frontend import User, Constants, Navigation, Parameters
+from scripts import General, Warnings, Parameters, Constants
+from scripts.frontend import User, Navigation
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel

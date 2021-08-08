@@ -1,8 +1,8 @@
 import tkinter
 import tkinter.colorchooser
 
-from scripts import General
-from scripts.frontend import Navigation, Constants, Parameters
+from scripts import General, Parameters, Constants
+from scripts.frontend import Navigation
 from scripts.frontend.custom_widgets import CustomButtons, CustomScales, CustomLabels
 from scripts.frontend.pages import GenericPage
 
