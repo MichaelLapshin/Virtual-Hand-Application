@@ -2,15 +2,13 @@ import tkinter
 import threading
 import time
 
-from scripts import Warnings
-from scripts.frontend import Constants
+from scripts import Parameters, Constants
 from scripts.frontend.pages import \
     GenericPage, ModelsPage, DatasetsPage, TrainingProcessesPage, \
     ModelProcessesPage, HowToPage, ProjectInformationPage, AccountPage, SettingsPage
 
 from scripts.frontend import \
-    Constants, Parameters, \
-    Navigation, ClientConnection, User
+    Navigation
 
 """
     Process client app/connection constants

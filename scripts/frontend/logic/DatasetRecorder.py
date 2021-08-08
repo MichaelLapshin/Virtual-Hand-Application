@@ -6,7 +6,7 @@
 import os
 import threading
 
-from scripts.frontend import Constants
+from scripts import Constants, Parameters
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import time
@@ -139,7 +139,7 @@ class Recorder(threading.Thread):
 
         if self._running is True:
             # Saves the training data
-            hf = h5py.File(Constants.TRAIN_BASE_RELATIVE_PATH + Constants.TRAIN_TEMP_SAVE_NAME, 'w')
+            hf = h5py.File(Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_NAME, 'w')
             if time_list is not None:
                 hf.create_dataset("time", data=time_list)
             hf.create_dataset("sensor", data=sensor_list)

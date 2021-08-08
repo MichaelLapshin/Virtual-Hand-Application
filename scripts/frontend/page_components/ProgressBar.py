@@ -1,8 +1,6 @@
 import tkinter
-import math
 
-from scripts import General
-from scripts.frontend import Parameters, Constants
+from scripts import General, Parameters, Constants
 from scripts.frontend.custom_widgets import CustomButtons, CustomCanvas
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 

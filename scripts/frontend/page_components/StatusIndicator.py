@@ -1,5 +1,4 @@
-from scripts import General
-from scripts.frontend import Constants, Parameters
+from scripts import General, Parameters, Constants
 from scripts.frontend.custom_widgets import CustomLabels
 
 

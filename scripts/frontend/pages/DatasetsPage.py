@@ -1,17 +1,17 @@
 import tkinter
 
-import cv2
+import requests
 from PIL import Image, ImageTk
 
-from scripts import General, Warnings, InputConstraints
-from scripts.frontend import Navigation, Constants, Parameters, User
+from scripts import General, Warnings, InputConstraints, Parameters, Constants, Log
+from scripts.frontend import Navigation, User
 from scripts.frontend.logic import MediapipHandAngler, SensorListener, DatasetRecorder
-from scripts.frontend.custom_widgets import CustomButtons, CustomLabels, CustomOptionMenu, CustomCanvas
+from scripts.frontend.custom_widgets import CustomButtons, CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.page_components import \
-    InformationBlock, ScrollBlock, PredictionPreviewBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
+    InformationBlock, ScrollBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
     StatusIndicator
 from scripts.frontend.pages import GenericPage
 
@@ -497,12 +497,43 @@ class NewFrame(GenericPage.NavigationFrame):
         super().destroy()
 
     def upload_dataset_to_server(self):
-        # Assertions
-        assert self.data_recorder is not None
-        assert self.data_recorder.is_successful()
+        # Extract values
+        name = self.general_info_frame.get_value("Name")
+        owner_name = self.general_info_frame.get_value("Owner")
+        date_created = self.general_info_frame.get_value("Date created")
+        access_permissions = self.general_info_frame.get_value("Access permissions")
 
-        # Uploads the dataset to the server
-        Warnings.not_complete()
+        # Assert the input constraints
+        can_upload = True
+        can_upload &= InputConstraints.assert_string_non_empty("Name", name)
+        can_upload &= InputConstraints.assert_string_non_empty("Owner", owner_name)
+        can_upload &= InputConstraints.assert_string_non_empty("Date created", date_created)
+        can_upload &= InputConstraints.assert_string_from_set("Access permissions", access_permissions,
+                                                              Constants.PERMISSION_LEVELS.keys())
+
+        # Uploads to the server if the input constraints are satisfied
+        if can_upload is True:
+            Log.info("Uploading the dataset '" + name + "' to the server: " + Constants.SERVER_IP_ADDRESS)
+
+            assert self.data_recorder is not None
+            assert self.data_recorder.is_successful()
+
+            # Uploads the dataset to the server
+            file_to_send = Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_NAME  # This is the string path to the file
+            url = Constants.SERVER_IP_ADDRESS + "/file_transfer_api/upload_dataset?" \
+                  + "name=" + name + "&" \
+                  + "owner_name=" + owner_name + "&" \
+                  + "date=" + date_created + "&" \
+                  + "permission=" + access_permissions
+            Log.debug("Entering server URL: " + url)
+
+            # Prepares and sends the file
+            files = [(Constants.UPLOAD_DATASET_KEY_WORD, (file_to_send, open(file_to_send, 'rb'), 'application/octet'))]
+            r = requests.post(url, files=files)
+
+            Log.info("Returned content from dataset upload request: " + str(r.content))
+        else:
+            InputConstraints.warn("The dataset was not uploaded to the server. Input constraints were not satisfied.")
 
     def set_switch_to_view_frame(self, command):
         self.cancel_new_dataset.config(command=command)

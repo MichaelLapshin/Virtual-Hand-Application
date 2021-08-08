@@ -1,6 +1,7 @@
 import tkinter
 
-from scripts.frontend import Navigation, Constants, Parameters
+from scripts.frontend import Navigation
+from scripts import Parameters
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage

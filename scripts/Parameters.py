@@ -1,10 +1,14 @@
 """
 [Parameters.py]
-@description: A list of program paramets which may be changed by the user
+@description: A list of program parameters which may be changed by the user
 @author: Michael Lapshin
 """
 
-_user_settings_file = "Parameters.txt"
+PROJECT_PATH = "C:\\Git\\Virtual-Hand-Application\\"
+_user_parameters_file_path = PROJECT_PATH + "scripts\\Parameters.txt"
+
+# Logging parameters
+LOG_LEVEL = 2
 
 # Updating
 UPDATE_DELAY_MS = 500
@@ -29,7 +33,7 @@ ColourGrad_F = 0.70
 
 def process_file_parameters():
     # Reads the constants files and evaluates the lines
-    _input = open(_user_settings_file, "r")
+    _input = open(_user_parameters_file_path, "r")
 
     for line in _input.readlines():
         exec(line, globals())
@@ -37,11 +41,11 @@ def process_file_parameters():
 
 
 def clear_file_parameters():
-    _input = open(_user_settings_file, "w")
+    _input = open(_user_parameters_file_path, "w")
     _input.close()
 
 
 def add_file_parameters(item):
-    _input = open(_user_settings_file, "a")
+    _input = open(_user_parameters_file_path, "a")
     _input.write(item + "\n")
     _input.close()

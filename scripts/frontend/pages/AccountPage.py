@@ -1,7 +1,7 @@
 import tkinter
 
-from scripts import General
-from scripts.frontend import User, Constants, Navigation, Parameters
+from scripts import General, Parameters
+from scripts.frontend import User, Navigation
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
 from scripts.frontend.custom_widgets.CustomEntries import AccountEntry
 from scripts.frontend.custom_widgets.CustomLabels import AccountLabel

@@ -4,6 +4,7 @@ from tkinter import messagebox
 def warn(message):
     messagebox.showwarning(title="Warning!", message=message)
 
+
 def error(message):
     messagebox.showerror(title="Error!", message=message)
 
@@ -39,6 +40,36 @@ def assert_is_float(value):
         return True
     except:
         return False
+
+
+def assert_is_not_none(value_name, value):
+    if value is None:
+        warn("'" + str(value_name) + "' must be a non-null value.\nCurrent value: " + str(value))
+        return False
+    else:
+        return True
+
+
+"""
+    String
+"""
+
+
+def assert_string_from_set(value_name, value, value_list):
+    if value in value_list:
+        return True
+    else:
+        warn("'" + str(value_name) + "' must one of the following strings: " + str(
+            value_list) + ".\nCurrent value: " + str(value))
+        return False
+
+
+def assert_string_non_empty(value_name, value):
+    if (value is None) or (value == ""):
+        warn("'" + str(value_name) + "' must be a non-empty string.\nCurrent value: " + str(value))
+        return False
+    else:
+        return True
 
 
 """
