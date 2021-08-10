@@ -3,7 +3,9 @@
 @description: An interface for storing user data
 @author: Michael Lapshin
 """
-from scripts import Warnings
+import requests
+
+from scripts import Warnings, Constants, Parameters
 from scripts.frontend import ClientConnection
 
 # User  constants
@@ -22,6 +24,7 @@ def login(username, password):
     global _name, _password
 
     Warnings.not_complete()
+    logged_in = requests.get(url=Constants.SERVER_IP_ADDRESS + "?user_name=" + _name + "&password=" + _password)
     if True:
         _name = username
         _password = password
@@ -56,4 +59,4 @@ def is_connected():
 def is_logged_in():
     global _name
 
-    return is_connected() == _name
+    return requests.get(url=Constants.SERVER_IP_ADDRESS)
