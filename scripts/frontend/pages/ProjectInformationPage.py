@@ -97,10 +97,10 @@ class Frame(GenericPage.NavigationFrame):
         self.info_block.add_info(column=2, row=2,
                                  text="Programming Languages: Arduino (C++), Python 3.8\n"
                                       "\n"
-                                      "Key Skills:                                            Key APIs:\n"
+                                      "Key Skills:                                                     Key APIs:\n"
                                       " - Object-oriented programming                  - Matplotlib library\n"
                                       " - Communication port interfaces                - OpenCV (camera API)\n"
-                                      " - Multithreading                                        - Mediapipe (hand tracking API)")
+                                      " - Multithreading                                               - Mediapipe (hand tracking API)")
         self.info_block.add_info(column=2, row=3, text="Programming Languages: C# .NET, Python 3.8\n"
                                                        "\n"
                                                        "Key skills:                               Key APIs:\n"
