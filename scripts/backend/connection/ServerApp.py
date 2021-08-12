@@ -9,9 +9,11 @@ import os
 import flask
 
 # Import REST API scripts
+from API_Helper import package
 from AccountAPI import account_api
 from FileTransferAPI import file_transfer_api
 from DataProcessingAPI import data_processing_api
+from DataFetchingAPI import data_fetching_api
 
 # Import miscellaneous scripts
 from scripts import Log, Warnings
@@ -32,6 +34,7 @@ if start_server:
     server_app.register_blueprint(account_api, url_prefix="/account")
     server_app.register_blueprint(file_transfer_api, url_prefix="/transfer")
     server_app.register_blueprint(data_processing_api, url_prefix="/process")
+    server_app.register_blueprint(data_fetching_api, url_prefix="/fetch")
 
     if __name__ == "__main__":
         server_app.run()
@@ -46,14 +49,14 @@ def shutdown():
     if shutdown_func is None:
         raise RuntimeError('Not running werkzeug')
     shutdown_func()
-    return "Shutting down the server..."
+    return package(True, "Shutting down the server...")
 
 
-@server_app.route('/is_alive')
-def is_alive():
-    return True
+@server_app.route('/is_online')
+def is_online():
+    return package(True, "The server is online.")
 
 
 @server_app.route('/')
 def is_running_window():
-    return "The server for the Virtual-Hand-Application is running."
+    return package(True, "The server for the Virtual-Hand-Application is running.")

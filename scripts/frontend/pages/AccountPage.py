@@ -2,8 +2,8 @@ import tkinter
 
 import requests
 
-from scripts import General, Parameters, Constants, InputConstraints, Log
-from scripts.frontend import User, Navigation
+from scripts import General, Parameters, Constants, InputConstraints, Log, Warnings
+from scripts.frontend import Navigation, ClientConnection
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
 from scripts.frontend.custom_widgets.CustomEntries import AccountEntry
@@ -22,6 +22,15 @@ DELETE_USER_TEXT = "Delete user"
 USERNAME_ENTRY = "Username:"
 PASSWORD_ENTRY = "Password:"
 VERIFY_PASSWORD_ENTRY = "Verify Password:"
+
+# Server
+STATUS_SERVER_UNKNOWN = "Server status: Unknown"
+STATUS_SERVER_ONLINE = "Server status: Online"
+STATUS_SERVER_OFFLINE = "Server status: Offline"
+SERVER_IP_ENTRY = "IP Address:"
+SERVER_PORT_ENTRY = "Port:"
+CHECK_STATUS = "Check Status"
+REGISTER_TEXT = "Register"
 
 
 class Frame(GenericPage.NavigationFrame):
@@ -54,7 +63,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=16)
+                width=Constants.LONG_SPACING)
 
             self.label_logged_as_password = AccountLabel(
                 self, text=PASSWORD_ENTRY,
@@ -65,7 +74,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=16)
+                width=Constants.LONG_SPACING)
 
             # Log in button
             self.button_UserLogin = AccountButton(
@@ -84,19 +93,19 @@ class Frame(GenericPage.NavigationFrame):
             self.login_button_enabling_update(reset_login=True)
 
         def logout_button_function(self):
-            User.logout()
+            ClientConnection.log_out()
             self.login_button_enabling_update()
 
         def login_button_function(self):
-            User.login(self.input_username.get(), self.input_password.get())
+            ClientConnection.log_in(self.entry_username.get(), self.entry_password.get())
             self.login_button_enabling_update()
 
             # Update the labels
-            if User.is_logged_in() is False:
+            if ClientConnection.is_logged_in() is False:
                 self.label_status.config(text=STATUS_FAILED_LOGIN)
 
         def login_button_enabling_update(self, reset_login=False):
-            if (reset_login is False) and (User.is_logged_in() is True):
+            if (reset_login is False) and (ClientConnection.is_logged_in() is True):
                 # Disable/enable buttons
                 self.entry_username.disable()
                 self.entry_password.disable()
@@ -160,7 +169,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=16)
+                width=Constants.LONG_SPACING)
 
             self.label_logged_as_password = AccountLabel(
                 self, text=PASSWORD_ENTRY,
@@ -171,7 +180,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=16)
+                width=Constants.LONG_SPACING)
 
             self.label_logged_as_verify_password = AccountLabel(
                 self, text=VERIFY_PASSWORD_ENTRY,
@@ -182,7 +191,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=4,
                 columnspan=1, rowspan=1,
-                width=16)
+                width=Constants.LONG_SPACING)
 
             # Edit account buttons
             self.create_user_button = AccountButton(
@@ -233,14 +242,15 @@ class Frame(GenericPage.NavigationFrame):
 
                 # Logic for creating the user
                 if can_create is True:
+                    result = ClientConnection.create_user(user_name=username, password=password)
 
-                    is_created = requests.get(
-                        Constants.SERVER_IP_ADDRESS + "/account/create?user_name=" + username + "&password=" + password)
+                    Warnings.not_complete()
 
-                    if is_created is True:
-                        pass
+                    if result is True:
+                        Log.info("The user named '" + username + "' was created.")
                     else:
-                        pass
+                        Log.info("The user named '" + username + "' was not created.")
+
                 else:
                     InputConstraints.warn("Could not create the user. Input constraints were not met.")
             else:
@@ -264,13 +274,14 @@ class Frame(GenericPage.NavigationFrame):
                 # Logic for creating the user
                 if can_delete is True:
 
-                    is_deleted = requests.get(
-                        Constants.SERVER_IP_ADDRESS + "/account/delete?user_name=" + username + "&password=" + password)
+                    is_deleted = ClientConnection.delete_user(user_name=username, password=password)
+
+                    Warnings.not_complete()
 
                     if is_deleted is True:
-                        pass
+                        Log.info("The user named '" + username + "' was deleted.")
                     else:
-                        pass
+                        Log.info("The user named '" + username + "' was not deleted.")
                 else:
                     InputConstraints.warn("Could not delete the user. Input constraints were not met.")
 
@@ -287,8 +298,108 @@ class Frame(GenericPage.NavigationFrame):
             self.grid(sticky=tkinter.N)
 
             # Title
-            self.title = CustomLabels.TitleLabel(self, column=0, row=0, columnspan=2, text="Server Management")
+            self.title = CustomLabels.TitleLabel(self, column=0, row=0, columnspan=6, text="Server Management")
             self.title.grid(padx=Constants.STANDARD_SPACING)
+
+            # Labels and Entries
+            self.label_status = AccountLabel(
+                self, text=STATUS_SERVER_UNKNOWN,
+                column=0, row=1,
+                columnspan=2, rowspan=1)
+            self.neutralize_server_status()
+
+            # Server information fields
+            self.label_server_ip = AccountLabel(
+                self, text=SERVER_IP_ENTRY,
+                column=0, row=2,
+                columnspan=1, rowspan=1)
+
+            self.entry_server_ip = AccountEntry(
+                self, text=Parameters.SERVER_IP_ADDRESS,
+                column=1, row=2,
+                columnspan=1, rowspan=1,
+                width=Constants.LONG_SPACING,
+                trace_command=self.neutralize_server_status)
+            self.entry_server_ip.config(validatecommand=self.neutralize_server_status)
+
+            self.label_server_port = AccountLabel(
+                self, text=SERVER_PORT_ENTRY,
+                column=0, row=3,
+                columnspan=1, rowspan=1)
+
+            self.entry_server_port = AccountEntry(
+                self, text=Parameters.SERVER_PORT,
+                column=1, row=3,
+                columnspan=1, rowspan=1,
+                width=Constants.LONG_SPACING,
+                trace_command=self.neutralize_server_status)
+            self.entry_server_port.config(validatecommand=self.neutralize_server_status)
+
+            # Server registration buttons
+            self.button_check_server_status = AccountButton(
+                self, command=self.check_server_status,
+                text=CHECK_STATUS,
+                column=0, row=4,
+                columnspan=1, rowspan=1)
+
+            self.button_register_server = AccountButton(
+                self, command=self.register_server,
+                text=REGISTER_TEXT,
+                column=1, row=4,
+                columnspan=1, rowspan=1)
+
+        def update_colour(self):
+            super().update_colour()
+            self.title.update_colour()
+            self.label_status.update_colour()
+            self.label_server_ip.update_colour()
+            self.entry_server_ip.update_colour()
+            self.label_server_port.update_colour()
+            self.entry_server_port.update_colour()
+            self.button_check_server_status.update_colour()
+            self.button_register_server.update_colour()
+
+        def update_content(self):
+            super().update_content()
+            self.title.update_content()
+            self.label_status.update_content()
+            self.label_server_ip.update_content()
+            self.entry_server_ip.update_content()
+            self.label_server_port.update_content()
+            self.entry_server_port.update_content()
+            self.button_check_server_status.update_content()
+            self.button_register_server.update_content()
+
+        def neutralize_server_status(self, *args):
+            self.label_status.config(text=STATUS_SERVER_UNKNOWN)
+            self.label_status.config(bg=General.washed_colour_hex(Constants.COLOUR_GREY, Parameters.ColourGrad_E))
+
+        def check_server_status(self):
+            # Obtains values
+            ip_address = self.entry_server_ip.get()
+            port = self.entry_server_port.get()
+
+            result = ClientConnection.is_server_online(ip_address=ip_address, port=port)
+
+            if result is True:
+                self.label_status.config(text=STATUS_SERVER_ONLINE)
+                self.label_status.config(bg=General.washed_colour_hex(Constants.COLOUR_GREEN, Parameters.ColourGrad_E))
+            else:
+                self.label_status.config(text=STATUS_SERVER_OFFLINE)
+                self.label_status.config(bg=General.washed_colour_hex(Constants.COLOUR_RED, Parameters.ColourGrad_E))
+
+        def register_server(self):
+            # Obtains values
+            ip_address = self.entry_server_ip.get()
+            port = self.entry_server_port.get()
+
+            # Saves address to the file
+            Parameters.add_file_parameters("SERVER_IP_ADDRESS = '" + ip_address + "'")
+            Parameters.add_file_parameters("SERVER_PORT = '" + port + "'")
+
+            # Overrides current values
+            Parameters.SERVER_IP_ADDRESS = ip_address
+            Parameters.SERVER_PORT = port
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,

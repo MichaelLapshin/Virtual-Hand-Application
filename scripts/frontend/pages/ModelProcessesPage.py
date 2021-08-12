@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General, Warnings, Parameters, Constants
-from scripts.frontend import User, Navigation
+from scripts.frontend import  Navigation
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
@@ -62,7 +62,7 @@ class Frame(GenericPage.NavigationFrame):
                 Additional information
             """
             # Fill in data for the information block
-            self.info_block.add_info(0, 0, User.get_name())
+            # self.info_block.add_info(0, 0, Client.get_name())
             self.info_block.add_info(1, 0, "hello world!")
             self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
 

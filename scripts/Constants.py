@@ -7,7 +7,6 @@
 default_resolution = "1000x800"
 
 # Server constants
-SERVER_IP_ADDRESS = "http://localhost:5000"
 
 # GUI Spacing
 LONG_SPACING = 20
@@ -23,6 +22,7 @@ PERMISSION_LEVELS = {PERMISSION_ADMIN: 2, PERMISSION_PRIVATE: 1, PERMISSION_PUBL
 # Colours
 COLOUR_GREEN = (146, 208, 80)
 COLOUR_RED = (235, 0, 0)
+COLOUR_GREY = (150, 150, 150)
 
 # Camera options
 CAMERA_DEFAULT_RESOLUTION_X = 640

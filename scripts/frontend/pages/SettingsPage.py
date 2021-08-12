@@ -28,7 +28,8 @@ class Frame(GenericPage.NavigationFrame):
 
         # Scaling Setting
         self.scale_variable = tkinter.DoubleVar()
-        self.scale_slider = CustomScales.SettingsScale(self.settings_frame, label="Graphical User Interface Scale (requires a restart)",
+        self.scale_slider = CustomScales.SettingsScale(self.settings_frame,
+                                                       label="Graphical User Interface Scale (requires a restart)",
                                                        column=0, row=0, columnspan=6,
                                                        from_=0.5, to=5.0,
                                                        resolution=0.1, variable=self.scale_variable)
@@ -71,16 +72,13 @@ class Frame(GenericPage.NavigationFrame):
             self.settings_frame,
             column=4, row=3,
             columnspan=2,
-            command=self.reset_all_settings, text="Reset All Settings\n"
-                                                  "(requires a restart)")
+            command=self.reset_all_settings, text="Clear All Saved Data")
 
         # Update Program Settings
         self.update_program_constants()
 
     # General Methods
     def save_to_constants_file(self):
-        Parameters.clear_file_parameters()
-
         # Add GUI variables
         Parameters.add_file_parameters("GUI_Scale = " + str(self.scale_variable.get()))
         Parameters.add_file_parameters("UPDATE_DELAY_MS = " + str(self.delay_variable.get()))

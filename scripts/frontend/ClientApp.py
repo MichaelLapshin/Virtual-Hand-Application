@@ -19,6 +19,7 @@ APP_TITLE = "Virtual-Hand"
 APP_ICON = "images\\virtualhand_icons\\virtualhand_icon_YuG_1.ico"
 
 # Process User Constants File
+Parameters.optimize_file_parameters()
 Parameters.process_file_parameters()
 
 """

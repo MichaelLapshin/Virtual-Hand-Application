@@ -1,6 +1,6 @@
 import flask
 
-from API_Helper import flarg, flreq
+from API_Helper import flarg, flreq, package
 from scripts import Warnings, Log, Constants, Parameters
 from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts
 
@@ -36,7 +36,8 @@ def upload_dataset():
                                             date=dataset_date, permission=dataset_permission, fps=dataset_fps)
         file.save(Parameters.PROJECT_PATH + dataset_name + ".ds")
         Log.info("Successfully stored the new dataset '" + dataset_name + "'.")
+        return package(True, "Successfully stored the new dataset '" + dataset_name + "'.")
     else:
         Log.warning("The function 'upload_dataset' was called not from a POST request.")
         Warnings.not_to_reach()
-        return "Warning. Must access this function using a POST request."
+        return package(False, "Warning. Must access this function using a POST request.")
