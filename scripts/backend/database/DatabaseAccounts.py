@@ -6,9 +6,17 @@ from scripts.backend.database import Database
 """
 
 
+def get_all_account():
+    Log.debug("Retrieving all user accounts.")
+    Database.cursor.execute("SELECT * FROM Users")
+    result = Database.cursor.fetchall()
+    Log.trace("Retrieved: " + str(result))
+    return result
+
+
 def get_user_id(user_name):
     Log.debug("Getting the ID of a user named '" + user_name + "'.")
-    Database.cursor.execute("SELECT ID_Self FROM Users WHERE Name='" + user_name + "'")
+    Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "'")
 
     # Obtain the user ID
     id = Database.cursor.fetchone()
@@ -58,9 +66,11 @@ def exists_user_by_name(user_name):
 
 
 def check_user(user_name, password):
-    assert exists_user_by_name(user_name)
     Log.info("Checking if the user exists with the name '" + user_name + "' and password '" + password + "'.")
-    Database.cursor.execute("SELECT ID_Self FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")
+
+    assert exists_user_by_name(user_name=user_name) is True
+
+    Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")
 
     # Checks the number of users found with the given username/password
     num_users = len(Database.cursor.fetchall())
@@ -93,7 +103,7 @@ def add_user(user_name, password, permission=0):
     assert exists_user_by_name(user_name) is False
 
     # Creates a user
-    Database.cursor.execute("INSERT INTO Users VALUES (?,?,?,?,?)", (user_name, password, permission, None, None))
+    Database.cursor.execute("INSERT INTO Users VALUES (NULL, ?,?,?,?,?)", (user_name, password, permission, None, None))
     Database.connection.commit()
 
     Log.debug("The insertion of the new user entry has been committed to the database.")
@@ -115,7 +125,7 @@ def delete_user(user_name, password):
 
     Log.debug("Deleting the user '" + user_name + "' from the database. Using the password '" + password + "'.")
 
-    assert check_user(user_name=user_name) is True
+    assert check_user(user_name=user_name, password=password) is True
 
     # Deletes the user
     Database.cursor.execute("DELETE FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")

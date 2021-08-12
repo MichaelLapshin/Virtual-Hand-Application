@@ -14,8 +14,11 @@ ENTRY_PADDING_Y = 8
 
 class Entry(tkinter.Entry, WidgetInterface):
 
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=10, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=10, text=None, trace_command=None):
         self._textvariable = tkinter.StringVar()
+
+        if trace_command is not None:
+            self._textvariable.trace(tkinter.W, trace_command)
 
         tkinter.Entry.__init__(self, root,
                                textvariable=self._textvariable, width=width)
@@ -45,17 +48,19 @@ class Entry(tkinter.Entry, WidgetInterface):
 
 
 class NavigationEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
 
 
 class AccountEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
 
         self.grid(padx=16, pady=16)
 
@@ -65,33 +70,38 @@ class AccountEntry(Entry):
 
 
 class InfoEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
         self.grid(sticky=tkinter.EW)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
+
 class InfoEntryEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
         self.grid(sticky=tkinter.EW)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
 
 class SearchEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
 
 
 class PlotEntry(Entry):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, width=5, text=None, trace_command=None):
         Entry.__init__(self, root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
-                       width=width, text=text)
+                       width=width, text=text,
+                       trace_command=trace_command)
         self.config(width=12)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)

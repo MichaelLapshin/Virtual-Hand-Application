@@ -2,9 +2,16 @@ from scripts import Warnings, Constants, Log
 from scripts.backend.database import Database
 
 
+def get_all_datasets():
+    Log.debug("Retrieving all datasets.")
+    Database.cursor.execute("SELECT * FROM Datasets")
+    result = Database.cursor.fetchall()
+    Log.trace("Retrieved: " + str(result))
+    return result
+
 def create_new_dataset(name, owner_id, date, permission, fps):
     Log.info("Inserting a dataset entry: " + str((name, owner_id, date, permission, fps, 0, 0, 0, 0)))
-    Database.cursor.execute("INSERT INTO Datasets VALUES (?, ?, ?, ?, ?)",
+    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?)",
                             (name, owner_id, date, permission, fps, 0, 0, 0, 0))
 
     Warnings.not_complete()

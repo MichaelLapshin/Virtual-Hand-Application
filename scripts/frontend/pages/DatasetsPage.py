@@ -4,7 +4,7 @@ import requests
 from PIL import Image, ImageTk
 
 from scripts import General, Warnings, InputConstraints, Parameters, Constants, Log
-from scripts.frontend import Navigation, User
+from scripts.frontend import Navigation, ClientConnection
 from scripts.frontend.logic import MediapipHandAngler, SensorListener, DatasetRecorder
 from scripts.frontend.custom_widgets import CustomButtons, CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
@@ -395,7 +395,7 @@ class NewFrame(GenericPage.NavigationFrame):
                                                        column=0, row=1,
                                                        options=self.general_options,
                                                        title="General Information")
-        self.general_info_frame.set_entry_value("Owner", User.get_name())
+        self.general_info_frame.set_entry_value("Owner", ClientConnection.get_user_name())
         self.general_info_frame.disable_entry("Owner")
 
         self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
@@ -513,14 +513,14 @@ class NewFrame(GenericPage.NavigationFrame):
 
         # Uploads to the server if the input constraints are satisfied
         if can_upload is True:
-            Log.info("Uploading the dataset '" + name + "' to the server: " + Constants.SERVER_IP_ADDRESS)
+            Log.info("Uploading the dataset '" + name + "' to the server: " + ClientConnection.get_server_address())
 
             assert self.data_recorder is not None
             assert self.data_recorder.is_successful()
 
             # Uploads the dataset to the server
             file_to_send = Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_NAME  # This is the string path to the file
-            url = Constants.SERVER_IP_ADDRESS + "/file_transfer_api/upload_dataset?" \
+            url = ClientConnection.get_server_address() + "/file_transfer_api/upload_dataset?" \
                   + "name=" + name + "&" \
                   + "owner_name=" + owner_name + "&" \
                   + "date=" + date_created + "&" \

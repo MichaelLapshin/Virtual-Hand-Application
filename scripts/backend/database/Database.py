@@ -5,7 +5,7 @@ from scripts import Warnings, Constants, Log, Parameters
 """
 Tables:
 - Users
-    + ID_Self: id
+    + ID: self id #
     + Name: name
     + Password: password
     + Permission: permission level (0 = basic user, 1 = admin)
@@ -14,7 +14,7 @@ Tables:
 - Models
     ~ General Information:
         + Name: name
-        + ID_Self: id #
+        + ID: self id #
         + ID_Owner: id # of owner
         + Date_Created: date created
         + View_Domain: viewing permissions level (0 = everyone owns it, 1 = others can view, 2 = owner and admin)
@@ -28,7 +28,7 @@ Tables:
         + Num_Nodes: nodes per layer
 - RawDatasets 
     + Name: name
-    + ID_Self: id #
+    + ID: self id #
     + ID_Owner: id # of owner
     + Date_Created: date created
     + FPS: frame rate
@@ -36,7 +36,7 @@ Tables:
 - Datasets
     ~ General Information:
         + Name: name
-        + ID_Self: id #
+        + ID: self id #
         + ID_Owner: id # of owner
         + ID_Dataset: id # of original dataset
         + Date_Created: date created
@@ -90,7 +90,7 @@ def create_users_table():
     global cursor
     # Create Users table
     cursor.execute("""CREATE TABLE Users (
-                            ID             INTEGER PRIMARY KEY,
+                            ID             INTEGER PRIMARY KEY ,
                             Name           TEXT UNIQUE NOT NULL,
                             Password       TEXT NOT NULL, 
                             Permission     INTEGER NOT NULL,
