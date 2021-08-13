@@ -70,23 +70,29 @@ def send_get_request(url_extension="", values={}, ovrd_ltst_msg=True):
 def process_response(response, ovrd_ltst_msg=True):
     global latest_server_message, temp_message
     result = response.text
+    Log.trace("The request result to process is: " + str(result))
 
     # Converts the string list to a list
     temp_message = None
-    exec("temp_message = " + result, globals())
+    exec("temp_message = " + str(result), globals())
     assert temp_message is not None
 
     # Possibly overrides the latest server message
-    if ovrd_ltst_msg is True:
-        latest_server_message = temp_message
-        Log.debug("The new latest server message is: " + str(latest_server_message))
+    if (ovrd_ltst_msg is True) and (temp_message[0] is not None):
+        latest_server_message = str(temp_message[1])
+        Log.debug("The new latest server message is: " + latest_server_message)
 
-    return temp_message[0]  # returns the boolean result
+    if temp_message[0] is None:
+        return temp_message[1]  # returns the values
+    elif type(temp_message[0]) == bool:
+        return temp_message[0]  # returns the boolean result
+    else:
+        Warnings.not_to_reach()
+        return None
 
 
 """
     User Management
-    
 """
 
 
@@ -128,9 +134,16 @@ def get_user_name():
 """
 
 
+def get_all_user_names():
+    Log.debug("Getting all user names from the database.")
+    result = send_get_request("/fetch/all_user_names", ovrd_ltst_msg=False)
+    Log.trace("Received the resulting user names: " + str(result))
+    return result
+
+
 def check_exists_user(user_name, password):
     Log.trace("Checking if the user named '" + user_name + "' exists with the password '" + password + "'.")
-    result = send_get_request("/account/exists_user", {"user_name": user_name, "password": password},
+    result = send_get_request("/account/check_user", {"user_name": user_name, "password": password},
                               ovrd_ltst_msg=False)
     if result is True:
         Log.trace("The user exists.")

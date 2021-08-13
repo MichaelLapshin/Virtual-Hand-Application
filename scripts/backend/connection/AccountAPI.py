@@ -38,18 +38,21 @@ def delete_user():
         return package(False, "Could not delete the user '" + user_name + "'.")
 
 
-@account_api.route('/exists_user')  # TODO, Done
+@account_api.route('/check_user')  # TODO, Done
 def logged_in():
     user_name = flarg("user_name")
     password = flarg("password")
 
-    if DatabaseAccounts.exists_user_by_name(user_name):
-        flask.session['user_name'] = user_name
-        flask.session['password'] = password
-        flask.session['is_logged_in'] = True
-        return package(True, "Logged in as the user '" + user_name + "'.")
+    if DatabaseAccounts.exists_user_by_name(user_name=user_name):
+        if DatabaseAccounts.check_user(user_name=user_name, password=password):
+            flask.session['user_name'] = user_name
+            flask.session['password'] = password
+            flask.session['is_logged_in'] = True
+            return package(True, "The user '" + user_name + "' with the password '" + password + "' exists.")
+        else:
+            return package(False, "The inputted password for the user '" + user_name + "' is false.")
     else:
-        return package(False, "User does not exist.")
+        return package(False, "User '" + user_name + "' does not exist.")
 
 
 @account_api.route('/log_in')  # TODO, Done

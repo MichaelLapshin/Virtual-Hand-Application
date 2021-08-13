@@ -139,7 +139,7 @@ class Recorder(threading.Thread):
 
         if self._running is True:
             # Saves the training data
-            hf = h5py.File(Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_NAME, 'w')
+            hf = h5py.File(Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME, 'w')
             if time_list is not None:
                 hf.create_dataset("time", data=time_list)
             hf.create_dataset("sensor", data=sensor_list)

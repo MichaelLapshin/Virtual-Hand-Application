@@ -4,13 +4,16 @@ import requests
 
 from scripts import General, Parameters, Constants, InputConstraints, Log, Warnings
 from scripts.frontend import Navigation, ClientConnection
-from scripts.frontend.custom_widgets import CustomLabels
+from scripts.frontend.custom_widgets import CustomLabels, CustomButtons, CustomEntries
 from scripts.frontend.custom_widgets.CustomButtons import AccountButton
 from scripts.frontend.custom_widgets.CustomEntries import AccountEntry
 from scripts.frontend.custom_widgets.CustomLabels import AccountLabel
+from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage
 
 # Account constants
+ENTRY_WIDTH = 16
+
 STATUS_LOGGED_IN = "Status: Logged in"
 STATUS_LOGGED_OUT = "Status: Logged out"
 STATUS_FAILED_LOGIN = "Status: Log-in failed"
@@ -31,6 +34,12 @@ SERVER_IP_ENTRY = "IP Address:"
 SERVER_PORT_ENTRY = "Port:"
 CHECK_STATUS = "Check Status"
 REGISTER_TEXT = "Register"
+
+# User list
+USER_LIST_TITLE = "User Names List"
+USER_LIST_UPDATE_BUTTON = "Update User List"
+USER_LIST_COLUMN_LABEL = "Number of Columns"
+USER_LIS_COLUMN_NUM_DEFAULT = 5
 
 
 class Frame(GenericPage.NavigationFrame):
@@ -63,7 +72,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING)
+                width=ENTRY_WIDTH, trace_command= self.login_button_enabling_update)
 
             self.label_logged_as_password = AccountLabel(
                 self, text=PASSWORD_ENTRY,
@@ -74,7 +83,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING)
+                width=ENTRY_WIDTH, trace_command= self.login_button_enabling_update)
 
             # Log in button
             self.button_UserLogin = AccountButton(
@@ -97,14 +106,27 @@ class Frame(GenericPage.NavigationFrame):
             self.login_button_enabling_update()
 
         def login_button_function(self):
-            ClientConnection.log_in(self.entry_username.get(), self.entry_password.get())
-            self.login_button_enabling_update()
 
-            # Update the labels
-            if ClientConnection.is_logged_in() is False:
-                self.label_status.config(text=STATUS_FAILED_LOGIN)
+            # Obtains the input
+            user_name = self.entry_username.get()
+            password = self.entry_password.get()
 
-        def login_button_enabling_update(self, reset_login=False):
+            # Input constraint assertion
+            can_login = True
+            can_login &= InputConstraints.assert_string_non_empty(USERNAME_ENTRY, user_name)
+            can_login &= InputConstraints.assert_string_non_empty(PASSWORD_ENTRY, password)
+
+            if can_login is True:
+                ClientConnection.log_in(user_name=user_name, password=password)
+                self.login_button_enabling_update()
+
+                # Update the labels
+                if ClientConnection.is_logged_in() is False:
+                    self.label_status.config(text=STATUS_FAILED_LOGIN)
+                    self.label_status.config(
+                        bg=General.washed_colour_hex(Constants.COLOUR_RED, Parameters.ColourGrad_E))
+
+        def login_button_enabling_update(self, reset_login=False, *args):
             if (reset_login is False) and (ClientConnection.is_logged_in() is True):
                 # Disable/enable buttons
                 self.entry_username.disable()
@@ -114,6 +136,7 @@ class Frame(GenericPage.NavigationFrame):
 
                 # Update the labels
                 self.label_status.config(text=STATUS_LOGGED_IN)
+                self.label_status.config(bg=General.washed_colour_hex(Constants.COLOUR_GREEN, Parameters.ColourGrad_E))
 
             else:
                 # Disable/enable buttons
@@ -124,6 +147,7 @@ class Frame(GenericPage.NavigationFrame):
 
                 # Update the labels
                 self.label_status.config(text=STATUS_LOGGED_OUT)
+                self.label_status.config(bg=General.washed_colour_hex(Constants.COLOUR_GREY, Parameters.ColourGrad_E))
 
         def update_colour(self):
             super().update_colour()
@@ -169,7 +193,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING)
+                width=ENTRY_WIDTH)
 
             self.label_logged_as_password = AccountLabel(
                 self, text=PASSWORD_ENTRY,
@@ -180,7 +204,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING)
+                width=ENTRY_WIDTH)
 
             self.label_logged_as_verify_password = AccountLabel(
                 self, text=VERIFY_PASSWORD_ENTRY,
@@ -191,7 +215,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=4,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING)
+                width=ENTRY_WIDTH)
 
             # Edit account buttons
             self.create_user_button = AccountButton(
@@ -306,7 +330,6 @@ class Frame(GenericPage.NavigationFrame):
                 self, text=STATUS_SERVER_UNKNOWN,
                 column=0, row=1,
                 columnspan=2, rowspan=1)
-            self.neutralize_server_status()
 
             # Server information fields
             self.label_server_ip = AccountLabel(
@@ -318,7 +341,7 @@ class Frame(GenericPage.NavigationFrame):
                 self, text=Parameters.SERVER_IP_ADDRESS,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING,
+                width=ENTRY_WIDTH,
                 trace_command=self.neutralize_server_status)
             self.entry_server_ip.config(validatecommand=self.neutralize_server_status)
 
@@ -331,7 +354,7 @@ class Frame(GenericPage.NavigationFrame):
                 self, text=Parameters.SERVER_PORT,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=Constants.LONG_SPACING,
+                width=ENTRY_WIDTH,
                 trace_command=self.neutralize_server_status)
             self.entry_server_port.config(validatecommand=self.neutralize_server_status)
 
@@ -401,6 +424,66 @@ class Frame(GenericPage.NavigationFrame):
             Parameters.SERVER_IP_ADDRESS = ip_address
             Parameters.SERVER_PORT = port
 
+    class UsersListFrame(GenericPage.Frame):
+        def __init__(self, root, column, row, columnspan=1, rowspan=1):
+            GenericPage.Frame.__init__(self, root=root, column=column, row=row, columnspan=columnspan, rowspan=rowspan)
+
+            # Create login frame
+            self.config(bd=2)
+            self.grid(sticky=tkinter.N)
+            self.rowconfigure(0, weight=1)
+
+            # Lists all users
+            self.user_list = InformationBlock.Frame(self, column=0, row=0, columnspan=3,
+                                                    num_columns=1, num_rows=1,
+                                                    title=USER_LIST_TITLE)
+            self.update_list_button = CustomButtons.AccountButton(self, column=0, row=1,
+                                                                  text=USER_LIST_UPDATE_BUTTON,
+                                                                  command=self.update_list)
+            self.num_columns_label = CustomLabels.AccountLabel(self, column=1, row=1, text=USER_LIST_COLUMN_LABEL + ":")
+            self.num_columns_entry = CustomEntries.AccountEntry(self, column=2, row=1,
+                                                                width=ENTRY_WIDTH,
+                                                                text=str(USER_LIS_COLUMN_NUM_DEFAULT))
+
+        def update_colour(self):
+            super().update_colour()
+            self.user_list.set_frame_colour(Parameters.COLOUR_BRAVO)
+            self.user_list.set_label_colour(Parameters.COLOUR_ALPHA)
+
+            self.user_list.update_colour()
+            self.update_list_button.update_colour()
+            self.num_columns_label.update_colour()
+            self.num_columns_entry.update_colour()
+
+        def update_content(self):
+            super().update_content()
+            if self.user_list is not None:
+                self.user_list.update_content()
+            self.update_list_button.update_content()
+            self.num_columns_label.update_content()
+            self.num_columns_entry.update_content()
+
+        def update_list(self):
+            # Get the input
+            num_columns = self.num_columns_entry.get()
+
+            if InputConstraints.assert_int_positive(USER_LIST_COLUMN_LABEL, num_columns, 100) is True:
+                self.user_list.destroy()
+                self.user_list = InformationBlock.Frame(self, column=0, row=0, columnspan=3,
+                                                        num_columns=int(num_columns), num_rows=1,
+                                                        title=USER_LIST_TITLE)
+                # Adds the users to the table
+                user_names = ClientConnection.get_all_user_names()
+                col = 0
+                for name in user_names:
+                    self.user_list.add_info(col, 0, name + "\n")
+
+                    # Loops the name listing
+                    col += 1
+                    if col >= int(num_columns):
+                        col = 0
+                self.update_colour()
+
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_ACCOUNT)
@@ -409,26 +492,32 @@ class Frame(GenericPage.NavigationFrame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
 
         # Frames
         self.server_manager_frame = Frame.ServerManagerFrame(self, column=0, row=0)
         self.login_frame = Frame.LoginFrame(self, column=1, row=0)
         self.user_manager_frame = Frame.UserManagerFrame(self, column=2, row=0)
+        self.user_list_frame = Frame.UsersListFrame(self, column=0, row=1, columnspan=3)
 
     def update_colour(self):
         super().update_colour()
         self.server_manager_frame.update_colour()
         self.login_frame.update_colour()
         self.user_manager_frame.update_colour()
+        self.user_list_frame.update_colour()
 
     def update_content(self):
         super().update_content()
         self.server_manager_frame.update_content()
         self.login_frame.update_content()
         self.user_manager_frame.update_content()
+        self.user_list_frame.update_content()
 
     def destroy(self):
         self.server_manager_frame.destroy()
         self.login_frame.destroy()
         self.user_manager_frame.destroy()
+        self.user_list_frame.destroy()
         super().destroy()

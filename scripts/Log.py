@@ -39,7 +39,7 @@ def print_on_lvl(text, lvl):
 
 
 def trace(text):
-    print_on_lvl("[LOG] " + text, 0)
+    print_on_lvl("[TRACE] " + text, 0)
 
 
 def debug(text):

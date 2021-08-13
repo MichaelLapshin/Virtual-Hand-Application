@@ -6,6 +6,20 @@ from scripts.backend.database import Database
 """
 
 
+def get_user_name_list():
+    Log.debug("Retrieving all user names.")
+    Database.cursor.execute("SELECT Name FROM Users")
+    temp_result = Database.cursor.fetchall()
+
+    # Compiles the list of user names
+    result = []
+    for r in temp_result:
+        result.append(r[0])
+
+    Log.trace("Retrieved: " + str(result))
+    return result
+
+
 def get_all_account():
     Log.debug("Retrieving all user accounts.")
     Database.cursor.execute("SELECT * FROM Users")
