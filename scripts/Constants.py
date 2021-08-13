@@ -42,7 +42,8 @@ RECORDING_DEFAULT_TRAINING_LENGTH = 30
 # Client temporary directories paths
 TEMP_DATASET_PATH = "AppData-Client\\temp-datasets\\"  # Makes sure the end the path with '\\'
 TEMP_MODEL_PATH = "AppData-Client\\temp-models\\"  # Makes sure the end the path with '\\'
-TEMP_SAVE_NAME = "temp_raw_dataset.hdf5"
+TEMP_SAVE_DATASET_NAME = "temp_raw_dataset.hdf5"
+TEMP_SAVE_MODEL_NAME = "temp_model.mod"
 
 # Training related constants
 TRAIN_ZEROING_DELAY_S = 5

@@ -519,7 +519,7 @@ class NewFrame(GenericPage.NavigationFrame):
             assert self.data_recorder.is_successful()
 
             # Uploads the dataset to the server
-            file_to_send = Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_NAME  # This is the string path to the file
+            file_to_send = Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME  # This is the string path to the file
             url = ClientConnection.get_server_address() + "/file_transfer_api/upload_dataset?" \
                   + "name=" + name + "&" \
                   + "owner_name=" + owner_name + "&" \

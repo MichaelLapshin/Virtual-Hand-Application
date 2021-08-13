@@ -16,10 +16,6 @@ def flreq(argument):
 
 
 def package(success, message):
-    # Assert package constraints
-    assert type(success) == bool
-    assert type(message) == str
-
     # Create and return the request package
     to_return = str((success, message))
     Log.debug("Packaging the request return: " + to_return)
