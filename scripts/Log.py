@@ -22,7 +22,7 @@ def clear(file_name):
 
 
 def print_on_lvl(text, lvl):
-    if Parameters.LOG_LEVEL >= lvl:
+    if Parameters.LOG_LEVEL <= lvl:
 
         # Clears the logs
         file_path = inspect.getmodule(inspect.stack()[2][0]).__file__

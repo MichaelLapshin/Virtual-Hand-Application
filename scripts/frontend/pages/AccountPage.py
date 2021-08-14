@@ -72,7 +72,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=2,
                 columnspan=1, rowspan=1,
-                width=ENTRY_WIDTH, trace_command= self.login_button_enabling_update)
+                width=ENTRY_WIDTH, trace_command=self.login_button_enabling_update)
 
             self.label_logged_as_password = AccountLabel(
                 self, text=PASSWORD_ENTRY,
@@ -83,7 +83,7 @@ class Frame(GenericPage.NavigationFrame):
                 self,
                 column=1, row=3,
                 columnspan=1, rowspan=1,
-                width=ENTRY_WIDTH, trace_command= self.login_button_enabling_update)
+                width=ENTRY_WIDTH, trace_command=self.login_button_enabling_update)
 
             # Log in button
             self.button_UserLogin = AccountButton(
@@ -317,6 +317,8 @@ class Frame(GenericPage.NavigationFrame):
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self, root=root, column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
+            self.root = root
+
             # Create login frame
             self.config(bd=2)
             self.grid(sticky=tkinter.N)
@@ -423,6 +425,9 @@ class Frame(GenericPage.NavigationFrame):
             # Overrides current values
             Parameters.SERVER_IP_ADDRESS = ip_address
             Parameters.SERVER_PORT = port
+
+            # Logs out the user
+            self.root.login_frame.logout_button_function()
 
     class UsersListFrame(GenericPage.Frame):
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
