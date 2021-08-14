@@ -40,6 +40,7 @@ class Recorder(threading.Thread):
         self._zeroes = {}
         self._running = False
         self._success = False
+        self._recording_used = False
 
     def run(self):
         # Pre-running
@@ -154,6 +155,12 @@ class Recorder(threading.Thread):
 
     def is_successful(self):
         return self._success
+
+    def use_recording(self):
+        self._recording_used = True
+
+    def is_recording_used(self):
+        return self._recording_used
 
     def start(self):
         self._running = True

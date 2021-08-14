@@ -3,7 +3,7 @@
 """
 import requests
 
-from scripts import Warnings, Parameters, InputConstraints, Log
+from scripts import Warnings, Parameters, InputConstraints, Log, Constants
 
 Warnings.not_complete()
 
@@ -50,20 +50,43 @@ def send_get_request(url_extension="", values={}, ovrd_ltst_msg=True):
     is_online = is_server_online()
 
     # Creates the variables
-    values_ext = ""
+    url_values = ""
     for v in values.keys():
-        values_ext += "&" + str(v) + "=" + str(values[v])
-    if len(values_ext) != 0:
-        values_ext = values_ext[1::]
-        values_ext = "?" + values_ext
+        url_values += "&" + str(v) + "=" + str(values[v])
+    if len(url_values) > 0:
+        url_values = "?" + url_values[1::]
 
     # Sends the get request if the server is online. Returns the boolean result
     if is_online:
-        return process_response(requests.get(get_server_address() + url_extension + values_ext),
+        return process_response(requests.get(get_server_address() + url_extension + url_values),
                                 ovrd_ltst_msg=ovrd_ltst_msg)
     else:
-        Log.warning("The server appears to be offline. Did not send the get request "
-                    "'" + get_server_address() + url_extension + values_ext + "'")
+        Log.warning("The server appears to be offline. Did not send the GET request to "
+                    "'" + get_server_address() + url_extension + url_values + "'")
+        return None
+
+
+def send_post_request(url_extension="", file_to_send="", values={}, ovrd_ltst_msg=True):
+    assert file_to_send is not None and len(file_to_send) != 0
+    is_online = is_server_online()
+
+    # Prepares and sends the file
+    files = [(Constants.UPLOAD_KEY_WORD, (file_to_send, open(file_to_send, 'rb'), 'application/octet'))]
+
+    # Compiles the url
+    url_values = ""
+    for k in values.keys():
+        url_values += "&" + str(k) + "=" + str(values[k])
+    if len(url_values) > 0:
+        url_values = "?" + url_values[1::]
+
+    # Sends the get request if the server is online. Returns the boolean result
+    if is_online:
+        return process_response(
+            requests.post(get_server_address() + url_extension + url_values, files=files), ovrd_ltst_msg=ovrd_ltst_msg)
+    else:
+        Log.warning("The server appears to be offline. Did not send the POST request to "
+                    "'" + get_server_address() + url_extension + url_values + "'")
         return None
 
 
@@ -168,9 +191,9 @@ def create_user(user_name, password):
 def delete_user(user_name, password):
     Log.info("Attempting to delete the user named '" + user_name + "' with password '" + password + "'.")
 
-    is_created = send_get_request("/account/delete", {"user_name": user_name, "password": password})
+    result = send_get_request("/account/delete", {"user_name": user_name, "password": password})
 
-    if is_created is True:
+    if result is True:
         Log.info("User named '" + user_name + "' with password '" + password + "' was successfully deleted.")
         return True
     else:
@@ -183,5 +206,19 @@ def delete_user(user_name, password):
 """
 
 
-def upload_dataset(self, dataset_name):
-    Warnings.not_complete()
+def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per_second):
+    Log.info("Attempting to uploa the dataset named '" + name + "'.")
+    result = send_post_request(
+        url_extension="/transfer/upload_dataset",
+        file_to_send=Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME,
+        values={"name": name,
+                "owner_name": owner_name,
+                "date": date_created,
+                "permission": access_perm_level,
+                "FPS" : frames_per_second})
+    if result is True:
+        Log.info("The dataset named '" + name + "' was successfully uploaded.")
+        return True
+    else:
+        Log.info("The dataset named '" + name + "' failed to upload.")
+        return False

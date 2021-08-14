@@ -32,7 +32,7 @@ CAMERA_DEFAULT_FIELD_OF_VIEW = 90
 CAMERA_DEFAULT_FRAMES_PER_SECOND = 60
 
 # Uploading data constants
-UPLOAD_DATASET_KEY_WORD = "dataset"
+UPLOAD_KEY_WORD = "to_transfer"
 
 # Dataset recording options
 RECORDING_DEFAULT_FRAMES_PER_SECOND = 50

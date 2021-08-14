@@ -1,4 +1,4 @@
-import tkinter
+import tkinter, tkinter.messagebox
 
 import requests
 from PIL import Image, ImageTk
@@ -395,11 +395,8 @@ class NewFrame(GenericPage.NavigationFrame):
                                                        column=0, row=1,
                                                        options=self.general_options,
                                                        title="General Information")
-        self.general_info_frame.set_entry_value("Owner", ClientConnection.get_user_name())
-        self.general_info_frame.disable_entry("Owner")
-
-        self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
-        self.general_info_frame.disable_entry("Date created")
+        self.general_info_frame.disable_entry("Owner")  # Note: Owner entry is automatically updated
+        self.general_info_frame.disable_entry("Date created")  # Note: Date created entry is automatically updated
 
         self.general_info_frame.set_perm_option_menu("Access permissions")
 
@@ -476,12 +473,22 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cancel_new_dataset.update_content()
         self.apply_cam_settings.update_content()
 
+        # Updates user and date
+        owner = ClientConnection.get_user_name()
+        if owner is None:
+            owner = ""
+        self.general_info_frame.set_entry_value("Owner", owner)
+        self.general_info_frame.set_entry_value("Date created", General.get_current_slashed_date())
+
+        # Updates data recorder
         if self.data_recorder is not None:
             self.data_rec_info_frame.status_label.set_status(self.data_recorder.is_running())
 
         # Enables uploading to the server
-        if (self.data_recorder is not None) and (self.data_recorder.is_successful() is True):
+        if (self.data_recorder is not None) and (self.data_recorder.is_successful() is True) \
+                and (self.data_recorder.is_recording_used() is False):
             self.upload_dataset_button.enable()
+            self.temp_dataset_FPS = self.data_rec_info_frame.input_frame.get_value("Frames per second")
         else:
             self.upload_dataset_button.disable()
 
@@ -502,6 +509,7 @@ class NewFrame(GenericPage.NavigationFrame):
         owner_name = self.general_info_frame.get_value("Owner")
         date_created = self.general_info_frame.get_value("Date created")
         access_permissions = self.general_info_frame.get_value("Access permissions")
+        frames_per_second = self.temp_dataset_FPS
 
         # Assert the input constraints
         can_upload = True
@@ -510,6 +518,7 @@ class NewFrame(GenericPage.NavigationFrame):
         can_upload &= InputConstraints.assert_string_non_empty("Date created", date_created)
         can_upload &= InputConstraints.assert_string_from_set("Access permissions", access_permissions,
                                                               Constants.PERMISSION_LEVELS.keys())
+        can_upload &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
 
         # Uploads to the server if the input constraints are satisfied
         if can_upload is True:
@@ -519,19 +528,20 @@ class NewFrame(GenericPage.NavigationFrame):
             assert self.data_recorder.is_successful()
 
             # Uploads the dataset to the server
-            file_to_send = Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME  # This is the string path to the file
-            url = ClientConnection.get_server_address() + "/file_transfer_api/upload_dataset?" \
-                  + "name=" + name + "&" \
-                  + "owner_name=" + owner_name + "&" \
-                  + "date=" + date_created + "&" \
-                  + "permission=" + access_permissions
-            Log.debug("Entering server URL: " + url)
+            access_perm_level = Constants.PERMISSION_LEVELS.get(access_permissions)
+            result = ClientConnection.upload_dataset(name, owner_name, date_created, access_perm_level,
+                                                     frames_per_second)
 
-            # Prepares and sends the file
-            files = [(Constants.UPLOAD_DATASET_KEY_WORD, (file_to_send, open(file_to_send, 'rb'), 'application/octet'))]
-            r = requests.post(url, files=files)
+            if result is True:
+                tkinter.messagebox.showinfo("Upload: Success!",
+                                            "The dataset '" + name + "' was successfully uploaded to the server.")
+                Log.info("Successfully uploaded the dataset named '" + name + "'.")
+                self.data_recorder.use_recording()
+            else:
+                tkinter.messagebox.showwarning("Upload: Failed!", "The dataset failed to upload to the server.\n"
+                                                                  "Does a dataset with the same name already exist?")
+                Log.warning("Was not able to upload the dataset named '" + name + "'.")
 
-            Log.info("Returned content from dataset upload request: " + str(r.content))
         else:
             InputConstraints.warn("The dataset was not uploaded to the server. Input constraints were not satisfied.")
 

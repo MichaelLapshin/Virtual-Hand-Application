@@ -1,4 +1,4 @@
-from scripts import Warnings, Log
+from scripts import Warnings, Log, Constants
 from scripts.backend.database import Database
 
 """
@@ -33,8 +33,8 @@ def get_user_id(user_name):
     Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "'")
 
     # Obtain the user ID
-    id = Database.cursor.fetchone()
-    Log.info("Retrieved the ID '" + id + "' for the user named '" + user_name + "'")
+    id = int(Database.cursor.fetchone()[0])
+    Log.info("Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "'")
     return id
 
 
@@ -101,7 +101,7 @@ def check_user(user_name, password):
         return True
 
 
-def add_user(user_name, password, permission=0):
+def add_user(user_name, password, permission=Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC)):
     """
     Creates and adds a new user to the database.
     :param user_name: name

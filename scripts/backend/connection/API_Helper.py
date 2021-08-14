@@ -4,7 +4,7 @@ from scripts import Log
 
 
 def flarg(argument):
-    result = flask.request.args[argument]
+    result = flask.request.args.get(argument)
     Log.debug("Fetching the flask.request argument '" + argument + "'. The result is '" + str(result) + "'")
     return result
 
