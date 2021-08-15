@@ -1,12 +1,12 @@
 import tkinter
 
 from scripts import General, Warnings, Parameters, Constants
-from scripts.frontend import  Navigation
+from scripts.frontend import Navigation
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock
+from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_MODEL_INFORMATION = "Selected Model Information"
@@ -148,7 +148,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.columnconfigure(0, weight=1)
 
             # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
+            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
             self.scroll_models_block.grid(column=0, row=1)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
@@ -208,8 +208,12 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=3)
 
         # Search space
-        self.search_frame = ViewFrame.SearchFrame(self, column=0, row=0)
+        self.search_frame = SearchBlock.ModelSearchFrame(self, column=0, row=0, title="Model List")
         self.search_frame.grid(sticky=tkinter.NSEW)
+
+        # Additional search buttons
+        self.new_button = SearchButton(self.search_frame.button_frame, column=0, row=0, text="New Model",
+                                       command=Warnings.not_complete)
 
         # Info frame
         self.info_frame = ViewFrame.InfoFrame(self, column=1, row=0)
@@ -220,18 +224,22 @@ class ViewFrame(GenericPage.NavigationFrame):
     def update_colour(self):
         super().update_colour()
         self.search_frame.update_colour()
+        self.new_button.update_colour()
         self.info_frame.update_colour()
         self.prediction_preview_block.update_colour()
 
     def update_content(self):
         super().update_content()
         self.search_frame.update_content()
+        self.new_button.update_content()
+        self.info_frame.update_content()
+        self.prediction_preview_block.update_content()
 
     def destroy(self):
         super().destroy()
 
     def set_switch_to_new_frame(self, command):
-        self.search_frame.set_switch_frame_command(command=command)
+        self.new_button.config(command=command)
 
 
 class NewFrame(GenericPage.NavigationFrame):
@@ -364,7 +372,7 @@ class NewFrame(GenericPage.NavigationFrame):
             self.select_dataset_label = CustomLabels.TitleLabel(self, column=0, row=0, text="Select Datasets")
 
             # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
+            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
             self.scroll_models_block.grid(column=0, row=2)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
@@ -427,9 +435,14 @@ class NewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=3)
 
         # Search space
-        self.search_frame = NewFrame.SearchFrame(self, column=0, row=0, rowspan=2)
+        # self.search_frame = NewFrame.SearchFrame(self, column=0, row=0, rowspan=2)
+        self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, rowspan=2, title="Select Datasets",
+                                                           multi_select=True)
         self.search_frame.grid(sticky=tkinter.NSEW)
 
+        # Additional search button
+        self.view_models_button = SearchButton(self.search_frame.button_frame, column=0, row=0, text="View Models",
+                                               command=Warnings.not_complete)
         # Info frame
         self.database_info_frame = NewFrame.DatasetInfoFrame(self, column=1, row=0)
         self.new_model_info_frame = NewFrame.NewModelInfoFrame(self, column=1, row=1)
@@ -439,12 +452,14 @@ class NewFrame(GenericPage.NavigationFrame):
         self.search_frame.update_colour()
         self.database_info_frame.update_colour()
         self.new_model_info_frame.update_colour()
+        self.view_models_button.update_colour()
 
     def update_content(self):
         super().update_content()
         self.search_frame.update_content()
         self.database_info_frame.update_content()
         self.new_model_info_frame.update_content()
+        self.view_models_button.update_content()
 
     def destroy(self):
         self.search_frame.update_content()
@@ -453,4 +468,4 @@ class NewFrame(GenericPage.NavigationFrame):
         super().destroy()
 
     def set_switch_to_view_frame(self, command):
-        self.search_frame.set_switch_frame_command(command=command)
+        self.view_models_button.config(command=command)

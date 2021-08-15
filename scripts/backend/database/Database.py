@@ -66,7 +66,7 @@ def connect(database_name=Constants.DEFAULT_DATABASE_NAME):
     assert connection is None
 
     try:
-        connection = sqlite3.connect(Parameters.PROJECT_PATH + Constants.DATABASE_PATH + database_name,
+        connection = sqlite3.connect(Parameters.PROJECT_PATH + Constants.SERVER_DATABASE_PATH + database_name,
                                      check_same_thread=False)
         cursor = connection.cursor()
     except:
@@ -126,17 +126,19 @@ def create_models_table():
     global cursor
     # Create Models Table
     cursor.execute("""CREATE TABLE Models (
-                            ID             INTEGER PRIMARY KEY,
-                            Name           TEXT NOT NULL,
-                            ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
-                            Date_Created   DATE,
-                            View_Domain    INTEGER NOT NULL,
-                            ID_Dataset     INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
-                            Batch_Size     INTEGER NOT NULL,
-                            Num_Epochs     INTEGER NOT NULL,
-                            Layer_Types    TEXT NOT NULL,
-                            Num_Layers     INTEGER NOT NULL,
-                            Num_Nodes      INTEGER NOT NULL)""")
+                            ID                  INTEGER PRIMARY KEY,
+                            Name                TEXT NOT NULL,
+                            ID_Owner            INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
+                            Date_Created        DATE,
+                            View_Domain         INTEGER NOT NULL,
+                            ID_Dataset          INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                            Learning_Rate       REAL NOT NULL,
+                            Batch_Size          INTEGER NOT NULL,
+                            Num_Epochs          INTEGER NOT NULL,
+                            Data_Time_Shift_s   REAL NOT NULL,
+                            Layer_Types         TEXT NOT NULL,
+                            Num_Layers          INTEGER NOT NULL,
+                            Num_Nodes_Per_Layer INTEGER NOT NULL)""")
 
 
 def create_all_new_tables(replace=False):

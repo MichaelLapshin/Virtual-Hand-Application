@@ -29,13 +29,9 @@ class OptionMenu(tkinter.OptionMenu, WidgetInterface):
 
 class SortOptionMenu(OptionMenu):
 
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, value=None):
+    def __init__(self, root, column, row, values, columnspan=1, rowspan=1, value=None):
         # Create the options
-        self.values = ["Name", "ID Number", "# of Training Frames",
-                       "Average Loss", "Personal Rating",
-                       "Newest", "Oldest",
-                       "Batch Size", "# of Epoch",
-                       "# of Layers", "# of Nodes per Layer"]
+        self.values = values
 
         if value is None:
             value = self.values[0]

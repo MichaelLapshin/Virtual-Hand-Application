@@ -5,8 +5,6 @@ import requests
 
 from scripts import Warnings, Parameters, InputConstraints, Log, Constants
 
-Warnings.not_complete()
-
 """
     Connection Variables
 """
@@ -207,7 +205,7 @@ def delete_user(user_name, password):
 
 
 def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per_second):
-    Log.info("Attempting to uploa the dataset named '" + name + "'.")
+    Log.info("Attempting to upload the dataset named '" + name + "'.")
     result = send_post_request(
         url_extension="/transfer/upload_dataset",
         file_to_send=Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME,
@@ -215,10 +213,43 @@ def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per
                 "owner_name": owner_name,
                 "date": date_created,
                 "permission": access_perm_level,
-                "FPS" : frames_per_second})
+                "FPS": frames_per_second})
     if result is True:
         Log.info("The dataset named '" + name + "' was successfully uploaded.")
         return True
     else:
         Log.info("The dataset named '" + name + "' failed to upload.")
         return False
+
+
+"""
+    Data Fetching
+"""
+
+
+def fetch_ordered_datasets(sort_by, direction, user_name):
+    Log.info("Fetching ordered datasets list using the constraints: "
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + user_name + "'.")
+
+    result = send_get_request(
+        url_extension="/fetch/sorted_datasets",
+        values={"sort_by": sort_by,
+                "direction": direction,
+                "user_name": user_name},
+        ovrd_ltst_msg=False)
+
+    return result
+
+
+def fetch_ordered_models(sort_by, direction, user_name):
+    Log.info("Fetching ordered models list using the constraints: "
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + user_name + "'.")
+
+    result = send_get_request(
+        url_extension="/fetch/sorted_models",
+        values={"sort_by": sort_by,
+                "direction": direction,
+                "user_name": user_name},
+        ovrd_ltst_msg=False)
+
+    return result

@@ -12,7 +12,7 @@ from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.page_components import \
     InformationBlock, ScrollBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
-    StatusIndicator
+    StatusIndicator, SearchBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
@@ -162,7 +162,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.columnconfigure(0, weight=1)
 
             # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
+            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
             self.scroll_models_block.grid(column=0, row=1)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
@@ -226,8 +226,18 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=3)
 
         # Search space
-        self.search_frame = ViewFrame.SearchFrame(self, column=0, row=0)
+        # self.search_frame = ViewFrame.SearchFrame(self, column=0, row=0)
+        self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, title="Dataset List",
+                                                           multi_select=True)
         self.search_frame.grid(sticky=tkinter.NSEW)
+        self.search_frame.search_button.grid(column=2)  # Makes room for the other buttons
+        self.search_frame.button_frame.columnconfigure(2, weight=1)
+
+        # Additional buttons for the search frame
+        self.new_dataset_button = SearchButton(self.search_frame.button_frame, column=0, row=0, text="New",
+                                               command=Warnings.not_complete)
+        self.merge_selected_button = SearchButton(self.search_frame.button_frame, column=1, row=0,
+                                                  text="Merge Selected", command=self.merge_selected_datasets)
 
         # Info frame
         self.info_frame = ViewFrame.InfoFrame(self, column=1, row=0)
@@ -240,13 +250,22 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.search_frame.update_colour()
         self.info_frame.update_colour()
         self.graph_frame.update_colour()
+        self.new_dataset_button.update_colour()
+        self.merge_selected_button.update_colour()
 
     def update_content(self):
         super().update_content()
         self.search_frame.update_content()
+        self.info_frame.update_content()
+        self.graph_frame.update_content()
+        self.new_dataset_button.update_content()
+        self.merge_selected_button.update_content()
 
     def set_switch_to_new_frame(self, command):
-        self.search_frame.set_switch_frame_command(command=command)
+        self.new_dataset_button.config(command=command)
+
+    def merge_selected_datasets(self):
+        Warnings.not_complete()
 
 
 class NewFrame(GenericPage.NavigationFrame):
@@ -485,10 +504,8 @@ class NewFrame(GenericPage.NavigationFrame):
             self.data_rec_info_frame.status_label.set_status(self.data_recorder.is_running())
 
         # Enables uploading to the server
-        if (self.data_recorder is not None) and (self.data_recorder.is_successful() is True) \
-                and (self.data_recorder.is_recording_used() is False):
+        if (self.data_recorder is not None) and (self.data_recorder.is_successful() is True):
             self.upload_dataset_button.enable()
-            self.temp_dataset_FPS = self.data_rec_info_frame.input_frame.get_value("Frames per second")
         else:
             self.upload_dataset_button.disable()
 
@@ -509,7 +526,7 @@ class NewFrame(GenericPage.NavigationFrame):
         owner_name = self.general_info_frame.get_value("Owner")
         date_created = self.general_info_frame.get_value("Date created")
         access_permissions = self.general_info_frame.get_value("Access permissions")
-        frames_per_second = self.temp_dataset_FPS
+        frames_per_second = self.data_recorder.frames_per_second
 
         # Assert the input constraints
         can_upload = True
@@ -536,7 +553,7 @@ class NewFrame(GenericPage.NavigationFrame):
                 tkinter.messagebox.showinfo("Upload: Success!",
                                             "The dataset '" + name + "' was successfully uploaded to the server.")
                 Log.info("Successfully uploaded the dataset named '" + name + "'.")
-                self.data_recorder.use_recording()
+                self.data_recorder = None
             else:
                 tkinter.messagebox.showwarning("Upload: Failed!", "The dataset failed to upload to the server.\n"
                                                                   "Does a dataset with the same name already exist?")
