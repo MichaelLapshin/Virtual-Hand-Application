@@ -149,74 +149,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
-    class SearchFrame(GenericPage.Frame):
 
-        def __init__(self, root, column, row, columnspan=1, rowspan=1):
-            GenericPage.Frame.__init__(self, root)
-            self.grid(column=column, row=row)
-            self.grid(columnspan=columnspan, rowspan=rowspan)
-            self.grid(sticky=tkinter.NS)
-
-            # Configure weights
-            self.rowconfigure(1, weight=1)
-            self.columnconfigure(0, weight=1)
-
-            # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
-            self.scroll_models_block.grid(column=0, row=1)
-            self.scroll_models_block.grid(columnspan=1, rowspan=1)
-
-            # Buttons frame
-            self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=0,
-                                                  columnspan=1, rowspan=1)
-            self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure button frame weights
-            self.button_frame.rowconfigure(0, weight=1)
-            self.button_frame.rowconfigure(1, weight=1)
-            self.button_frame.columnconfigure(0, weight=1)
-            self.button_frame.columnconfigure(1, weight=1)
-            self.button_frame.columnconfigure(2, weight=1)
-
-            # Search buttons & widgets
-            self.new_dataset_button = SearchButton(
-                self.button_frame, column=0, row=0, text="New", command=Warnings.not_complete)
-            self.merge_selected_button = SearchButton(
-                self.button_frame, column=1, row=0, text="Merge Selected", command=Warnings.not_complete)
-            self.search_button = SearchButton(
-                self.button_frame, column=2, row=0, text="Search", command=Warnings.not_complete)
-
-            # Sorting
-            self.button_search_frame = tkinter.Frame(self.button_frame)
-            self.button_search_frame.grid(column=0, row=1, columnspan=3, sticky=tkinter.NSEW)
-            self.button_search_frame.columnconfigure(1, weight=1)
-
-            self.sort_label = SearchLabel(self.button_search_frame, column=0, row=0, text="Sort by:")
-            self.sort_option_menu = SortOptionMenu(self.button_search_frame, column=1, row=0, columnspan=2)
-            self.sort_option_menu.grid(sticky=tkinter.NSEW)
-
-        def update_colour(self):
-            super().update_colour()
-            self.scroll_models_block.update_colour()
-            self.button_frame.update_colour()
-            self.new_dataset_button.update_colour()
-            self.merge_selected_button.update_colour()
-            self.search_button.update_colour()
-
-            self.sort_label.update_colour()
-            self.sort_option_menu.update_colour()
-
-            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
-            self.button_search_frame.config(bg=self.button_frame.cget("bg"))
-            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
-
-        def update_content(self):
-            super().update_content()
-            self.scroll_models_block.update_content()
-
-        def set_switch_frame_command(self, command):
-            self.new_dataset_button.config(command=command)
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
