@@ -1,4 +1,4 @@
-from scripts import Warnings, Log, Constants
+from scripts import Warnings, Log, Constants, General
 from scripts.backend.database import Database
 
 
@@ -15,9 +15,11 @@ def fetch_ordered_models(sort_by="Name", direction="ASC", user_id=None):
              "'. Executing " + direction + " sorting on the column " + sort_by + ".")
 
     # Fetching the ordered data
-    Database.cursor.execute("SELECT * FROM Models WHERE ID_Owner = " + str(user_id) + " or "
-                            + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
-                            + " ORDER BY " + sort_by + " " + direction)
+    Database.cursor.execute(
+        "SELECT " + General.list_to_sql_select_features(Constants.MODEL_DATA_TO_FETCH)
+        + " FROM Models WHERE ID_Owner = " + str(user_id) + " or "
+        + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
+        + " ORDER BY " + sort_by + " " + direction)
     results = Database.cursor.fetchall()
 
     # Returning results

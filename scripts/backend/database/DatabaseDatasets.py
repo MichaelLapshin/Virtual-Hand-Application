@@ -1,4 +1,4 @@
-from scripts import Warnings, Constants, Log
+from scripts import Warnings, Constants, Log, General
 from scripts.backend.database import Database
 
 
@@ -44,9 +44,11 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
              "'. Executing " + direction + " sorting on the column " + sort_by + ".")
 
     # Fetching the ordered data
-    Database.cursor.execute("SELECT * FROM Datasets WHERE ID_Owner = " + str(user_id) + " or "
-                            + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
-                            + " ORDER BY " + sort_by + " " + direction)
+    Database.cursor.execute(
+        "SELECT " + General.list_to_sql_select_features(Constants.DATABASE_DATA_TO_FETCH)
+        + " FROM Datasets WHERE ID_Owner = " + str(user_id) + " or "
+        + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
+        + " ORDER BY " + sort_by + " " + direction)
     results = Database.cursor.fetchall()
 
     # Returning results

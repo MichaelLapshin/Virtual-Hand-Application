@@ -131,18 +131,23 @@ class DatasetSearchFrame(Frame):
     #     self.new_dataset_button.config(command=command)
 
     def search_button_command(self):
+        sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
+
         # Obtains the information
         self.list_storage = ClientConnection.fetch_ordered_datasets(
-            sort_by=Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
+            sort_by=sort_by,
             direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
             user_name=ClientConnection.get_user_name())
 
         # Replaces the list
         replace_list = []
-        for item in self.list_storage:
-            replace_list.append(item[1])
+        replace_list_sorted = []
+        if self.list_storage is not None:
+            for item in self.list_storage:
+                replace_list.append(" " + str(item[Constants.DATABASE_DATA_TO_FETCH.index("Name")]))
+                replace_list_sorted.append(" " + str(item[Constants.DATABASE_DATA_TO_FETCH.index(sort_by)]))
 
-        self.scroll_block.replace_list(replace_list)
+        self.scroll_block.replace_list(replace_list, replace_list_sorted)
 
 
 class ModelSearchFrame(Frame):

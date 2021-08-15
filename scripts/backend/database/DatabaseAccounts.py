@@ -32,6 +32,9 @@ def get_user_id(user_name):
     Log.debug("Getting the ID of a user named '" + user_name + "'.")
     Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "'")
 
+    if len(Database.cursor.fetchall()) <= 0:
+        return -1
+
     # Obtain the user ID
     id = int(Database.cursor.fetchone()[0])
     Log.info("Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "'")
