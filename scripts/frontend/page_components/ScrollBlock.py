@@ -46,7 +46,7 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.sorted_listbox.grid(column=1, row=0)
         self.sorted_listbox.grid(columnspan=1, rowspan=1)
         self.sorted_listbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-        self.sorted_listbox.grid(sticky=tkinter.W)
+        self.sorted_listbox.grid(sticky=tkinter.NS)
 
         # Creates selectable scroll bar
         self.multi_select = multi_select
