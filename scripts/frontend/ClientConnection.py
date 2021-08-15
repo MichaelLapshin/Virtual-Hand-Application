@@ -229,7 +229,7 @@ def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per
 
 def fetch_ordered_datasets(sort_by, direction, user_name):
     Log.info("Fetching ordered datasets list using the constraints: "
-             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + user_name + "'.")
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + str(user_name) + "'.")
 
     result = send_get_request(
         url_extension="/fetch/sorted_datasets",

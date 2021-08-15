@@ -14,15 +14,20 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
 
+        # Selection logic
+        self.selected_index_listbox = -1
+        self.selected_index_sorted_listbox = -1
+
         # Configures weights
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=0)
+        self.columnconfigure(1, weight=0)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=0)
 
         # Creates the scroll bar
         self.scrollbar = tkinter.Scrollbar(self, orient=tkinter.VERTICAL)
-        self.scrollbar.grid(column=2, row=0)
+        self.scrollbar.grid(column=3, row=0)
         self.scrollbar.grid(columnspan=1, rowspan=1)
         self.scrollbar.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
         self.scrollbar.grid(sticky=tkinter.NS)
@@ -30,10 +35,18 @@ class Frame(tkinter.Frame, WidgetInterface):
         # Initializes the list box
         self.listbox = tkinter.Listbox(self, selectmode=tkinter.SINGLE,
                                        yscrollcommand=self.listbox_scroll, exportselection=False)
-        self.listbox.grid(column=1, row=0)
+        self.listbox.grid(column=2, row=0)
         self.listbox.grid(columnspan=1, rowspan=1)
         self.listbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
         self.listbox.grid(sticky=tkinter.NSEW)
+
+        # Initializes the listbox that displays the sorted data values
+        self.sorted_listbox = tkinter.Listbox(self, selectmode=tkinter.SINGLE, width=3,
+                                              yscrollcommand=self.sorted_listbox_scroll, exportselection=True)
+        self.sorted_listbox.grid(column=1, row=0)
+        self.sorted_listbox.grid(columnspan=1, rowspan=1)
+        self.sorted_listbox.grid(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+        self.sorted_listbox.grid(sticky=tkinter.W)
 
         # Creates selectable scroll bar
         self.multi_select = multi_select
@@ -64,6 +77,32 @@ class Frame(tkinter.Frame, WidgetInterface):
         super().update_colour()
         self.selected_count_label.update_colour()
 
+    def update_content(self):
+        super().update_content()
+
+        # Selection Activation
+        if self.listbox.size() > 0:
+            if len(self.listbox.curselection()) > 0 and \
+                    self.selected_index_listbox != self.listbox.curselection()[0]:
+                self.selected_index_listbox = self.listbox.curselection()[0]
+                self.sorted_listbox.selection_clear(0, tkinter.END)
+                self.sorted_listbox.selection_set(self.selected_index_listbox)
+                self.selected_index_sorted_listbox = self.selected_index_listbox
+
+            if len(self.sorted_listbox.curselection()) > 0 and \
+                    self.selected_index_sorted_listbox != self.sorted_listbox.curselection()[0]:
+                self.selected_index_sorted_listbox = self.sorted_listbox.curselection()[0]
+                self.listbox.selection_clear(0, tkinter.END)
+                self.listbox.selection_set(self.selected_index_sorted_listbox)
+                self.selected_index_listbox = self.selected_index_sorted_listbox
+
+        # Selected Count
+        if self.num_selected() != 0:
+            self.selected_count_label.config(text=Frame._selected + str(self.num_selected()))
+            self.selected_count_label.grid()
+        else:
+            self.selected_count_label.grid_remove()
+
     # Synchronous scrolling of both list boxes
     def scroll(self, *args):
         self.listbox.yview(*args)
@@ -72,23 +111,25 @@ class Frame(tkinter.Frame, WidgetInterface):
     def listbox_scroll(self, *args):
         if (self.selectbox is not None) and (self.listbox.yview() != self.selectbox.yview()):
             self.selectbox.yview_moveto(args[0])
+        if self.listbox.yview() != self.sorted_listbox.yview():
+            self.sorted_listbox.yview_moveto(args[0])
         self.scrollbar.set(*args)
 
-    def selectbox_scroll(self, *args):
-        if self.listbox.yview() != self.selectbox.yview():
+    def sorted_listbox_scroll(self, *args):
+        if (self.selectbox is not None) and (self.sorted_listbox.yview() != self.selectbox.yview()):
+            self.selectbox.yview_moveto(args[0])
+        if self.sorted_listbox.yview() != self.listbox.yview():
             self.listbox.yview_moveto(args[0])
         self.scrollbar.set(*args)
 
-    # More functionality methods
-    def update_content(self):
-        super().update_content()
-        # Selected Count
-        if self.num_selected() != 0:
-            self.selected_count_label.config(text=Frame._selected + str(self.num_selected()))
-            self.selected_count_label.grid()
-        else:
-            self.selected_count_label.grid_remove()
+    def selectbox_scroll(self, *args):
+        if self.selectbox.yview() != self.listbox.yview():
+            self.listbox.yview_moveto(args[0])
+        if self.selectbox.yview() != self.sorted_listbox.yview():
+            self.sorted_listbox.yview_moveto(args[0])
+        self.scrollbar.set(*args)
 
+    # More functionality methods
     def get_selected(self):
         if self.multi_select is True:
             return self.selectbox.curselection()
@@ -98,15 +139,16 @@ class Frame(tkinter.Frame, WidgetInterface):
     def num_selected(self):
         return len(self.get_selected())
 
-    def add_to_list(self, item_display_name, index=tkinter.END):
+    def add_to_list(self, item_display_name, item_display_sorted, index=tkinter.END):
         # Computes the index
         if index == tkinter.END:
             index = self.listbox.size()
 
         # Adds the item to the index
         self.listbox.insert(index, item_display_name)
+        self.sorted_listbox.insert(index, str(item_display_sorted))
         if self.selectbox is not None:
-            self.selectbox.insert(index, str(index))
+            self.selectbox.insert(index, " " + str(index))
         return True
 
     def remove_from_list(self, item_display_name):
@@ -128,13 +170,23 @@ class Frame(tkinter.Frame, WidgetInterface):
             Warnings.not_to_reach()
             return False
 
-    def replace_list(self, new_list):
+    def replace_list(self, new_list, new_sorted_list):
+        assert len(new_list) == len(new_sorted_list)
+
+        # Sets the appropriate width of the sorted column
+        max_width = 1
+        for item in new_sorted_list:
+            if len(str(item)) > max_width:
+                max_width = len(item)
+        self.sorted_listbox.config(width=max_width)
+
         # Removes all items
         self.listbox.delete(0, tkinter.END)
+        self.sorted_listbox.delete(0, tkinter.END)
         if self.multi_select is True:
             self.selectbox.delete(0, tkinter.END)
 
         # Deletes and re-adds the items
-        for item in new_list:
-            self.add_to_list(item)
+        for index in range(0, len(new_list)):
+            self.add_to_list(new_list[index], new_sorted_list[index])
         return True

@@ -61,6 +61,14 @@ DEFAULT_USER = "admin"
 DEFAULT_PASSWORD = "password"
 DEFAULT_DATABASE_NAME = "database"
 
+# Fetching data
+DATABASE_DATA_TO_FETCH = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "FPS",
+                          "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",
+                          "Angle_Savagol_Distance", "Angle_Savagol_Degree")
+MODEL_DATA_TO_FETCH = ("ID", "Name", "ID_Owner", "Date_Created", "View_Domain", "ID_Dataset",
+                       "Learning_Rate", "Batch_Size", "Num_Epochs", "Data_Time_Shift_s",
+                       "Layer_Types", "Num_Layers", "Num_Nodes_Per_Layer")
+
 # Database sorting parameter constants {"Displayed text", "Database feature name"}
 DATABASES_SORT_BY_OPTIONS = {"ID Number": "ID",
                              "Name": "Name",

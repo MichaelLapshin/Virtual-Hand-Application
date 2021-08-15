@@ -5,7 +5,7 @@
 import datetime
 import inspect
 
-from scripts import Parameters
+from scripts import Parameters, General
 
 files_seen = []
 
@@ -34,7 +34,7 @@ def print_on_lvl(text, lvl):
 
         # Starts the logs
         file = open(Parameters.PROJECT_PATH + "logs\\" + file_name + ".log", 'a')
-        file.write(datetime.datetime.now().strftime("[%Y-%m-%d %H:%M:%S]") + text + "\n")
+        file.write("[" + General.get_current_slashed_date(hms=True) + "]" + text + "\n")
         file.close()
 
 
