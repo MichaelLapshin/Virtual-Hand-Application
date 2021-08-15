@@ -479,14 +479,15 @@ class Frame(GenericPage.NavigationFrame):
                                                         title=USER_LIST_TITLE)
                 # Adds the users to the table
                 user_names = ClientConnection.get_all_user_names()
-                col = 0
-                for name in user_names:
-                    self.user_list.add_info(col, 0, name + "\n")
+                if user_names is not None:
+                    col = 0
+                    for name in user_names:
+                        self.user_list.add_info(col, 0, name + "\n")
 
-                    # Loops the name listing
-                    col += 1
-                    if col >= int(num_columns):
-                        col = 0
+                        # Loops the name listing
+                        col += 1
+                        if col >= int(num_columns):
+                            col = 0
                 self.update_colour()
 
     def __init__(self, root, base_frame=None):

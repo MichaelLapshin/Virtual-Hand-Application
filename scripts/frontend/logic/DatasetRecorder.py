@@ -40,7 +40,6 @@ class Recorder(threading.Thread):
         self._zeroes = {}
         self._running = False
         self._success = False
-        self._recording_used = False
 
     def run(self):
         # Pre-running
@@ -140,7 +139,8 @@ class Recorder(threading.Thread):
 
         if self._running is True:
             # Saves the training data
-            hf = h5py.File(Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME, 'w')
+            hf = h5py.File(Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME,
+                           'w')
             if time_list is not None:
                 hf.create_dataset("time", data=time_list)
             hf.create_dataset("sensor", data=sensor_list)
@@ -155,12 +155,6 @@ class Recorder(threading.Thread):
 
     def is_successful(self):
         return self._success
-
-    def use_recording(self):
-        self._recording_used = True
-
-    def is_recording_used(self):
-        return self._recording_used
 
     def start(self):
         self._running = True

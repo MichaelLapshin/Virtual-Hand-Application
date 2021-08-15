@@ -39,7 +39,7 @@ def upload_dataset():
             # Save the file and create a dataset entry
             DatabaseDatasets.create_new_dataset(name=dataset_name, owner_id=dataset_owner_id,
                                                 date=dataset_date, permission=dataset_permission, fps=dataset_fps)
-            file.save(Parameters.PROJECT_PATH + Constants.TRAIN_DATASET_PATH + dataset_name + ".ds")
+            file.save(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + dataset_name + ".ds")
             Log.info("Successfully stored the new dataset '" + dataset_name + "'.")
             return package(True, "Successfully stored the new dataset '" + dataset_name + "'.")
     else:

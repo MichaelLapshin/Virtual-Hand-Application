@@ -1,11 +1,11 @@
 import tkinter
 
 from scripts import General, Warnings, Parameters, Constants
-from scripts.frontend import  Navigation
+from scripts.frontend import Navigation
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import ScrollBlock, InformationBlock, SensorsBufferBlock
+from scripts.frontend.page_components import ScrollBlock, InformationBlock, SensorsBufferBlock, SearchBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
@@ -95,7 +95,7 @@ class Frame(GenericPage.NavigationFrame):
             self.columnconfigure(0, weight=1)
 
             # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
+            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
             self.scroll_models_block.grid(column=0, row=1)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
@@ -152,7 +152,8 @@ class Frame(GenericPage.NavigationFrame):
         self.columnconfigure(1, weight=3)
 
         # Search space
-        self.search_frame = Frame.SearchFrame(self, column=0, row=0)
+        # self.search_frame = Frame.SearchFrame(self, column=0, row=0)
+        self.search_frame = SearchBlock.ModelSearchFrame(self, column=0, row=0, title="Models in Use")
         self.search_frame.grid(sticky=tkinter.NSEW)
 
         # Info frame

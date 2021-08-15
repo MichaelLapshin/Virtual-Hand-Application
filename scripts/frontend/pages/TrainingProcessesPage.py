@@ -5,7 +5,7 @@ from scripts.frontend import  Navigation
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock
+from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
@@ -95,7 +95,7 @@ class Frame(GenericPage.NavigationFrame):
             self.columnconfigure(0, weight=1)
 
             # Scroll block
-            self.scroll_models_block = ScrollBlock.Frame(self, selectable_items=True)
+            self.scroll_models_block = ScrollBlock.Frame(self, multi_select=True)
             self.scroll_models_block.grid(column=0, row=1)
             self.scroll_models_block.grid(columnspan=1, rowspan=1)
 
@@ -216,8 +216,11 @@ class Frame(GenericPage.NavigationFrame):
         self.columnconfigure(2, weight=3)
 
         # Search space
-        self.queue_search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
-        self.complete_search_frame = Frame.CompleteSearchFrame(self, column=1, row=0)
+        # self.queue_search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
+        # self.complete_search_frame = Frame.CompleteSearchFrame(self, column=1, row=0)
+
+        self.queue_search_frame = SearchBlock.ModelSearchFrame(self, column=0, row=0, title="Queue")
+        self.complete_search_frame = SearchBlock.ModelSearchFrame(self, column=1, row=0, title="Complete")
 
         # Info frame
         self.info_frame = Frame.InfoFrame(self, column=2, row=0)
