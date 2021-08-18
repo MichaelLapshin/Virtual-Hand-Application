@@ -1,6 +1,6 @@
 import flask
 
-from scripts import Log
+from scripts import Log, Constants
 
 
 def flarg(argument):
@@ -20,3 +20,9 @@ def package(success, message):
     to_return = str((success, message))
     Log.debug("Packaging the request return: " + to_return)
     return to_return
+
+
+def reverse_url_replacement_mapping(string):
+    for k in Constants.URL_REPLACEMENT_MAP:
+        string = string.replace(Constants.URL_REPLACEMENT_MAP.get(k), k)
+    return string

@@ -90,12 +90,10 @@ def create_users_table():
     global cursor
     # Create Users table
     cursor.execute("""CREATE TABLE Users (
-                            ID             INTEGER PRIMARY KEY ,
+                            ID             INTEGER PRIMARY KEY,
                             Name           TEXT UNIQUE NOT NULL,
                             Password       TEXT NOT NULL, 
-                            Permission     INTEGER NOT NULL,
-                            ID_Models      INTEGER, 
-                            ID_Datasets    INTEGER)""")
+                            Permission     INTEGER NOT NULL)""")
 
 
 def create_datasets_table():
@@ -107,6 +105,8 @@ def create_datasets_table():
                             ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created   DATE,
                             Permission     INTEGER NOT NULL,
+                            Rating         INTEGER,
+                            Num_Frames     INTEGER NOT NULL,
                             FPS            INTEGER NOT NULL,
                             Sensor_Savagol_Distance    REAL,
                             Sensor_Savagol_Degree      REAL,
@@ -127,15 +127,17 @@ def create_models_table():
     # Create Models Table
     cursor.execute("""CREATE TABLE Models (
                             ID                  INTEGER PRIMARY KEY,
-                            Name                TEXT NOT NULL,
+                            Name                TEXT UNIQUE NOT NULL,
                             ID_Owner            INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created        DATE,
                             View_Domain         INTEGER NOT NULL,
+                            Rating              INTEGER,
                             ID_Dataset          INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                            Num_Training_Frames INTEGER NOT NULL,
                             Learning_Rate       REAL NOT NULL,
                             Batch_Size          INTEGER NOT NULL,
                             Num_Epochs          INTEGER NOT NULL,
-                            Data_Time_Shift_s   REAL NOT NULL,
+                            Frames_Shift        REAL NOT NULL,
                             Layer_Types         TEXT NOT NULL,
                             Num_Layers          INTEGER NOT NULL,
                             Num_Nodes_Per_Layer INTEGER NOT NULL)""")

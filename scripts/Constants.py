@@ -62,24 +62,56 @@ DEFAULT_PASSWORD = "password"
 DEFAULT_DATABASE_NAME = "database"
 
 # Fetching data
-DATABASE_DATA_TO_FETCH = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "FPS",
-                          "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",
-                          "Angle_Savagol_Distance", "Angle_Savagol_Degree")
-MODEL_DATA_TO_FETCH = ("ID", "Name", "ID_Owner", "Date_Created", "View_Domain", "ID_Dataset",
-                       "Learning_Rate", "Batch_Size", "Num_Epochs", "Data_Time_Shift_s",
-                       "Layer_Types", "Num_Layers", "Num_Nodes_Per_Layer")
+URL_REPLACEMENT_MAP = {" ": "%"}
+DATABASE_ENTRY_TRANSFER_DATA = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "Rating",
+                                "Num_Frames", "FPS",
+                                "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",
+                                "Angle_Savagol_Distance", "Angle_Savagol_Degree")
+
+MODEL_ENTRY_TRANSFER_DATA = ("ID", "Name", "ID_Owner", "Date_Created", "View_Domain", "ID_Dataset",
+                             "Num_Training_Frames", "Learning_Rate", "Batch_Size", "Num_Epochs", "Frames_Shift",
+                             "Layer_Types", "Num_Layers", "Num_Nodes_Per_Layer")
 
 # Database sorting parameter constants {"Displayed text", "Database feature name"}
 DATABASES_SORT_BY_OPTIONS = {"ID Number": "ID",
                              "Name": "Name",
                              "Date created": "Date_Created",
-                             "FPS": "FPS"}
+                             "FPS": "FPS",
+                             "Rating": "Rating"}
 MODELS_SORT_BY_OPTIONS = {"ID Number": "ID",
                           "Name": "Name",
                           "Date created": "Date_Created",
+                          "Rating": "Rating",
                           "Learning Rate": "Learning_Rate",
                           "Batch Size": "Batch_Size",
                           "# of Epochs": "Num_Epochs",
                           "# of Nodes per Layer": "Num_Nodes_Per_Layer",
                           "# of Layers": "Num_Layers"}
 SORT_DIRECTION = {"Ascent": "ASC", "Descent": "DESC"}
+
+# Database Information Display constants {"Database feature name", "Display text"}
+DATABASE_GENERAL_INFORMATION_OPTIONS = {"Name": "Name",
+                                        "ID_Owner": "Owner ID",
+                                        "Date_Created": "Date created",
+                                        "Permission": "Access Permissions",
+                                        "Rating": "Personal Rating"}
+DATABASE_SMOOTHING_INFORMATION_OPTIONS = {"Num_Frames": "Training Frames",
+                                          "FPS": "Frames Per Second",
+                                          "Sensor_Savagol_Distance": "Sensor Savagol Distance",
+                                          "Sensor_Savagol_Degree": "Sensor Savagol Degree",
+                                          "Angle_Savagol_Distance": "Angle Savagol Distance",
+                                          "Angle_Savagol_Degree": "Angle Savagol Degree"}
+
+# Model Information Display constants {"Model feature name", "Display text"}
+MODEL_GENERAL_INFORMATION_OPTIONS = {"Name": "Name",
+                                     "ID_Owner": "Owner ID",
+                                     "Date_Created": "Date created",
+                                     "Permission": "Access Permissions",
+                                     None: "Average Training Loss (percentile)",
+                                     "Rating": "Personal Rating"}
+MODEL_TRAINING_INFORMATION_OPTIONS = {"Num_Training_Frames": "Training Frames",
+                                      "Batch_Size": "Batch Size",
+                                      "Num_Epochs": "Number of Epochs",
+                                      "Layer_Types": "Layer Type",
+                                      "Num_Layers": "Number of Layers",
+                                      "Num_Nodes_Per_Layer": "Number of Nodes per Layer"}

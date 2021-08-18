@@ -1,7 +1,7 @@
 import tkinter
 
 from scripts import General, Warnings, Parameters, Constants
-from scripts.frontend import  Navigation
+from scripts.frontend import Navigation
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
@@ -81,7 +81,6 @@ class Frame(GenericPage.NavigationFrame):
 
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
             self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
-
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,

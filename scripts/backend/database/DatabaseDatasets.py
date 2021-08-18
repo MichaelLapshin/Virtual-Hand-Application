@@ -3,17 +3,31 @@ from scripts.backend.database import Database
 
 
 def get_all_datasets():
-    Log.debug("Retrieving all datasets.")
+    Log.info("Retrieving all datasets.")
     Database.cursor.execute("SELECT * FROM Datasets")
     result = Database.cursor.fetchall()
-    Log.trace("Retrieved: " + str(result))
+    Log.debug("Retrieved: " + str(result))
     return result
 
 
-def create_new_dataset(name, owner_id, date, permission, fps):
-    Log.info("Inserting a dataset entry: " + str((name, owner_id, date, permission, fps, 0, 0, 0, 0)))
-    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (name, owner_id, date, permission, fps, 0, 0, 0, 0))
+def update_dataset_entry(dataset_id, new_values):
+    Log.info("Updating the dataset with id '" + str(dataset_id) + "' with the new values: " + str(new_values))
+    try:
+        Database.cursor.execute(
+            "UPDATE Datasets SET " + General.dict_to_sql_update_features(new_values) + " WHERE ID=" + str(dataset_id))
+        Database.connection.commit()
+        Log.debug("Successfully updated and commit the changes to the dataset with id '" + str(dataset_id) + "'.")
+        return True
+    except:
+        Log.debug("Was not successful in updating the values to the dataset with id '" + str(dataset_id) + "'.")
+        return False
+
+
+def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps):
+    Log.info("Inserting a dataset entry: "
+             + str((name, owner_id, date, permission, rating, num_frames, fps, 0, 0, 0, 0)))
+    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (name, owner_id, date, permission, rating, num_frames, fps, 0, 0, 0, 0))
     Database.connection.commit()
     Warnings.not_complete()
     return True
@@ -45,7 +59,7 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
 
     # Fetching the ordered data
     Database.cursor.execute(
-        "SELECT " + General.list_to_sql_select_features(Constants.DATABASE_DATA_TO_FETCH)
+        "SELECT " + General.list_to_sql_select_features(Constants.DATABASE_ENTRY_TRANSFER_DATA)
         + " FROM Datasets WHERE ID_Owner = " + str(user_id) + " or "
         + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
         + " ORDER BY " + sort_by + " " + direction)

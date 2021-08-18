@@ -14,6 +14,7 @@ from AccountAPI import account_api
 from FileTransferAPI import file_transfer_api
 from DataProcessingAPI import data_processing_api
 from DataFetchingAPI import data_fetching_api
+from DataUpdatingAPI import data_updating_api
 
 # Import miscellaneous scripts
 from scripts import Log, Warnings
@@ -35,6 +36,7 @@ if start_server:
     server_app.register_blueprint(file_transfer_api, url_prefix="/transfer")
     server_app.register_blueprint(data_processing_api, url_prefix="/process")
     server_app.register_blueprint(data_fetching_api, url_prefix="/fetch")
+    server_app.register_blueprint(data_updating_api, url_prefix="/update")
 
     if __name__ == "__main__":
         server_app.run()

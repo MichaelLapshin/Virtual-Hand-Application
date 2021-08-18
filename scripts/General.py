@@ -29,3 +29,9 @@ def list_to_sql_select_features(a_list):
     new_string_list = str(a_list).lstrip("(").rstrip(")").replace("'", "")
     Log.info("Generated the new sql feature list: " + new_string_list)
     return new_string_list
+
+
+def dict_to_sql_update_features(a_dict):
+    new_string_dict = str(a_dict).lstrip("{").rstrip("}").replace(":", "=")
+    Log.info("Generated the new sql feature dict: " + new_string_dict)
+    return new_string_dict

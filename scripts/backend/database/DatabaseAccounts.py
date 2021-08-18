@@ -32,11 +32,13 @@ def get_user_id(user_name):
     Log.debug("Getting the ID of a user named '" + user_name + "'.")
     Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "'")
 
-    if len(Database.cursor.fetchall()) <= 0:
+    fetched_data = Database.cursor.fetchall()
+
+    if len(fetched_data) <= 0:
         return -1
 
     # Obtain the user ID
-    id = int(Database.cursor.fetchone()[0])
+    id = int(fetched_data[0][0])
     Log.info("Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "'")
     return id
 
@@ -120,7 +122,7 @@ def add_user(user_name, password, permission=Constants.PERMISSION_LEVELS.get(Con
     assert exists_user_by_name(user_name) is False
 
     # Creates a user
-    Database.cursor.execute("INSERT INTO Users VALUES (NULL, ?,?,?,?,?)", (user_name, password, permission, None, None))
+    Database.cursor.execute("INSERT INTO Users VALUES (NULL, ?,?,?)", (user_name, password, permission))
     Database.connection.commit()
 
     Log.debug("The insertion of the new user entry has been committed to the database.")

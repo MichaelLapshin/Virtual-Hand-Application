@@ -200,11 +200,62 @@ def delete_user(user_name, password):
 
 
 """
+    Entry Updating Management
+"""
+
+
+def update_dataset_entry(dataset_id, dataset_values):
+    # Asserts that all send values are a part of the transfer list
+    for k in dataset_values.keys():
+        assert k in Constants.DATABASE_ENTRY_TRANSFER_DATA
+
+    # Replaces the values
+    for k in dataset_values.keys():
+        for r in Constants.URL_REPLACEMENT_MAP:
+            dataset_values[k] = dataset_values.get(k).replace(r, Constants.URL_REPLACEMENT_MAP.get(r))
+
+    # Sends the information
+    result = send_get_request("/update/dataset_entry", values={"id": dataset_id, "new_values": dataset_values})
+
+    if result is True:
+        Log.info("The dataset with the id '" + dataset_id +
+                 "' was successfully updated with the values: " + str(dataset_values))
+        return True
+    else:
+        Log.info("The dataset with the id '" + dataset_id +
+                 "' failed to be updated with the values: " + str(dataset_values))
+        return False
+
+
+def update_model_entry(model_id, model_values):
+    # Asserts that all send values are a part of the transfer list
+    for k in model_values.keys():
+        assert k in Constants.MODEL_ENTRY_TRANSFER_DATA
+
+    # Replaces the values
+    for k in model_values.keys():
+        for r in Constants.URL_REPLACEMENT_MAP:
+            model_values[k] = model_values.get(k).replace(r, Constants.URL_REPLACEMENT_MAP.get(r))
+
+    # Sends the information
+    result = send_get_request("/update/model_entry", values={"id": model_id, "new_values": model_values})
+
+    if result is True:
+        Log.info("The model with the id '" + model_id +
+                 "' was successfully updated with the values: " + str(model_values))
+        return True
+    else:
+        Log.info("The model with the id '" + model_id +
+                 "' failed to be updated with the values: " + str(model_values))
+        return False
+
+
+"""
     File Transfer Management
 """
 
 
-def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per_second):
+def upload_dataset(name, owner_name, date_created, access_perm_level, personal_rating, num_frames, frames_per_second):
     Log.info("Attempting to upload the dataset named '" + name + "'.")
     result = send_post_request(
         url_extension="/transfer/upload_dataset",
@@ -213,6 +264,8 @@ def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per
                 "owner_name": owner_name,
                 "date": date_created,
                 "permission": access_perm_level,
+                "rating": personal_rating,
+                "num_frames": num_frames,
                 "FPS": frames_per_second})
     if result is True:
         Log.info("The dataset named '" + name + "' was successfully uploaded.")
@@ -223,7 +276,7 @@ def upload_dataset(name, owner_name, date_created, access_perm_level, frames_per
 
 
 """
-    Data Fetching
+    Data Fetching Management
 """
 
 
