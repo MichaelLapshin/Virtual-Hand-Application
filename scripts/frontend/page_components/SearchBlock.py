@@ -13,7 +13,7 @@ from scripts.frontend.pages import GenericPage
 class Frame(GenericPage.Frame):
 
     def __init__(self, root, column, row, search_values, default_search_value=None,
-                 multi_select=False,
+                 multi_select=False, sort_columnspan=2,
                  columnspan=1, rowspan=1,
                  title=None):
         GenericPage.Frame.__init__(self, root)
@@ -45,16 +45,16 @@ class Frame(GenericPage.Frame):
         # Configure button frame weights
         self.button_frame.rowconfigure(0, weight=1)
         self.button_frame.rowconfigure(1, weight=1)
-        self.button_frame.columnconfigure(0, weight=1)
-        self.button_frame.columnconfigure(1, weight=1)
+        for x in range(0, sort_columnspan):
+            self.button_frame.columnconfigure(x, weight=1)
 
         # Search buttons & widgets
         self.search_button = SearchButton(
-            self.button_frame, column=1, row=0, text="Search", command=self.search_button_command)
+            self.button_frame, column=sort_columnspan - 1, row=0, text="Search", command=self.search_button_command)
 
         # Sorting
         self.button_search_frame = tkinter.Frame(self.button_frame)
-        self.button_search_frame.grid(column=0, row=1, columnspan=3, sticky=tkinter.NSEW)
+        self.button_search_frame.grid(column=0, row=1, columnspan=sort_columnspan, sticky=tkinter.NSEW)
         self.button_search_frame.columnconfigure(1, weight=1)
 
         self.sort_label = SearchLabel(self.button_search_frame, column=0, row=0, text="Sort by:")
@@ -101,34 +101,34 @@ class Frame(GenericPage.Frame):
     def search_button_command(self):
         Warnings.not_to_reach()
 
+    def get_index_data(self, index):
+        return self.list_storage[index]
+
+    def get_index_element(self, index, element):
+        Warnings.not_to_reach()
+
+    def get_selected_entry_id(self):
+        assert 0 == Constants.DATABASE_ENTRY_TRANSFER_DATA.index("ID") and \
+               0 == Constants.MODEL_ENTRY_TRANSFER_DATA.index("ID")
+        if len(self.scroll_block.get_selected()) <= 0:
+            return None
+        else:
+            return self.list_storage[self.scroll_block.get_selected()[0]][0]
+
 
 class DatasetSearchFrame(Frame):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False,
-                 new_button_command=Warnings.not_working):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False, sort_columnspan=2):
         Frame.__init__(self, root=root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        search_values=Constants.DATABASES_SORT_BY_OPTIONS.keys(),
                        default_search_value=list(Constants.DATABASES_SORT_BY_OPTIONS.keys())[0],
-                       title=title, multi_select=multi_select)
-        # self.search_button.config(command=self.search_button_command)
-
-        # Additional Buttons
-        self.new_dataset_button = SearchButton(self.button_frame, column=0, row=0, text="New",
-                                               command=new_button_command)
-        # self.merge_selected_button = SearchButton(self.button_frame, column=1, row=0, text="Merge Selected",
-        #                                           command=Warnings.not_complete)
+                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan)
 
     def update_colour(self):
         super().update_colour()
-        self.new_dataset_button.update_colour()
-        # self.merge_selected_button.update_colour()
 
     def update_content(self):
         super().update_content()
-        self.new_dataset_button.update_content()
-
-    # def set_switch_frame_command(self, command):
-    #     self.new_dataset_button.config(command=command)
 
     def search_button_command(self):
         sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
@@ -144,29 +144,25 @@ class DatasetSearchFrame(Frame):
         replace_list_sorted = []
         if self.list_storage is not None:
             for item in self.list_storage:
-                replace_list.append(" " + str(item[Constants.DATABASE_DATA_TO_FETCH.index("Name")]))
-                replace_list_sorted.append(" " + str(item[Constants.DATABASE_DATA_TO_FETCH.index(sort_by)]))
+                replace_list.append(" " + str(item[Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Name")]))
+                replace_list_sorted.append(" " + str(item[Constants.DATABASE_ENTRY_TRANSFER_DATA.index(sort_by)]))
 
         self.scroll_block.replace_list(replace_list, replace_list_sorted)
 
+    def get_index_element(self, index, element):
+        return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(element)]
+
 
 class ModelSearchFrame(Frame):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False,
-                 new_button_command=Warnings.not_working):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False, sort_columnspan=2):
         Frame.__init__(self, root=root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        search_values=Constants.MODELS_SORT_BY_OPTIONS.keys(),
                        default_search_value=list(Constants.MODELS_SORT_BY_OPTIONS.keys())[0],
-                       title=title, multi_select=multi_select)
-        # self.search_button.config(command=self.search_button_command)
-
-        # Additional Buttons
-        self.new_model_button = SearchButton(self.button_frame, column=0, row=0, text="New",
-                                             command=new_button_command)
+                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan)
 
     def update_colour(self):
         super().update_colour()
-        self.new_model_button.update_colour()
 
     def update_content(self):
         super().update_content()
@@ -179,5 +175,5 @@ class ModelSearchFrame(Frame):
             user_name=ClientConnection.get_user_name())
         self.scroll_block.replace_list(self.list_storage[::][2])
 
-    # def set_switch_frame_command(self, command):
-    #     self.new_model_button.config(command=command)
+    def get_index_element(self, index, element):
+        return self.list_storage[index][Constants.MODEL_ENTRY_TRANSFER_DATA.index(element)]

@@ -12,7 +12,7 @@ from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.page_components import \
     InformationBlock, ScrollBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
-    StatusIndicator, SearchBlock
+    StatusIndicator, SearchBlock, DataInfoBlock
 from scripts.frontend.pages import GenericPage
 
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
@@ -86,8 +86,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self,
-                                       root,
-                                       column=column, row=row,
+                                       root, column=column, row=row,
                                        columnspan=columnspan, rowspan=rowspan)
             self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
@@ -149,8 +148,6 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
-
-
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_DATASETS)
@@ -158,13 +155,12 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
 
-        # Search space
-        # self.search_frame = ViewFrame.SearchFrame(self, column=0, row=0)
+        """
+            Search space
+        """
         self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, title="Dataset List",
-                                                           multi_select=True)
+                                                           multi_select=True, sort_columnspan=3)
         self.search_frame.grid(sticky=tkinter.NSEW)
-        self.search_frame.search_button.grid(column=2)  # Makes room for the other buttons
-        self.search_frame.button_frame.columnconfigure(2, weight=1)
 
         # Additional buttons for the search frame
         self.new_dataset_button = SearchButton(self.search_frame.button_frame, column=0, row=0, text="New",
@@ -172,27 +168,85 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.merge_selected_button = SearchButton(self.search_frame.button_frame, column=1, row=0,
                                                   text="Merge Selected", command=self.merge_selected_datasets)
 
-        # Info frame
-        self.info_frame = ViewFrame.InfoFrame(self, column=1, row=0)
+        """
+            Info Frame
+        """
+
+        self.info_frame = DataInfoBlock.DatasetInfo(
+            self, column=1, row=0, title="Selected Dataset Information",
+            general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
+                                  "Permission": False, "Rating": True},
+            right_options_data={"Num_Frames": False, "FPS": False,
+                                "Sensor_Savagol_Distance": False, "Sensor_Savagol_Degree": False,
+                                "Angle_Savagol_Distance": False, "Angle_Savagol_Degree": False},
+            right_column_title="Smoothing Information")
+
+        # Additional buttons for the info frame
+        self.button_frame = GenericPage.Frame(self.info_frame,
+                                              column=0, row=2,
+                                              columnspan=2, rowspan=1)
+        self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
+
+        # Configure button frame weights
+        for i in range(0, 5):
+            self.button_frame.columnconfigure(i, weight=1)
+
+        # Create buttons
+        self.update_button = \
+            InformationButton(self.button_frame, column=0, row=0, text="Update",
+                              command=lambda: self.info_frame.save_to_database(
+                                  self.search_frame.get_selected_entry_id()))
+        self.favourite_button = \
+            InformationButton(self.button_frame, column=1, row=0, text="Favourite", command=Warnings.not_complete)
+        self.duplicate_button = \
+            InformationButton(self.button_frame, column=2, row=0, text="Duplicate", command=Warnings.not_complete)
+        self.smooth_button = \
+            InformationButton(self.button_frame, column=3, row=0, text="Smooth Dataset",
+                              command=Warnings.not_complete)
+        self.delete_button = \
+            InformationButton(self.button_frame, column=4, row=0, text="Delete", command=Warnings.not_complete)
 
         # Prediction Preview frame
         self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=1, columnspan=2)
 
     def update_colour(self):
         super().update_colour()
+
+        # Search frame
         self.search_frame.update_colour()
-        self.info_frame.update_colour()
-        self.graph_frame.update_colour()
         self.new_dataset_button.update_colour()
         self.merge_selected_button.update_colour()
 
+        # Info frame
+        self.info_frame.update_colour()
+        self.button_frame.update_colour()
+        self.update_button.update_colour()
+        self.favourite_button.update_colour()
+        self.duplicate_button.update_colour()
+        self.smooth_button.update_colour()
+        self.delete_button.update_colour()
+
+        # Other
+        self.graph_frame.update_colour()
+
     def update_content(self):
         super().update_content()
+        # Search frame
         self.search_frame.update_content()
-        self.info_frame.update_content()
-        self.graph_frame.update_content()
         self.new_dataset_button.update_content()
         self.merge_selected_button.update_content()
+
+        # Info frame
+        self.info_frame.update_content()
+        self.button_frame.update_content()
+        self.update_button.update_content()
+        self.favourite_button.update_content()
+        self.duplicate_button.update_content()
+        self.smooth_button.update_content()
+        self.delete_button.update_content()
+
+        # Other
+        self.graph_frame.update_content()
 
     def set_switch_to_new_frame(self, command):
         self.new_dataset_button.config(command=command)
@@ -342,7 +396,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.cancel_new_dataset = CustomButtons.SearchButton(self, column=0, row=0, text="View Datasets")
 
         # Frames
-        self.general_options = ["Name", "Owner", "Date created", "Access permissions"]
+        self.general_options = ["Name", "Owner", "Date created", "Access permissions", "Personal rating"]
         self.general_info_frame = InfoInputBlock.Frame(self,
                                                        column=0, row=1,
                                                        options=self.general_options,
@@ -353,7 +407,7 @@ class NewFrame(GenericPage.NavigationFrame):
         self.general_info_frame.set_perm_option_menu("Access permissions")
 
         self.upload_dataset_button = CustomButtons.SearchButton(self.general_info_frame,
-                                                                column=0, row=5, columnspan=2,
+                                                                column=0, row=6, columnspan=2,
                                                                 command=self.upload_dataset_to_server,
                                                                 text="Upload Dataset to Server")
 
@@ -459,6 +513,7 @@ class NewFrame(GenericPage.NavigationFrame):
         owner_name = self.general_info_frame.get_value("Owner")
         date_created = self.general_info_frame.get_value("Date created")
         access_permissions = self.general_info_frame.get_value("Access permissions")
+        personal_rating = self.general_info_frame.get_value("Personal rating")
         frames_per_second = self.data_recorder.frames_per_second
 
         # Assert the input constraints
@@ -469,6 +524,7 @@ class NewFrame(GenericPage.NavigationFrame):
         can_upload &= InputConstraints.assert_string_from_set("Access permissions", access_permissions,
                                                               Constants.PERMISSION_LEVELS.keys())
         can_upload &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
+        can_upload &= InputConstraints.assert_int_non_negative("Personal rating", personal_rating, 100)
 
         # Uploads to the server if the input constraints are satisfied
         if can_upload is True:
@@ -477,10 +533,13 @@ class NewFrame(GenericPage.NavigationFrame):
             assert self.data_recorder is not None
             assert self.data_recorder.is_successful()
 
+            # Post-recoding variable deduction
+            num_frames = frames_per_second * self.data_recorder.get_training_length_seconds()
+
             # Uploads the dataset to the server
             access_perm_level = Constants.PERMISSION_LEVELS.get(access_permissions)
-            result = ClientConnection.upload_dataset(name, owner_name, date_created, access_perm_level,
-                                                     frames_per_second)
+            result = ClientConnection.upload_dataset(name, owner_name, date_created, access_perm_level, personal_rating,
+                                                     num_frames, frames_per_second)
 
             if result is True:
                 tkinter.messagebox.showinfo("Upload: Success!",

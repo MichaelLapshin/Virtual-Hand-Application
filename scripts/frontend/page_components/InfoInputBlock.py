@@ -19,10 +19,11 @@ class Frame(tkinter.Frame, WidgetInterface):
         tkinter.Frame.__init__(self, root, relief=tkinter.RIDGE, bd=1)
 
         # Initializes the options
+        self.options = options
         self.entries = {}
-        for o in range(0, len(options)):
+        for o in range(0, len(self.options)):
             self.entries[CustomLabels.InfoEntryLabel(self, column=0, row=o + 1,
-                                                     text=options[o] + Frame.VAR_PADDING)] = \
+                                                     text=self.options[o] + Frame.VAR_PADDING)] = \
                 CustomEntries.InfoEntryEntry(self, column=1, row=o + 1)
             self.rowconfigure(o + 1, weight=1)
 
@@ -62,6 +63,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
         if self.titlebar is not None:
             self.titlebar.update_colour()
+            self.titlebar.config(bg=self.label_colour)
 
         for k in self.entries.keys():
             k.update_colour()
@@ -70,8 +72,6 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.config(bg=self.frame_colour)
         # self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
 
-        if self.titlebar is not None:
-            self.titlebar.config(bg=self.label_colour)
 
     def set_frame_colour(self, colour):
         self.frame_colour = colour
@@ -105,6 +105,12 @@ class Frame(tkinter.Frame, WidgetInterface):
             if name + Frame.VAR_PADDING == k.cget("text"):
                 self.entries.get(k).destroy()
                 self.entries[k] = CustomOptionMenu.VideoSourceOptionMenu(self, column=1, row=k.grid_info()["row"])
+
+    def exists_entry(self, entry_name):
+        return entry_name in self.options
+
+    def get_entries(self):
+        return self.options
 
     def get_value(self, name):
         for k in self.entries.keys():

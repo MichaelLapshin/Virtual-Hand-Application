@@ -153,6 +153,9 @@ class Recorder(threading.Thread):
         self.sensor_listener.stop_reading()
         self.progress_bar.reset()
 
+    def get_training_length_seconds(self):
+        return self.training_length_seconds
+
     def is_successful(self):
         return self._success
 
