@@ -218,11 +218,11 @@ def update_dataset_entry(dataset_id, dataset_values):
     result = send_get_request("/update/dataset_entry", values={"id": dataset_id, "new_values": dataset_values})
 
     if result is True:
-        Log.info("The dataset with the id '" + dataset_id +
+        Log.info("The dataset with the id '" + str(dataset_id) +
                  "' was successfully updated with the values: " + str(dataset_values))
         return True
     else:
-        Log.info("The dataset with the id '" + dataset_id +
+        Log.info("The dataset with the id '" + str(dataset_id) +
                  "' failed to be updated with the values: " + str(dataset_values))
         return False
 

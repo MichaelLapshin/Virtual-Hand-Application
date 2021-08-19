@@ -13,7 +13,7 @@ from scripts.frontend.pages import GenericPage
 class Frame(GenericPage.Frame):
 
     def __init__(self, root, column, row, search_values, default_search_value=None,
-                 multi_select=False, sort_columnspan=2,
+                 multi_select=False, sort_columnspan=2, select_change_command=None,
                  columnspan=1, rowspan=1,
                  title=None):
         GenericPage.Frame.__init__(self, root)
@@ -32,7 +32,8 @@ class Frame(GenericPage.Frame):
             self.title_label.grid(padx=Constants.STANDARD_SPACING)
 
         # Scroll block
-        self.scroll_block = ScrollBlock.Frame(self, multi_select=multi_select)
+        self.scroll_block = ScrollBlock.Frame(self, multi_select=multi_select,
+                                              select_change_command=select_change_command)
         self.scroll_block.grid(column=0, row=2)
         self.scroll_block.grid(columnspan=1, rowspan=1)
 
@@ -104,25 +105,30 @@ class Frame(GenericPage.Frame):
     def get_index_data(self, index):
         return self.list_storage[index]
 
-    def get_index_element(self, index, element):
+    def get_index_entry(self, index, entry):
         Warnings.not_to_reach()
 
-    def get_selected_entry_id(self):
+    def get_selected_main_id(self):
         assert 0 == Constants.DATABASE_ENTRY_TRANSFER_DATA.index("ID") and \
                0 == Constants.MODEL_ENTRY_TRANSFER_DATA.index("ID")
-        if len(self.scroll_block.get_selected()) <= 0:
+        if len(self.list_storage) <= 0:
             return None
         else:
-            return self.list_storage[self.scroll_block.get_selected()[0]][0]
+            return self.list_storage[self.scroll_block.get_selected_main()][0]
+
+    def get_selected_entry_data(self):
+        Warnings.not_complete()
 
 
 class DatasetSearchFrame(Frame):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False, sort_columnspan=2):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False,
+                 sort_columnspan=2, select_change_command=None):
         Frame.__init__(self, root=root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        search_values=Constants.DATABASES_SORT_BY_OPTIONS.keys(),
                        default_search_value=list(Constants.DATABASES_SORT_BY_OPTIONS.keys())[0],
-                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan)
+                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan,
+                       select_change_command=select_change_command)
 
     def update_colour(self):
         super().update_colour()
@@ -149,17 +155,19 @@ class DatasetSearchFrame(Frame):
 
         self.scroll_block.replace_list(replace_list, replace_list_sorted)
 
-    def get_index_element(self, index, element):
-        return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(element)]
+    def get_index_entry(self, index, entry):
+        return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(entry)]
 
 
 class ModelSearchFrame(Frame):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False, sort_columnspan=2):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False,
+                 sort_columnspan=2, select_change_command=None):
         Frame.__init__(self, root=root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        search_values=Constants.MODELS_SORT_BY_OPTIONS.keys(),
                        default_search_value=list(Constants.MODELS_SORT_BY_OPTIONS.keys())[0],
-                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan)
+                       title=title, multi_select=multi_select, sort_columnspan=sort_columnspan,
+                       select_change_command=select_change_command)
 
     def update_colour(self):
         super().update_colour()
@@ -175,5 +183,5 @@ class ModelSearchFrame(Frame):
             user_name=ClientConnection.get_user_name())
         self.scroll_block.replace_list(self.list_storage[::][2])
 
-    def get_index_element(self, index, element):
-        return self.list_storage[index][Constants.MODEL_ENTRY_TRANSFER_DATA.index(element)]
+    def get_index_entry(self, index, entry):
+        return self.list_storage[index][Constants.MODEL_ENTRY_TRANSFER_DATA.index(entry)]
