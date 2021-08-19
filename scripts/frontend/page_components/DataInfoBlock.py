@@ -16,6 +16,9 @@ class Frame(GenericPage.Frame):
         GenericPage.Frame.__init__(self, root=root, column=column, row=row, columnspan=columnspan, rowspan=rowspan)
         self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
+        self.GENERAL_BANK = GENERAL_BANK
+        self.RIGHT_BANK = RIGHT_BANK
+
         self.general_options_data = general_options_data
         self.right_options_data = right_options_data
 
@@ -38,11 +41,11 @@ class Frame(GenericPage.Frame):
         # Prepares the entries to display
         general_options = []
         for k in self.general_options_data.keys():
-            general_options.append(GENERAL_BANK.get(k))
+            general_options.append(self.GENERAL_BANK.get(k))
 
         right_options = []
         for k in self.right_options_data.keys():
-            right_options.append(RIGHT_BANK.get(k))
+            right_options.append(self.RIGHT_BANK.get(k))
 
         # Generate Title and tables
         self.info_block = CustomLabels.TitleLabel(self, column=0, row=0, columnspan=2, text=title)
@@ -50,14 +53,8 @@ class Frame(GenericPage.Frame):
                                                   title="General Information", options=general_options)
         self.right_frame = InfoInputBlock.Frame(self, column=1, row=1, title=right_column_title, options=right_options)
 
-        # Disables the right entries
-        for k in self.general_options_data:
-            if self.general_options_data.get(k) is False:
-                self.general_frame.disable_entry(GENERAL_BANK.get(k))
-
-        for k in self.right_options_data:
-            if self.right_options_data.get(k) is False:
-                self.right_frame.disable_entry(RIGHT_BANK.get(k))
+        # Disables the appropriate
+        self.disable_enable_entries(self.general_options_data, self.right_options_data)
 
     def update_colour(self):
         super().update_colour()
@@ -78,6 +75,51 @@ class Frame(GenericPage.Frame):
         self.info_block.update_content()
         self.general_frame.update_content()
         self.right_frame.update_content()
+
+    def update_entries(self, entries):
+        # Assert option type
+        assert type(entries) == dict
+
+        # Assert option content {label: value}
+        assert True in ((e in self.GENERAL_BANK.keys()) or (e in self.RIGHT_BANK.keys()) for e in entries.keys())
+
+        # Sets the entry values
+        for k in entries:
+            if k in self.GENERAL_BANK.keys():
+                self.general_frame.set_entry_value(self.GENERAL_BANK.get(k), entries.get(k))
+
+                # Exceptions
+                if k == "Permission":
+                    for p in Constants.PERMISSION_LEVELS.keys():
+                        if int(Constants.PERMISSION_LEVELS.get(p)) == int(entries.get(k)):
+                            self.general_frame.set_entry_value(self.GENERAL_BANK.get(k), p)
+
+            elif k in self.RIGHT_BANK.keys():
+                self.right_frame.set_entry_value(self.RIGHT_BANK.get(k), entries.get(k))
+
+    def disable_enable_entries(self, general_entries, right_entries):
+        # Assert option type
+        assert type(general_entries) == dict
+        assert type(general_entries) == dict
+
+        # Assert option content {label: boolean}
+        assert True in (g in self.GENERAL_BANK.keys() for g in general_entries.keys())
+        assert False not in (type(g) == bool for g in general_entries.values())
+        assert True in (r in self.RIGHT_BANK.keys() for r in right_entries.keys())
+        assert False not in (type(r) == bool for r in right_entries.values())
+
+        # Disables the right entries
+        for k in general_entries:
+            if general_entries.get(k) is False:
+                self.general_frame.disable_entry(self.GENERAL_BANK.get(k))
+            else:
+                self.general_frame.enable_entry(self.GENERAL_BANK.get(k))
+
+        for k in right_entries:
+            if right_entries.get(k) is False:
+                self.right_frame.disable_entry(self.RIGHT_BANK.get(k))
+            else:
+                self.right_frame.enable_entry(self.RIGHT_BANK.get(k))
 
     def save_to_database(self, id):
         Warnings.not_to_reach()

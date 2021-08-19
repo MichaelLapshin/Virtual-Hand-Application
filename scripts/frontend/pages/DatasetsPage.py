@@ -159,7 +159,8 @@ class ViewFrame(GenericPage.NavigationFrame):
             Search space
         """
         self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, title="Dataset List",
-                                                           multi_select=True, sort_columnspan=3)
+                                                           multi_select=True, sort_columnspan=3,
+                                                           select_change_command=self.selected_entry_update_command)
         self.search_frame.grid(sticky=tkinter.NSEW)
 
         # Additional buttons for the search frame
@@ -171,7 +172,6 @@ class ViewFrame(GenericPage.NavigationFrame):
         """
             Info Frame
         """
-
         self.info_frame = DataInfoBlock.DatasetInfo(
             self, column=1, row=0, title="Selected Dataset Information",
             general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
@@ -195,7 +195,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.update_button = \
             InformationButton(self.button_frame, column=0, row=0, text="Update",
                               command=lambda: self.info_frame.save_to_database(
-                                  self.search_frame.get_selected_entry_id()))
+                                  self.search_frame.get_selected_main_id()))
         self.favourite_button = \
             InformationButton(self.button_frame, column=1, row=0, text="Favourite", command=Warnings.not_complete)
         self.duplicate_button = \
@@ -247,6 +247,19 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Other
         self.graph_frame.update_content()
+
+    def selected_entry_update_command(self):
+        # Obtains the data
+        selected_index = self.search_frame.scroll_block.get_selected_main()
+        data_at_index = self.search_frame.get_index_data(selected_index)
+
+        # Prepares the entries
+        entries = {}
+        for i in range(0, len(Constants.DATABASE_ENTRY_TRANSFER_DATA)):
+            entries[Constants.DATABASE_ENTRY_TRANSFER_DATA[i]] = data_at_index[i]
+
+        # Updates the info frame
+        self.info_frame.update_entries(entries=entries)
 
     def set_switch_to_new_frame(self, command):
         self.new_dataset_button.config(command=command)

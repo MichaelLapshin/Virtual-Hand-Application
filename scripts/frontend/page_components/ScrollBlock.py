@@ -9,7 +9,7 @@ from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 class Frame(tkinter.Frame, WidgetInterface):
     _selected = "Number of Selected Items: "
 
-    def __init__(self, root, multi_select=False):
+    def __init__(self, root, multi_select=False, select_change_command=None):
         tkinter.Frame.__init__(self, root)
         self.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
         self.grid(sticky=tkinter.NSEW)
@@ -17,6 +17,7 @@ class Frame(tkinter.Frame, WidgetInterface):
         # Selection logic
         self.selected_index_listbox = -1
         self.selected_index_sorted_listbox = -1
+        self.select_change_command = select_change_command
 
         # Configures weights
         self.rowconfigure(0, weight=1)
@@ -81,20 +82,27 @@ class Frame(tkinter.Frame, WidgetInterface):
         super().update_content()
 
         # Selection Activation
-        if self.listbox.size() > 0:
+        selection_changed = False
+        if self.listbox.size() > 0:  # TODO, add a function that will trigger upon select change
+
             if len(self.listbox.curselection()) > 0 and \
                     self.selected_index_listbox != self.listbox.curselection()[0]:
                 self.selected_index_listbox = self.listbox.curselection()[0]
                 self.sorted_listbox.selection_clear(0, tkinter.END)
                 self.sorted_listbox.selection_set(self.selected_index_listbox)
                 self.selected_index_sorted_listbox = self.selected_index_listbox
+                selection_changed = True
 
-            if len(self.sorted_listbox.curselection()) > 0 and \
+            elif len(self.sorted_listbox.curselection()) > 0 and \
                     self.selected_index_sorted_listbox != self.sorted_listbox.curselection()[0]:
                 self.selected_index_sorted_listbox = self.sorted_listbox.curselection()[0]
                 self.listbox.selection_clear(0, tkinter.END)
                 self.listbox.selection_set(self.selected_index_sorted_listbox)
                 self.selected_index_listbox = self.selected_index_sorted_listbox
+                selection_changed = True
+
+        if (selection_changed is True) and (self.select_change_command is not None):
+            self.select_change_command()
 
         # Selected Count
         if self.num_selected() != 0:
@@ -130,14 +138,17 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.scrollbar.set(*args)
 
     # More functionality methods
-    def get_selected(self):
+    def get_selected_multi(self):
         if self.multi_select is True:
             return self.selectbox.curselection()
         else:
-            return self.listbox.curselection()
+            return ()
+
+    def get_selected_main(self):
+        return self.listbox.curselection()[0]
 
     def num_selected(self):
-        return len(self.get_selected())
+        return len(self.get_selected_multi())
 
     def add_to_list(self, item_display_name, item_display_sorted, index=tkinter.END):
         # Computes the index
