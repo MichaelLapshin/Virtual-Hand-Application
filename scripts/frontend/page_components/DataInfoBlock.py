@@ -1,6 +1,6 @@
 import tkinter.messagebox
 
-from scripts import Constants, Warnings, Log, Parameters, General
+from scripts import Constants, Warnings, Log, Parameters, General, InputConstraints
 from scripts.frontend import ClientConnection
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.page_components import InformationBlock, InfoInputBlock
@@ -97,41 +97,55 @@ class Frame(GenericPage.Frame):
             elif k in self.RIGHT_BANK.keys():
                 self.right_frame.set_entry_value(self.RIGHT_BANK.get(k), entries.get(k))
 
+    def _disable_enable_entries_helper(self, frame, entries, bank):
+        if entries is not None:
+
+            # Assert option type
+            assert type(entries) == dict
+
+            # Assert option content {label: boolean}
+            assert True in (g in bank.keys() for g in entries.keys())
+            assert False not in (type(g) == bool for g in entries.values())
+
+            # Disables the right entries
+            for k in entries:
+                if entries.get(k) is False:
+                    frame.disable_entry(bank.get(k))
+                else:
+                    frame.enable_entry(bank.get(k))
+
     def disable_enable_entries(self, general_entries, right_entries):
-        # Assert option type
-        assert type(general_entries) == dict
-        assert type(general_entries) == dict
-
-        # Assert option content {label: boolean}
-        assert True in (g in self.GENERAL_BANK.keys() for g in general_entries.keys())
-        assert False not in (type(g) == bool for g in general_entries.values())
-        assert True in (r in self.RIGHT_BANK.keys() for r in right_entries.keys())
-        assert False not in (type(r) == bool for r in right_entries.values())
-
-        # Disables the right entries
-        for k in general_entries:
-            if general_entries.get(k) is False:
-                self.general_frame.disable_entry(self.GENERAL_BANK.get(k))
-            else:
-                self.general_frame.enable_entry(self.GENERAL_BANK.get(k))
-
-        for k in right_entries:
-            if right_entries.get(k) is False:
-                self.right_frame.disable_entry(self.RIGHT_BANK.get(k))
-            else:
-                self.right_frame.enable_entry(self.RIGHT_BANK.get(k))
-
-    def save_to_database(self, id):
-        Warnings.not_to_reach()
+        self._disable_enable_entries_helper(self.general_frame, general_entries, self.GENERAL_BANK)
+        self._disable_enable_entries_helper(self.right_frame, right_entries, self.RIGHT_BANK)
 
     def get_value(self, entry_name):
-        if self.general_frame.exists_entry(entry_name=entry_name):
-            return self.general_frame.get_value(name=entry_name)
-        elif self.right_frame.exists_entry(entry_name=entry_name):
-            return self.right_frame.get_value(name=entry_name)
+        if self.general_frame.exists_entry(entry_name=Constants.DATABASE_GENERAL_INFORMATION_OPTIONS.get(entry_name)):
+            return self.general_frame.get_value(name=Constants.DATABASE_GENERAL_INFORMATION_OPTIONS.get(entry_name))
+        elif self.right_frame.exists_entry(entry_name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get(entry_name)):
+            return self.right_frame.get_value(name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get(entry_name))
         else:
+            Log.critical("This part should not be reached. Received the entry name: " + entry_name)
             Warnings.not_to_reach()
             return None
+
+    # Button functions
+    def save_item(self, is_selected, item_id, search_command=None):
+        Warnings.not_to_reach()
+
+    def delete_item(self, is_selected, item_id):
+        Warnings.not_to_reach()
+
+    # def duplicate_item(self, item_id):
+    #     Warnings.not_to_reach()
+
+    def toggle_favourite_item(self, item_id):
+        Warnings.not_to_reach()
+
+    def clear_info_frame(self):
+        for v in self.GENERAL_BANK.values():
+            self.general_frame.set_entry_value(v, "")
+        for v in self.RIGHT_BANK.values():
+            self.right_frame.set_entry_value(v, "")
 
 
 class DatasetInfo(Frame):
@@ -144,34 +158,118 @@ class DatasetInfo(Frame):
                        RIGHT_BANK=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS,
                        columnspan=columnspan, rowspan=rowspan, right_column_title=right_column_title)
 
-    def save_to_database(self, dataset_id):
+    def save_item(self, is_selected, dataset_id, search_command=None):
 
-        if ClientConnection.is_logged_in():
+        if is_selected is True:
 
-            new_values = {}
+            # TODO, assert value type
 
-            # Adds editable values from the general frame
-            for k in self.general_options_data:
-                if self.general_options_data.get(k) is True:  # if enabled entries
-                    new_values[k] = self.general_frame.get_value(Constants.DATABASE_GENERAL_INFORMATION_OPTIONS.get(k))
+            if ClientConnection.is_logged_in():
 
-            # Adds editable values from the smoothing frame
-            for k in self.right_options_data:
-                if self.right_options_data.get(k) is True:  # if enabled entries
-                    new_values[k] = self.right_frame.get_value(Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get(k))
+                new_values = {}
 
-            # Sends the update to the server
-            result = ClientConnection.update_dataset_entry(dataset_id, new_values)
+                # Adds editable values from the general frame
+                for k in self.general_options_data:
+                    if self.general_options_data.get(k) is True:  # if enabled entries
+                        new_values[k] = self.general_frame.get_value(
+                            Constants.DATABASE_GENERAL_INFORMATION_OPTIONS.get(k))
 
-            if result is True:
-                Log.info("The dataset update was successful.")
-                tkinter.messagebox.showwarning("Success!", "The dataset information was updated.")
+                # Adds editable values from the smoothing frame
+                for k in self.right_options_data:
+                    if self.right_options_data.get(k) is True:  # if enabled entries
+                        new_values[k] = self.right_frame.get_value(
+                            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get(k))
+
+                # Sends the update to the server
+                result = ClientConnection.update_dataset_entry(dataset_id, new_values)
+
+                if result is True:
+                    Log.info("The dataset update was successful.")
+                    tkinter.messagebox.showwarning("Success!", "The dataset information was updated.")
+
+                    if search_command is not None:
+                        search_command()
+                else:
+                    Log.info("The dataset update was not successful.")
+                    tkinter.messagebox.showwarning("Failed!", "Could not update the dataset information.")
             else:
-                Log.info("The dataset update was not successful.")
-                tkinter.messagebox.showwarning("Failed!", "Could not update the dataset information.")
+                tkinter.messagebox.showwarning(
+                    "Failed!", "Could not update the dataset information. The user is not logged-in.")
+        else:
+            tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+
+    def delete_item(self, is_selected, item_id):
+        if is_selected is True:
+            if ClientConnection.is_logged_in():
+
+                confirm_delete = tkinter.messagebox.askyesno(
+                    "Confirmation", "Do you wish to delete the database with the id '" + item_id + "'?")
+                Log.info("The user confirmed to delete the database: " + str(confirm_delete))
+
+                if confirm_delete is True:
+                    result = ClientConnection.delete_dataset_entry(item_id)
+                    if result is True:
+                        Log.info("The database was successfully deleted.")
+                    else:
+                        Log.warning("The database was not successfully deleted.")
+            else:
+                tkinter.messagebox.showwarning(
+                    "Failed!", "Could not update the dataset information. The user is not logged-in.")
+        else:
+            tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+
+    # def duplicate_item(self, item_id):
+    #     if ClientConnection.is_logged_in():
+    #         result = ClientConnection.duplicate_dataset_entry(item_id)
+    #
+    #         if result is True:
+    #             Log.info("The database was successfully duplicated.")
+    #         else:
+    #             Log.warning("The database was not successfully duplicated.")
+    #     else:
+    #         tkinter.messagebox.showwarning(
+    #             "Failed!", "Could not update the dataset information. The user is not logged-in.")
+
+    def toggle_favourite_item(self, item_id):
+        Warnings.not_complete()
+
+    def smooth_dataset(self, dataset_id):
+        # Obtain inputs
+        sensor_savagol_distance = self.get_value("Sensor_Savagol_Distance")
+        sensor_savagol_degree = self.get_value("Sensor_Savagol_Degree")
+        angle_savagol_distance = self.get_value("Angle_Savagol_Distance")
+        angle_savagol_degree = self.get_value("Angle_Savagol_Degree")
+
+        # Check assertions that inputs are integers
+        can_smooth = True
+        can_smooth &= InputConstraints.assert_float_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Distance"), sensor_savagol_distance)
+        can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Degree"), sensor_savagol_degree)
+        can_smooth &= InputConstraints.assert_float_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Distance"), angle_savagol_distance)
+        can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Degree"), angle_savagol_degree)
+
+        if can_smooth is True:
+            if ClientConnection.is_logged_in():
+
+                result = ClientConnection.smooth_dataset(dataset_id=dataset_id,
+                                                         sensor_savagol_distance=sensor_savagol_distance,
+                                                         sensor_savagol_degree=sensor_savagol_degree,
+                                                         angle_savagol_distance=angle_savagol_distance,
+                                                         angle_savagol_degree=angle_savagol_degree)
+
+                if result is True:
+                    Log.info("The dataset was successfully smoothed.")
+                else:
+                    Log.warning("The dataset was not successfully smoothed.")
+
+            else:
+                tkinter.messagebox.showwarning("Failed!", "Could not smooth the dataset. The user is not logged-in.")
         else:
             tkinter.messagebox.showwarning(
-                "Failed!", "Could not update the dataset information. The user is not logged-in.")
+                "Failed!", "Could not smooth the dataset. Input constraints where not satisfied.")
 
 
 class ModelInfo(Frame):

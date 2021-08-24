@@ -2,6 +2,7 @@ import flask
 
 from scripts import Log, Constants
 
+worker = None
 
 def flarg(argument):
     result = flask.request.args.get(argument)

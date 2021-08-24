@@ -86,6 +86,11 @@ def disconnect():
     connection = None
 
 
+def restart_connection():
+    disconnect()
+    connect()
+
+
 def create_users_table():
     global cursor
     # Create Users table
@@ -101,13 +106,14 @@ def create_datasets_table():
     # Create Datasets
     cursor.execute("""CREATE TABLE Datasets (
                             ID             INTEGER PRIMARY KEY,
-                            Name           TEXT UNIQUE NOT NULL,
+                            Name           TEXT NOT NULL,
                             ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created   DATE,
                             Permission     INTEGER NOT NULL,
                             Rating         INTEGER,
                             Num_Frames     INTEGER NOT NULL,
                             FPS            INTEGER NOT NULL,
+                            Frames_Shift   INTEGER NOT NULL,
                             Sensor_Savagol_Distance    REAL,
                             Sensor_Savagol_Degree      REAL,
                             Angle_Savagol_Distance     REAL,
@@ -117,9 +123,33 @@ def create_datasets_table():
 def create_dataset_dependency_table():
     global cursor
     # Create Datasets
-    cursor.execute("""CREATE TABLE DatasetDependency (
+    cursor.execute("""CREATE TABLE DatasetDependencies (
                                 ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
                                 ID_Dependency   INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE)""")
+
+
+def create_dataset_finger_plot_table():
+    global cursor
+    # Create Datasets
+    cursor.execute("""CREATE TABLE DatasetFingerPlots (
+                                    ID              INTEGER PRIMARY KEY,
+                                    ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                                    Finger          INTEGER,
+                                    Metric          INTEGER
+                                    )""")
+
+
+def create_dataset_sensor_plot_table():
+    global cursor
+    # Create Datasets
+    cursor.execute("""CREATE TABLE DatasetSensorPlots (
+                                    ID              INTEGER PRIMARY KEY,
+                                    ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                                    Sensor          INTEGER
+                                    )""")
+
+
+# def create_model_plot_sensor_table():
 
 
 def create_models_table():
@@ -127,7 +157,7 @@ def create_models_table():
     # Create Models Table
     cursor.execute("""CREATE TABLE Models (
                             ID                  INTEGER PRIMARY KEY,
-                            Name                TEXT UNIQUE NOT NULL,
+                            Name                TEXT NOT NULL,
                             ID_Owner            INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created        DATE,
                             View_Domain         INTEGER NOT NULL,
@@ -137,7 +167,6 @@ def create_models_table():
                             Learning_Rate       REAL NOT NULL,
                             Batch_Size          INTEGER NOT NULL,
                             Num_Epochs          INTEGER NOT NULL,
-                            Frames_Shift        REAL NOT NULL,
                             Layer_Types         TEXT NOT NULL,
                             Num_Layers          INTEGER NOT NULL,
                             Num_Nodes_Per_Layer INTEGER NOT NULL)""")
@@ -156,6 +185,10 @@ def create_all_new_tables(replace=False):
     _create_table_check(table_name="DatasetDependency", create_tables_function=create_dataset_dependency_table,
                         replace=replace)
     _create_table_check(table_name="Models", create_tables_function=create_models_table, replace=replace)
+    _create_table_check(table_name="DatasetFingerPlots", create_tables_function=create_dataset_finger_plot_table,
+                        replace=replace)
+    _create_table_check(table_name="DatasetSensorPlots", create_tables_function=create_dataset_sensor_plot_table,
+                        replace=replace)
 
 
 def _create_table_check(table_name, create_tables_function, replace):

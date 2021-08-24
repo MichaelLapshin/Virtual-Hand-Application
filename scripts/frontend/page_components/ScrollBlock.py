@@ -145,7 +145,13 @@ class Frame(tkinter.Frame, WidgetInterface):
             return ()
 
     def get_selected_main(self):
-        return self.listbox.curselection()[0]
+        if self.is_selected_main():
+            return self.listbox.curselection()[0]
+        else:
+            return None
+
+    def is_selected_main(self):
+        return len(self.listbox.curselection()) > 0
 
     def num_selected(self):
         return len(self.get_selected_multi())
@@ -200,4 +206,8 @@ class Frame(tkinter.Frame, WidgetInterface):
         # Deletes and re-adds the items
         for index in range(0, len(new_list)):
             self.add_to_list(new_list[index], new_sorted_list[index])
+
+        # Resets select index
+        self.selected_index_listbox = -1
+        self.selected_index_sorted_listbox = -1
         return True

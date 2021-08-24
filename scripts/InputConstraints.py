@@ -105,12 +105,14 @@ def assert_int_positive(value_name, value, max_int=1000000000):
 
 
 """
-    Double
+    Float
+     - Note: integers will be approved too
 """
 
 
 def assert_float_range_inclusive(value_name, value, min_float, max_float):
-    if (value is not None) and assert_is_float(value) and (min_float <= float(value) <= max_float):
+    if (value is not None) and (assert_is_float(value) or assert_is_integer(value)) \
+            and (min_float <= float(value) <= max_float):
         return True
     else:
         warn("'" + str(value_name) + "' must be an float between " + str(min_float) + " and " + str(
@@ -119,7 +121,8 @@ def assert_float_range_inclusive(value_name, value, min_float, max_float):
 
 
 def assert_float_non_negative(value_name, value, max_float=1000000000):
-    if (value is not None) and assert_is_float(value) and (0 <= float(value) <= max_float):
+    if (value is not None) and (assert_is_float(value) or assert_is_integer(value)) \
+            and (0 <= float(value) <= max_float):
         return True
     else:
         warn("'" + str(value_name) + "' must be a non-negative float (less than " + str(
@@ -128,7 +131,8 @@ def assert_float_non_negative(value_name, value, max_float=1000000000):
 
 
 def assert_float_positive(value_name, value, max_float=1000000000):
-    if (value is not None) and assert_is_float(value) and (0 < float(value) <= max_float):
+    if (value is not None) and (assert_is_float(value) or assert_is_integer(value)) \
+            and (0 < float(value) <= max_float):
         return True
     else:
         warn("'" + str(value_name) + "' must be a positive float (less than " + str(

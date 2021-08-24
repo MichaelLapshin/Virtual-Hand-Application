@@ -15,4 +15,5 @@
 /AppData-Server/models/
 /AppData-Server/datasets/
 /AppData-Server/images-models/
-/AppData-Server/images-datasets/
+/AppData-Server/images-datasets-fingers/
+/AppData-Server/images-datasets-sensors/

@@ -1,5 +1,7 @@
-from scripts import Warnings, Constants, Log, General
+from scripts import Warnings, Constants, Log, General, Parameters
 from scripts.backend.database import Database
+from scripts.backend.logic import Worker, DatasetPlotter
+from scripts.backend.logic.Worker import dataset_worker
 
 
 def get_all_datasets():
@@ -23,13 +25,36 @@ def update_dataset_entry(dataset_id, new_values):
         return False
 
 
-def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps):
+def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps,
+                       file=None, frames_shift=0,
+                       sensor_savagol_distance=0, sensor_savagol_degree=0,
+                       angle_savagol_distance=0, angle_savagol_degree=0, contains_vel_acc_data=False):
     Log.info("Inserting a dataset entry: "
-             + str((name, owner_id, date, permission, rating, num_frames, fps, 0, 0, 0, 0)))
-    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (name, owner_id, date, permission, rating, num_frames, fps, 0, 0, 0, 0))
+             + str((name, owner_id, date, permission, rating, num_frames, fps, frames_shift,
+                    sensor_savagol_distance, sensor_savagol_degree, angle_savagol_distance, angle_savagol_degree)))
+
+    # Create new dataset
+    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (name, owner_id, date, permission, rating, num_frames, fps, frames_shift,
+                             sensor_savagol_distance, sensor_savagol_degree,
+                             angle_savagol_distance, angle_savagol_degree))
     Database.connection.commit()
-    Warnings.not_complete()
+
+    # Obtains the ID of the new dataset
+    # TODO, Warning: can cause problem with multiple users since lastworid returns id for the cursor (cursor is shared)
+    dataset_id = Database.cursor.lastrowid
+    Log.debug("Create a dataset entry with the id '" + str(dataset_id) + "'")
+
+    # Saves the file locally
+    if file is not None:
+        file.save(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + ".ds")
+
+        # Creates image creation job
+        job = DatasetPlotter.JobDatasetPlotter(title="Plotting Dataset", dataset_id=dataset_id,
+                                               plot_vel_acc=contains_vel_acc_data)
+        Worker.dataset_image_worker.add_task(job=job)
+    else:
+        Log.warning("A dataset entry with id '" + str(dataset_id) + "' is being saved without a file.")
     return True
 
 

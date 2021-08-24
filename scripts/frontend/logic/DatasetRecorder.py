@@ -18,7 +18,7 @@ def time_ms():
 
 
 class Recorder(threading.Thread):
-    RECORD_TIME = True
+    RECORD_TIME = False
 
     def __init__(self, sensor_listener, hand_angler, init_sleep_seconds, training_length_seconds,
                  frames_per_second, progress_bar):
@@ -35,6 +35,7 @@ class Recorder(threading.Thread):
         self.training_length_seconds = training_length_seconds
         self.frames_per_second = frames_per_second
         self.progress_bar = progress_bar
+        self._number_of_frames = None
 
         # Running variables
         self._zeroes = {}
@@ -147,6 +148,7 @@ class Recorder(threading.Thread):
             hf.create_dataset("angle", data=angle_list)
             hf.close()
             self._success = True
+            self._number_of_frames = len(sensor_list[0])
 
         # Post-running
         self._running = False
@@ -169,3 +171,6 @@ class Recorder(threading.Thread):
 
     def is_running(self):
         return self._running
+
+    def get_number_of_frames(self):
+        return self._number_of_frames
