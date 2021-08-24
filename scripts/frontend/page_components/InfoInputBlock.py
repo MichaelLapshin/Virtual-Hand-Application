@@ -72,7 +72,6 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.config(bg=self.frame_colour)
         # self.info_frame.config(bg=General.washed_colour_hex(self.frame_colour, Parameters.ColourGrad_B))
 
-
     def set_frame_colour(self, colour):
         self.frame_colour = colour
 

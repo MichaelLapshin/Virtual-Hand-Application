@@ -55,6 +55,12 @@ def logged_in():
         return package(False, "User '" + user_name + "' does not exist.")
 
 
+@account_api.route('/get_user_id')
+def get_user_id():
+    user_name = flarg("user_name")
+    return package(None, DatabaseAccounts.get_user_id(user_name=user_name))
+
+
 @account_api.route('/log_in')  # TODO, Done
 def log_in():
     user_name = flarg('user')

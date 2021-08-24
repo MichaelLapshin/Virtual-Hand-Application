@@ -3,8 +3,9 @@
 @description: A list of program-spanning constants that should not be changed by the user
 @author: Michael Lapshin
 """
+import numpy as np
 
-default_resolution = "1000x800"
+default_resolution = "1155x800"
 
 # Server constants
 
@@ -42,13 +43,16 @@ RECORDING_DEFAULT_TRAINING_LENGTH = 30
 # Client temporary directories paths
 TEMP_DATASET_PATH = "AppData-Client\\temp-datasets\\"  # Makes sure the end the path with '\\'
 TEMP_MODEL_PATH = "AppData-Client\\temp-models\\"  # Makes sure the end the path with '\\'
-TEMP_SAVE_DATASET_NAME = "temp_raw_dataset.hdf5"
+TEMP_SAVE_DATASET_NAME = "temp_dataset.ds"
 TEMP_SAVE_MODEL_NAME = "temp_model.mod"
+TEMP_SAVE_IMAGE_NAME = "temp_image.png"
 
 # Server directory paths
 SERVER_DATABASE_PATH = "AppData-Server\\databases\\"  # Makes sure the end the path with '\\'
 SERVER_DATASET_PATH = "AppData-Server\\datasets\\"  # Makes sure the end the path with '\\'
 SERVER_MODEL_PATH = "AppData-Server\\models\\"  # Makes sure the end the path with '\\'
+SERVER_IMAGES_DATASETS_FINGERS_PATH = "AppData-Server\\images-datasets-fingers\\"  # Makes sure the end the path with '\\'
+SERVER_IMAGES_DATASETS_SENSORS_PATH = "AppData-Server\\images-datasets-sensors\\"  # Makes sure the end the path with '\\'
 
 # Data gathering related constants
 TRAIN_ZEROING_DELAY_S = 5
@@ -64,7 +68,7 @@ DEFAULT_DATABASE_NAME = "database"
 # Fetching data
 URL_REPLACEMENT_MAP = {" ": "%"}
 DATABASE_ENTRY_TRANSFER_DATA = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "Rating",
-                                "Num_Frames", "FPS",
+                                "Num_Frames", "FPS", "Frames_Shift",
                                 "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",
                                 "Angle_Savagol_Distance", "Angle_Savagol_Degree")
 
@@ -97,6 +101,7 @@ DATABASE_GENERAL_INFORMATION_OPTIONS = {"Name": "Name",
                                         "Rating": "Personal Rating"}
 DATABASE_SMOOTHING_INFORMATION_OPTIONS = {"Num_Frames": "Training Frames",
                                           "FPS": "Frames Per Second",
+                                          "Frames_Shift": "Sensor-Angle Frame Shift",
                                           "Sensor_Savagol_Distance": "Sensor Savagol Distance",
                                           "Sensor_Savagol_Degree": "Sensor Savagol Degree",
                                           "Angle_Savagol_Distance": "Angle Savagol Distance",
@@ -115,3 +120,15 @@ MODEL_TRAINING_INFORMATION_OPTIONS = {"Num_Training_Frames": "Training Frames",
                                       "Layer_Types": "Layer Type",
                                       "Num_Layers": "Number of Layers",
                                       "Num_Nodes_Per_Layer": "Number of Nodes per Layer"}
+
+# Technical Constants
+NUM_FINGERS = 5
+NUM_LIMBS_PER_FINGER = 3
+NUM_SENSORS = 5
+eps = np.finfo(np.float32).eps.item()
+
+# Dataset Plot Type Conversions
+FINGER_TYPE = ("Thumb", "Index", "Middle", "Ring", "Pinky")
+LIMB_TYPE = ("Proximal", "Middle", "Distal")
+METRIC = ("Angle", "Velocity", "Acceleration")
+IMAGE_EXT = ".png"

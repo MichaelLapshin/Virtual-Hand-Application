@@ -1,17 +1,15 @@
-import tkinter, tkinter.messagebox
+import tkinter
+import tkinter.messagebox
 
-import requests
 from PIL import Image, ImageTk
 
 from scripts import General, Warnings, InputConstraints, Parameters, Constants, Log
 from scripts.frontend import Navigation, ClientConnection
-from scripts.frontend.logic import MediapipHandAngler, SensorListener, DatasetRecorder
 from scripts.frontend.custom_widgets import CustomButtons, CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
-from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
-from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
+from scripts.frontend.logic import MediapipHandAngler, SensorListener, DatasetRecorder
 from scripts.frontend.page_components import \
-    InformationBlock, ScrollBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
+    InformationBlock, DatasetGraphBlock, InfoInputBlock, ProgressBar, \
     StatusIndicator, SearchBlock, DataInfoBlock
 from scripts.frontend.pages import GenericPage
 
@@ -158,7 +156,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         """
             Search space
         """
-        self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, title="Dataset List",
+        self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, rowspan=2, title="Dataset List",
                                                            multi_select=True, sort_columnspan=3,
                                                            select_change_command=self.selected_entry_update_command)
         self.search_frame.grid(sticky=tkinter.NSEW)
@@ -172,19 +170,29 @@ class ViewFrame(GenericPage.NavigationFrame):
         """
             Info Frame
         """
+        self.smooth_frame = DataInfoBlock.DatasetInfo(
+            self, column=1, row=0, title="Smoothed Dataset Information",
+            general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
+                                  "Permission": False, "Rating": True},
+            right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": True,
+                                "Sensor_Savagol_Distance": True, "Sensor_Savagol_Degree": True,
+                                "Angle_Savagol_Distance": True, "Angle_Savagol_Degree": True},
+            right_column_title="Smoothing Information")
+        self.smooth_frame.grid_remove()
+
         self.info_frame = DataInfoBlock.DatasetInfo(
             self, column=1, row=0, title="Selected Dataset Information",
             general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
                                   "Permission": False, "Rating": True},
-            right_options_data={"Num_Frames": False, "FPS": False,
+            right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": False,
                                 "Sensor_Savagol_Distance": False, "Sensor_Savagol_Degree": False,
                                 "Angle_Savagol_Distance": False, "Angle_Savagol_Degree": False},
             right_column_title="Smoothing Information")
 
         # Additional buttons for the info frame
-        self.button_frame = GenericPage.Frame(self.info_frame,
-                                              column=0, row=2,
-                                              columnspan=2, rowspan=1)
+        self.button_frame = GenericPage.Frame(self,
+                                              column=1, row=1,
+                                              columnspan=1, rowspan=1)
         self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
         # Configure button frame weights
@@ -192,22 +200,33 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.button_frame.columnconfigure(i, weight=1)
 
         # Create buttons
-        self.update_button = \
-            InformationButton(self.button_frame, column=0, row=0, text="Update",
-                              command=lambda: self.info_frame.save_to_database(
-                                  self.search_frame.get_selected_main_id()))
-        self.favourite_button = \
-            InformationButton(self.button_frame, column=1, row=0, text="Favourite", command=Warnings.not_complete)
-        self.duplicate_button = \
-            InformationButton(self.button_frame, column=2, row=0, text="Duplicate", command=Warnings.not_complete)
-        self.smooth_button = \
-            InformationButton(self.button_frame, column=3, row=0, text="Smooth Dataset",
-                              command=Warnings.not_complete)
-        self.delete_button = \
-            InformationButton(self.button_frame, column=4, row=0, text="Delete", command=Warnings.not_complete)
+        self.update_button = InformationButton(self.button_frame, column=0, row=0, text="Update",
+                                               command=lambda: self.info_frame.save_item(
+                                                   self.search_frame.scroll_block.is_selected_main(),
+                                                   self.search_frame.get_selected_main_id(),
+                                                   search_command=self.search_frame_command))
+        # self.favourite_button = InformationButton(self.button_frame, column=1, row=0, text="Favourite",
+        #                                           command=lambda: self.info_frame.toggle_favourite_item(
+        #                                               self.search_frame.get_selected_main_id()))
+        # self.duplicate_button = InformationButton(self.button_frame, column=2, row=0, text="Duplicate",
+        #                                           command=lambda: self.info_frame.duplicate_item(
+        #                                               self.search_frame.get_selected_main_id()))
+        self.smooth_button = InformationButton(self.button_frame, column=1, row=0, text="Smooth Dataset",
+                                               command=lambda: self.set_is_smoothing(True))
+        self.confirm_button = InformationButton(self.button_frame, column=2, row=0, text="Confirm",
+                                                command=lambda: self.smooth_frame.smooth_dataset(
+                                                    self.search_frame.get_selected_main_id()))
+        self.cancel_button = InformationButton(self.button_frame, column=3, row=0, text="Cancel",
+                                               command=lambda: self.set_is_smoothing(False))
+        self.delete_button = InformationButton(self.button_frame, column=4, row=0, text="Delete",
+                                               command=lambda: self.info_frame.delete_item(
+                                                   self.search_frame.scroll_block.is_selected_main(),
+                                                   self.search_frame.get_selected_main_id()))
+        self.is_smoothing = False
+        self.set_is_smoothing(False)
 
         # Prediction Preview frame
-        self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=1, columnspan=2)
+        self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=2, columnspan=2)
 
     def update_colour(self):
         super().update_colour()
@@ -218,12 +237,16 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.merge_selected_button.update_colour()
 
         # Info frame
+        self.smooth_frame.update_colour()
         self.info_frame.update_colour()
+
         self.button_frame.update_colour()
         self.update_button.update_colour()
-        self.favourite_button.update_colour()
-        self.duplicate_button.update_colour()
+        # self.favourite_button.update_colour()
+        # self.duplicate_button.update_colour()
         self.smooth_button.update_colour()
+        self.confirm_button.update_colour()
+        self.cancel_button.update_colour()
         self.delete_button.update_colour()
 
         # Other
@@ -237,16 +260,35 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.merge_selected_button.update_content()
 
         # Info frame
-        self.info_frame.update_content()
+        if self.is_smoothing is True:
+            self.smooth_frame.update_content()
+
+            # Set smooth num_frames to be accurate
+            try:
+                self.smooth_frame.update_entries(
+                    {"Num_Frames": str(int(self.info_frame.get_value("Num_Frames"))
+                                       - int(self.smooth_frame.get_value("Frames_Shift")))})
+            except:
+                self.smooth_frame.update_entries({"Num_Frames": "<" + self.info_frame.get_value("Num_Frames")})
+
+        else:
+            self.info_frame.update_content()
+
         self.button_frame.update_content()
         self.update_button.update_content()
-        self.favourite_button.update_content()
-        self.duplicate_button.update_content()
+        # self.favourite_button.update_content()
+        # self.duplicate_button.update_content()
         self.smooth_button.update_content()
+        self.confirm_button.update_content()
+        self.cancel_button.update_content()
         self.delete_button.update_content()
 
         # Other
         self.graph_frame.update_content()
+
+    def search_frame_command(self):
+        self.info_frame.clear_info_frame()
+        self.search_frame.search_button_command()
 
     def selected_entry_update_command(self):
         # Obtains the data
@@ -260,6 +302,67 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Updates the info frame
         self.info_frame.update_entries(entries=entries)
+
+        if int(self.info_frame.get_value("Frames_Shift")) != 0 \
+                or float(self.info_frame.get_value("Sensor_Savagol_Distance")) != 0.0 \
+                or float(self.info_frame.get_value("Sensor_Savagol_Degree")) != 0.0 \
+                or float(self.info_frame.get_value("Angle_Savagol_Distance")) != 0.0 \
+                or float(self.info_frame.get_value("Angle_Savagol_Degree")) != 0.0:
+            # enable_entries = False
+            self.smooth_button.disable()
+        else:
+            # enable_entries = True
+            self.smooth_button.enable()
+
+        # entries_to_change_state = {"Sensor_Savagol_Distance": enable_entries, "Sensor_Savagol_Degree": enable_entries,
+        #                            "Angle_Savagol_Distance": enable_entries, "Angle_Savagol_Degree": enable_entries}
+        # self.info_frame.disable_enable_entries({"Name": True}, entries_to_change_state)
+
+    def set_is_smoothing(self, smooth):
+
+        if smooth is True:
+            if self.search_frame.scroll_block.is_selected_main() is True:
+                if ClientConnection.is_logged_in() is True:
+                    self.is_smoothing = True
+
+                    # Change frame display
+                    self.info_frame.grid_remove()
+                    self.smooth_frame.grid()
+
+                    # Button enablement management
+                    self.update_button.disable()
+                    self.smooth_button.disable()
+                    self.confirm_button.enable()
+                    self.cancel_button.enable()
+                    self.delete_button.disable()
+
+                    # Set entry values
+                    print(self.info_frame.get_value("FPS"))
+                    self.smooth_frame.update_entries({
+                        "Name": self.info_frame.get_value("Name") + "_smth",
+                        "ID_Owner": ClientConnection.get_user_id(),
+                        "Date_Created": General.get_current_slashed_date(),
+                        "Permission": Constants.PERMISSION_LEVELS.get(self.info_frame.get_value("Permission")),
+                        "Rating": self.info_frame.get_value("Rating"),
+                        "FPS": self.info_frame.get_value("FPS"),
+                    })
+                else:
+                    tkinter.messagebox.showwarning("Warning!", "Can not smooth the data. User is not logged in.")
+            else:
+                tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+        else:
+            self.is_smoothing = False
+
+            # Change frame display
+            self.smooth_frame.grid_remove()
+            self.info_frame.grid()
+
+            # Button enablement management
+            self.update_button.enable()
+            self.smooth_button.enable()
+            self.confirm_button.disable()
+            self.cancel_button.disable()
+            self.delete_button.enable()
 
     def set_switch_to_new_frame(self, command):
         self.new_dataset_button.config(command=command)
@@ -547,11 +650,12 @@ class NewFrame(GenericPage.NavigationFrame):
             assert self.data_recorder.is_successful()
 
             # Post-recoding variable deduction
-            num_frames = frames_per_second * self.data_recorder.get_training_length_seconds()
+            num_frames = self.data_recorder.get_number_of_frames()
 
             # Uploads the dataset to the server
             access_perm_level = Constants.PERMISSION_LEVELS.get(access_permissions)
-            result = ClientConnection.upload_dataset(name, owner_name, date_created, access_perm_level, personal_rating,
+            result = ClientConnection.upload_dataset(name, ClientConnection.get_user_id(),
+                                                     date_created, access_perm_level, personal_rating,
                                                      num_frames, frames_per_second)
 
             if result is True:
@@ -560,8 +664,7 @@ class NewFrame(GenericPage.NavigationFrame):
                 Log.info("Successfully uploaded the dataset named '" + name + "'.")
                 self.data_recorder = None
             else:
-                tkinter.messagebox.showwarning("Upload: Failed!", "The dataset failed to upload to the server.\n"
-                                                                  "Does a dataset with the same name already exist?")
+                tkinter.messagebox.showwarning("Upload: Failed!", "The dataset failed to upload to the server.")
                 Log.warning("Was not able to upload the dataset named '" + name + "'.")
 
         else:

@@ -10,6 +10,7 @@ from scripts import Warnings, Parameters, InputConstraints, Log, Constants
 """
 
 # User variables
+_user_id = None
 _user_name = None
 _password = None
 
@@ -118,12 +119,13 @@ def process_response(response, ovrd_ltst_msg=True):
 
 
 def log_in(user_name, password):
-    global _user_name, _password
+    global _user_id, _user_name, _password
 
     result = check_exists_user(user_name, password)
 
     if result is True:
         Log.info("Logged in as the user '" + user_name + "'.")
+        _user_id = send_get_request("/account/get_user_id", {"user_name": user_name})
         _user_name = user_name
         _password = password
     return result
@@ -132,14 +134,15 @@ def log_in(user_name, password):
 def log_out():
     global _user_name, _password
     Log.info("Logged out as the user '" + str(_user_name) + "'.")
+    _user_id = None
     _user_name = None
     _password = None
     return True
 
 
 def is_logged_in():
-    global _user_name, _password
-    result = (_user_name is not None) and (_password is not None)
+    global _user_id, _user_name, _password
+    result = (_user_id is not None) and (_user_name is not None) and (_password is not None)
     Log.trace("Checking is the user is logged in. Returning: " + str(result))
     return result
 
@@ -148,6 +151,12 @@ def get_user_name():
     global _user_name
     Log.trace("Fetched the user name '" + str(_user_name) + "'.")
     return _user_name
+
+
+def get_user_id():
+    global _user_id
+    Log.trace("Fetched the user id '" + str(_user_id) + "'.")
+    return _user_id
 
 
 """
@@ -251,17 +260,78 @@ def update_model_entry(model_id, model_values):
 
 
 """
+    Other Data Management
+"""
+
+
+# def duplicate_dataset_entry(dataset_id):
+#     Log.info("Attempting to duplicate the dataset with the id '" + dataset_id + "'.")
+#     result = send_get_request("/process/duplicate_dataset", {"id": dataset_id})
+#
+#     if result is True:
+#         Log.info("The dataset with the id '" + dataset_id + "' was successfully duplicated.")
+#     else:
+#         Log.info("The dataset with the id '" + dataset_id + "' failed to duplicated.")
+#     return result
+
+
+def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, num_frames, frames_per_second,
+                   dataset_id, frames_shift,
+                   sensor_savagol_distance, sensor_savagol_degree,
+                   angle_savagol_distance, angle_savagol_degree):
+    Log.info("Attempting to smooth the dataset with the id '" + str(dataset_id) + "'. With: "
+             + "                \nframes_shift=" + str(frames_shift)
+             + "                \nsensor_savagol_distance=" + str(sensor_savagol_distance)
+             + "                \nsensor_savagol_d egree=" + str(sensor_savagol_degree)
+             + "                \nangle_savagol_distance=" + str(angle_savagol_distance)
+             + "                \nangle_savagol_degree=" + str(angle_savagol_degree))
+
+    result = send_get_request("/process/smooth_dataset",
+                              values={"name": name,
+                                      "owner_id": owner_id,
+                                      "date": date_created,
+                                      "permission": access_perm_level,
+                                      "rating": personal_rating,
+                                      "num_frames": num_frames,
+                                      "FPS": frames_per_second,
+                                      "id": dataset_id,
+                                      "frames_shift": frames_shift,
+                                      "sensor_savagol_distance": sensor_savagol_distance,
+                                      "sensor_savagol_degree": sensor_savagol_degree,
+                                      "angle_savagol_distance": angle_savagol_distance,
+                                      "angle_savagol_degree": angle_savagol_degree})
+    if result is True:
+        Log.info("The smoothing of dataset with id '" + str(dataset_id) + "' has begun.")
+    else:
+        Log.warning("The smoothing of dataset with id '" + str(dataset_id) + "' failed to begin.")
+
+
+"""
+    Data Deletion Management
+"""
+
+
+def delete_dataset_entry(dataset_id):
+    Log.info("Attempting to delete the dataset with the id '" + dataset_id + "'.")
+    result = send_get_request("/process/delete_dataset", {"id": dataset_id})
+    if result is True:
+        Log.info("The dataset with id '" + str(dataset_id) + "' was successfully deleted.")
+    else:
+        Log.warning("The dataset with id '" + str(dataset_id) + "' was not successfully deleted.")
+
+
+"""
     File Transfer Management
 """
 
 
-def upload_dataset(name, owner_name, date_created, access_perm_level, personal_rating, num_frames, frames_per_second):
+def upload_dataset(name, owner_id, date_created, access_perm_level, personal_rating, num_frames, frames_per_second):
     Log.info("Attempting to upload the dataset named '" + name + "'.")
     result = send_post_request(
         url_extension="/transfer/upload_dataset",
         file_to_send=Parameters.PROJECT_PATH + Constants.TEMP_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME,
         values={"name": name,
-                "owner_name": owner_name,
+                "owner_id": owner_id,
                 "date": date_created,
                 "permission": access_perm_level,
                 "rating": personal_rating,
