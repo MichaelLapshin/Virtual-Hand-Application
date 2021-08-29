@@ -12,7 +12,7 @@ SERVER_IP_ADDRESS = "http://localhost"
 SERVER_PORT = "5000"
 
 # Logging parameters
-LOG_LEVEL = 1
+LOG_LEVEL = 0
 
 # Updating
 UPDATE_DELAY_MS = 500

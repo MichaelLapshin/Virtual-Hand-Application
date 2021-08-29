@@ -1,8 +1,12 @@
+import io
+
+import PIL.Image
 import flask
 
 from scripts import Log, Constants
 
 worker = None
+
 
 def flarg(argument):
     result = flask.request.args.get(argument)
@@ -27,3 +31,10 @@ def reverse_url_replacement_mapping(string):
     for k in Constants.URL_REPLACEMENT_MAP:
         string = string.replace(Constants.URL_REPLACEMENT_MAP.get(k), k)
     return string
+
+
+def image_to_bytesIO(image_path):
+    bytes_io = io.BytesIO()
+    image = PIL.Image.open(image_path)
+    image.save(bytes_io, 'PNG')
+    return bytes_io

@@ -29,7 +29,7 @@ from scripts.backend.database import Database
 from scripts.backend.logic import Worker
 
 start_server = Database.connect("server_database.db")
-Database.create_all_new_tables()
+Database.create_all_new_tables(replace=False)
 workers = []
 
 if start_server:

@@ -43,6 +43,8 @@ RECORDING_DEFAULT_TRAINING_LENGTH = 30
 # Client temporary directories paths
 TEMP_DATASET_PATH = "AppData-Client\\temp-datasets\\"  # Makes sure the end the path with '\\'
 TEMP_MODEL_PATH = "AppData-Client\\temp-models\\"  # Makes sure the end the path with '\\'
+TEMP_DATASET_IMAGE_PATH = "AppData-Client\\temp-images-datasets\\"  # Makes sure the end the path with '\\'
+TEMP_MODEL_IMAGE_PATH = "AppData-Client\\temp-images-models\\"  # Makes sure the end the path with '\\'
 TEMP_SAVE_DATASET_NAME = "temp_dataset.ds"
 TEMP_SAVE_MODEL_NAME = "temp_model.mod"
 TEMP_SAVE_IMAGE_NAME = "temp_image.png"
@@ -68,7 +70,7 @@ DEFAULT_DATABASE_NAME = "database"
 # Fetching data
 URL_REPLACEMENT_MAP = {" ": "%"}
 DATABASE_ENTRY_TRANSFER_DATA = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "Rating",
-                                "Num_Frames", "FPS", "Frames_Shift",
+                                "Is_Raw", "Num_Frames", "FPS", "Frames_Shift",
                                 "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",
                                 "Angle_Savagol_Distance", "Angle_Savagol_Degree")
 
@@ -81,7 +83,8 @@ DATABASES_SORT_BY_OPTIONS = {"ID Number": "ID",
                              "Name": "Name",
                              "Date created": "Date_Created",
                              "FPS": "FPS",
-                             "Rating": "Rating"}
+                             "Rating": "Rating",
+                             "Is Raw": "Is_Raw"}
 MODELS_SORT_BY_OPTIONS = {"ID Number": "ID",
                           "Name": "Name",
                           "Date created": "Date_Created",
@@ -98,7 +101,8 @@ DATABASE_GENERAL_INFORMATION_OPTIONS = {"Name": "Name",
                                         "ID_Owner": "Owner ID",
                                         "Date_Created": "Date created",
                                         "Permission": "Access Permissions",
-                                        "Rating": "Personal Rating"}
+                                        "Rating": "Personal Rating",
+                                        "Is_Raw": "Is Raw"}
 DATABASE_SMOOTHING_INFORMATION_OPTIONS = {"Num_Frames": "Training Frames",
                                           "FPS": "Frames Per Second",
                                           "Frames_Shift": "Sensor-Angle Frame Shift",
@@ -126,9 +130,10 @@ NUM_FINGERS = 5
 NUM_LIMBS_PER_FINGER = 3
 NUM_SENSORS = 5
 eps = np.finfo(np.float32).eps.item()
+DIGITS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
 
 # Dataset Plot Type Conversions
 FINGER_TYPE = ("Thumb", "Index", "Middle", "Ring", "Pinky")
 LIMB_TYPE = ("Proximal", "Middle", "Distal")
-METRIC = ("Angle", "Velocity", "Acceleration")
+METRIC = ("Position", "Velocity", "Acceleration")
 IMAGE_EXT = ".png"
