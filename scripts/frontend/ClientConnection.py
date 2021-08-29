@@ -1,6 +1,10 @@
 """
     Connection Handler used to interact with the server
 """
+import io
+import tkinter
+
+import PIL.Image, PIL.ImageTk
 import requests
 
 from scripts import Warnings, Parameters, InputConstraints, Log, Constants
@@ -65,6 +69,25 @@ def send_get_request(url_extension="", values={}, ovrd_ltst_msg=True):
         return None
 
 
+def send_get_file_request(url_extension="", values={}):
+    is_online = is_server_online()
+
+    # Creates the variables
+    url_values = ""
+    for v in values.keys():
+        url_values += "&" + str(v) + "=" + str(values[v])
+    if len(url_values) > 0:
+        url_values = "?" + url_values[1::]
+
+    # Sends the get request if the server is online. Returns the boolean result
+    if is_online:
+        return requests.get(get_server_address() + url_extension + url_values)
+    else:
+        Log.warning("The server appears to be offline. Did not send the GET request to "
+                    "'" + get_server_address() + url_extension + url_values + "'")
+        return None
+
+
 def send_post_request(url_extension="", file_to_send="", values={}, ovrd_ltst_msg=True):
     assert file_to_send is not None and len(file_to_send) != 0
     is_online = is_server_online()
@@ -111,6 +134,14 @@ def process_response(response, ovrd_ltst_msg=True):
     else:
         Warnings.not_to_reach()
         return None
+
+
+def bytesIO_to_pil_image(bytesIO_stream) -> PIL.Image:
+    return PIL.Image.open(bytesIO_stream)
+
+
+def pil_image_to_photoImage(pil_image: PIL.Image) -> PIL.ImageTk:
+    return PIL.ImageTk.PhotoImage(pil_image)
 
 
 """
@@ -376,3 +407,47 @@ def fetch_ordered_models(sort_by, direction, user_name):
         ovrd_ltst_msg=False)
 
     return result
+
+
+"""
+    Image Fetching Management
+"""
+
+
+def fetch_dataset_finger_plot(dataset_id, finger, metric):
+    Log.info("Fetching finger images for the dataset with id '" + str(dataset_id) + "'")
+
+    result = send_get_request(
+        url_extension="/transfer/get_dataset_finger_image",
+        values={"dataset_id": dataset_id,
+                "finger": finger,
+                "metric": metric})
+
+    # Saves and loads the image
+    # bytesIO_stream = io.BytesIO(result)
+    # pil_image = bytesIO_to_pil_image(bytesIO_stream)
+    # photoImage_image = pil_image_to_photoImage(pil_image)
+
+    photoImage_image = tkinter.PhotoImage(data=result)
+
+    return photoImage_image
+    # return result
+
+
+def fetch_dataset_sensor_plot(dataset_id, sensor):
+    Log.info("Fetching sensor images for the dataset with id '" + str(dataset_id) + "'")
+
+    result = send_get_request(
+        url_extension="/transfer/get_dataset_sensor_image",
+        values={"dataset_id": dataset_id,
+                "sensor": sensor})
+
+    # Saves and loads the image
+    # bytesIO_stream = io.BytesIO(result)
+    # pil_image = bytesIO_to_pil_image(bytesIO_stream)
+    # photoImage_image = pil_image_to_photoImage(pil_image)
+    # print(type(result), result.decode("utf-8"))
+    photoImage_image = tkinter.PhotoImage(data=result)
+
+    return photoImage_image
+    # return result

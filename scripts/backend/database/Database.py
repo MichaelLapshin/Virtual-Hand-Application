@@ -111,6 +111,7 @@ def create_datasets_table():
                             Date_Created   DATE,
                             Permission     INTEGER NOT NULL,
                             Rating         INTEGER,
+                            Is_Raw         BOOLEAN NOT NULL,
                             Num_Frames     INTEGER NOT NULL,
                             FPS            INTEGER NOT NULL,
                             Frames_Shift   INTEGER NOT NULL,
@@ -182,7 +183,7 @@ def create_all_new_tables(replace=False):
     # Creating the new tables
     _create_table_check(table_name="Users", create_tables_function=create_users_table, replace=replace)
     _create_table_check(table_name="Datasets", create_tables_function=create_datasets_table, replace=replace)
-    _create_table_check(table_name="DatasetDependency", create_tables_function=create_dataset_dependency_table,
+    _create_table_check(table_name="DatasetDependencies", create_tables_function=create_dataset_dependency_table,
                         replace=replace)
     _create_table_check(table_name="Models", create_tables_function=create_models_table, replace=replace)
     _create_table_check(table_name="DatasetFingerPlots", create_tables_function=create_dataset_finger_plot_table,
@@ -196,12 +197,12 @@ def _create_table_check(table_name, create_tables_function, replace):
 
     # Checks for the user table
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='" + table_name + "'")
-    exists_user = cursor.fetchone() is not None
+    exists = cursor.fetchone() is not None
 
-    Log.info("The '" + table_name + "' table exists: " + str(exists_user))
+    Log.info("The '" + table_name + "' table exists: " + str(exists))
 
     # Logic for creating the tables
-    if exists_user is True:
+    if exists is True:
         if replace is True:
             # Drop the table
             cursor.execute("DROP TABLE IF EXISTS " + table_name)

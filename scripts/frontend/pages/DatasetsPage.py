@@ -318,6 +318,14 @@ class ViewFrame(GenericPage.NavigationFrame):
         #                            "Angle_Savagol_Distance": enable_entries, "Angle_Savagol_Degree": enable_entries}
         # self.info_frame.disable_enable_entries({"Name": True}, entries_to_change_state)
 
+        # Updates the Dataset Graph Block
+        selected_dataset_id = self.search_frame.get_selected_main_id()
+        self.graph_frame.image_frame.load_new_images(
+            dataset_id=selected_dataset_id,
+            is_raw=self.search_frame.list_storage[selected_index][
+                Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")])
+        self.graph_frame.metric_button_frame.update_image_state()
+
     def set_is_smoothing(self, smooth):
 
         if smooth is True:

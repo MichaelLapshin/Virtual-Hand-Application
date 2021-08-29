@@ -1,8 +1,13 @@
+import io
+import tkinter
+
 import flask
+import PIL.Image
+import base64
 
 from API_Helper import flarg, flreq, package
 from scripts import Warnings, Log, Constants, Parameters
-from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts
+from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts, DatabasePlots
 
 file_transfer_api = flask.Blueprint('file_transfer_api', __name__)
 
@@ -50,3 +55,32 @@ def upload_dataset():
         Log.warning("The function 'upload_dataset' was called not from a POST request.")
         Warnings.not_to_reach()
         return package(False, "Warning. Must access this function using a POST request.")
+
+
+@file_transfer_api.route("/get_dataset_finger_image")
+def get_dataset_finger_image():
+    dataset_id = flarg("dataset_id")
+    image_finger = flarg("finger")
+    image_metric = flarg("metric")
+
+    image = PIL.Image.open(DatabasePlots.get_finger_image_file_path(
+        dataset_id=dataset_id, finger_num=image_finger, metric_num=image_metric))
+    bytes_io = io.BytesIO()
+    image.save(bytes_io, "PNG")
+
+    return package(None, base64.b64encode(bytes_io.getvalue()))
+
+
+@file_transfer_api.route("/get_dataset_sensor_image")
+def get_dataset_sensor_image():
+    dataset_id = flarg("dataset_id")
+    sensor = flarg("sensor")
+
+    # image = PIL.Image.open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor))
+    # image = tkinter.PhotoImage(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor))
+    image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
+    # bytes_io = io.BytesIO()
+    # image.save(bytes_io, "PNG")
+
+    # return package(None, base64.b64encode(bytes_io.getvalue()))
+    return package(None, base64.b64encode(image.read()))

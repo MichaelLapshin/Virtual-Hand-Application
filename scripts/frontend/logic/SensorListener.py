@@ -5,6 +5,8 @@
 """
 import os
 
+from scripts import Constants
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import serial
 import time
@@ -113,10 +115,9 @@ class SensorReadingsListener(threading.Thread):
                         for index in range(0, max(int(len(raw_buffer_data) / 2) - 1, 0)):
                             used += raw_buffer_data[index * 2] + " " + raw_buffer_data[index * 2 + 1] + " "
 
-                            # TODO: bad practice to rely on the try-catch statement, change to something else later
-                            try:
+                            if False not in [(s in Constants.DIGITS) for s in raw_buffer_data[index * 2 + 1]]:
                                 self._sensorReadings[raw_buffer_data[index * 2]] = int(raw_buffer_data[index * 2 + 1])
-                            except:
+                            else:
                                 self._buffer = ""
 
                         self._buffer = self._buffer.lstrip(used.rstrip(" "))

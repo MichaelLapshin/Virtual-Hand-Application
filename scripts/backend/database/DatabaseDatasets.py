@@ -26,16 +26,16 @@ def update_dataset_entry(dataset_id, new_values):
 
 
 def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps,
-                       file=None, frames_shift=0,
+                       file=None, is_raw=True, frames_shift=0,
                        sensor_savagol_distance=0, sensor_savagol_degree=0,
                        angle_savagol_distance=0, angle_savagol_degree=0, contains_vel_acc_data=False):
     Log.info("Inserting a dataset entry: "
-             + str((name, owner_id, date, permission, rating, num_frames, fps, frames_shift,
+             + str((name, owner_id, date, permission, rating, is_raw, num_frames, fps, frames_shift,
                     sensor_savagol_distance, sensor_savagol_degree, angle_savagol_distance, angle_savagol_degree)))
 
     # Create new dataset
-    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (name, owner_id, date, permission, rating, num_frames, fps, frames_shift,
+    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (name, owner_id, date, permission, rating, is_raw, num_frames, fps, frames_shift,
                              sensor_savagol_distance, sensor_savagol_degree,
                              angle_savagol_distance, angle_savagol_degree))
     Database.connection.commit()
@@ -94,7 +94,3 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
     Log.debug("Returning the results: " + str(results))
     return results
 
-
-def get_graphs():
-    Warnings.not_complete()
-    return None
