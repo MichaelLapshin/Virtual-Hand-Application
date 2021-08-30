@@ -232,9 +232,9 @@ class Frame(tkinter.Frame, WidgetInterface):
                             shown_rows += 1
 
                     # Calculates the scale
-                    scale = (self.winfo_width() / float(Constants.NUM_FINGERS)) / float(image_sample_width)
-                    if int(scale * image_sample_height * shown_rows) > self.winfo_height():
-                        scale = (self.winfo_height() / float(shown_rows)) / float(image_sample_height)
+                    scale = General.resizing_scale(width=image_sample_width, height=image_sample_height,
+                                                   space_width=self.winfo_width() / float(Constants.NUM_FINGERS),
+                                                   space_height=self.winfo_height() / float(shown_rows))
 
                     # More complex scaling calculations to combat the 1/scale issues
                     subsampling_scale: int
@@ -249,21 +249,7 @@ class Frame(tkinter.Frame, WidgetInterface):
                     for row in self.stored_image_labels:
                         for label in row:
                             if label.winfo_ismapped():
-                                # pil_image = PIL.ImageTk(label.image)
-
-                                # pil_image = pil_image.resize((image_sample_width * scale, image_sample_height * scale)
-                                #                              , PIL.Image.ANTIALIAS)
-
-                                # label.image = tkinter.PhotoImage(pil_image)
-
-                                # label.image.zoom(int(self.old_width))
-                                # label.image.subsample(int(scale * self.winfo_width()))
-                                # label.image = label.image.resize(
-                                #     int(scale * label.image.width), int(scale * label.image.height),
-                                #     PIL.Image.ANTIALIAS)
-
                                 # Scales the original image
-                                # label.image = label.orig_image.copy()
                                 if scale >= 1:
                                     label.image = label.orig_image.zoom(int(scale))
                                 else:

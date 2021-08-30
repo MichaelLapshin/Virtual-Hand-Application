@@ -482,9 +482,9 @@ class NewFrame(GenericPage.NavigationFrame):
                 image = Image.fromarray(self.hand_angler.get_processed_image())
 
                 # Resize image
-                ratio = self.camera_frame.winfo_width() / float(image.width)
-                if int(ratio * image.height) > self.camera_frame.winfo_height():
-                    ratio = self.camera_frame.winfo_height() / float(image.height)
+                ratio = General.resizing_scale(width=image.width, height=image.height,
+                                               space_width=self.camera_frame.winfo_width(),
+                                               space_height=self.camera_frame.winfo_height())
                 image = image.resize((int(ratio * image.width), int(ratio * image.height)))
 
                 # Apply image

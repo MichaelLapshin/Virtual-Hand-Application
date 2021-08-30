@@ -36,5 +36,10 @@ def dict_to_sql_update_features(a_dict):
     Log.info("Generated the new sql feature dict: " + new_string_dict)
     return new_string_dict
 
+
 def resizing_scale(width, height, space_width, space_height):
-    pass
+    # Calculates the scale
+    scale = space_width / float(width)
+    if int(scale * height) > space_height:
+        scale = space_height / float(height)
+    return scale
