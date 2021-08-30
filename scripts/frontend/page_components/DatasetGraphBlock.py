@@ -1,4 +1,6 @@
+import math
 import tkinter
+import PIL.Image, PIL.ImageTk
 
 from scripts import General, Warnings, Parameters, Constants, Log
 from scripts.frontend import ClientConnection
@@ -67,7 +69,11 @@ class Frame(tkinter.Frame, WidgetInterface):
     """
 
     class MetricButtonFrame(tkinter.Frame, WidgetInterface):
-        def __init__(self, root, button_display_command, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.EW):
+        def __init__(self, root, button_display_command, update_image_size_command,
+                     column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.EW):
+
+            self.update_image_size_command = update_image_size_command
+
             # Creates self frame
             tkinter.Frame.__init__(
                 self, root, relief=tkinter.RIDGE, bd=1)
@@ -83,50 +89,78 @@ class Frame(tkinter.Frame, WidgetInterface):
             self.columnconfigure(3, weight=1)
 
             # Angular Position button
-            self.distal_button = CustomButtons.InformationButton(
+            self.position_toggle_button = CustomButtons.InformationButton(
                 self, column=0, row=0,
                 text="Angular Position", command=lambda: self.toggle_image_state(0))
             # Angular Velocity button
-            self.middle_button = CustomButtons.InformationButton(
+            self.velocity_toggle_button = CustomButtons.InformationButton(
                 self, column=1, row=0,
                 text="Angular Velocity", command=lambda: self.toggle_image_state(1))
             # Angular Acceleration button
-            self.proximal_button = CustomButtons.InformationButton(
+            self.acceleration_toggle_button = CustomButtons.InformationButton(
                 self, column=2, row=0,
                 text="Angular Acceleration", command=lambda: self.toggle_image_state(2))
             # Loss button
-            self.sensors_button = CustomButtons.InformationButton(
+            self.sensors_toggle_button = CustomButtons.InformationButton(
                 self, column=3, row=0,
                 text="Sensor Readings", command=lambda: self.toggle_image_state(3))
 
             # Toggle states
-            self.enabled_state = [True] + [False] * (NUM_IMAGES - 2) + [True]
-            print(self.enabled_state)
+            self.enabled_state = [None] * 4
+            self.enabled_buttons = [self.position_toggle_button, self.velocity_toggle_button,
+                                    self.acceleration_toggle_button, self.sensors_toggle_button]
             self.button_display_command = button_display_command
 
+            # Default button states
+            self.set_image_state(0, True)
+            self.set_image_state(1, False)
+            self.set_image_state(2, False)
+            self.set_image_state(3, True)
+
             # Increase the padding
-            self.distal_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
-            self.middle_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
-            self.proximal_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
-            self.sensors_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+            self.position_toggle_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+            self.velocity_toggle_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+            self.acceleration_toggle_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
+            self.sensors_toggle_button.grid(padx=Constants.STANDARD_SPACING, pady=Constants.STANDARD_SPACING)
 
         def update_colour(self):
             super().update_colour()
-            self.distal_button.update_colour()
-            self.middle_button.update_colour()
-            self.proximal_button.update_colour()
-            self.sensors_button.update_colour()
-
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
+
+        def enable_all_buttons(self, enable=True):
+            self.enable_vel_acc_buttons(enable=enable)
+            if enable is True:
+                self.position_toggle_button.enable()
+                self.sensors_toggle_button.enable()
+            else:
+                self.position_toggle_button.disable()
+                self.sensors_toggle_button.disable()
+
+        def enable_vel_acc_buttons(self, enable=True):
+            if enable is True:
+                self.velocity_toggle_button.enable()
+                self.acceleration_toggle_button.enable()
+            else:
+                self.velocity_toggle_button.disable()
+                self.acceleration_toggle_button.disable()
+
+        def set_image_state(self, button_index, state):
+            self.enabled_state[button_index] = state
+            if state is True:
+                self.enabled_buttons[button_index].config(
+                    bg=General.washed_colour_hex(Constants.COLOUR_GREEN, Parameters.ColourGrad_D))
+            else:
+                self.enabled_buttons[button_index].config(
+                    bg=General.washed_colour_hex(Constants.COLOUR_GREY, Parameters.ColourGrad_D))
 
         def toggle_image_state(self, button_index):
             assert 0 <= button_index < NUM_IMAGES
 
             # Toggles button
             if self.enabled_state[button_index] is True:
-                self.enabled_state[button_index] = False
+                self.set_image_state(button_index, False)
             else:
-                self.enabled_state[button_index] = True
+                self.set_image_state(button_index, True)
 
             Log.debug(
                 "Toggling the state of button " + str(button_index) + " to " + str(self.enabled_state[button_index]))
@@ -135,6 +169,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
         def update_image_state(self):
             self.button_display_command(self.enabled_state)
+            self.update_image_size_command()
 
     """
         Image box
@@ -155,17 +190,87 @@ class Frame(tkinter.Frame, WidgetInterface):
                 self.columnconfigure(i, weight=1)
 
             # Stores images
-            self.stored_images = [[None for a in range(0, Constants.NUM_FINGERS)]
-                                  for b in range(0, NUM_IMAGES)]
             self.stored_image_labels = [[tkinter.Label(self) for a in range(0, Constants.NUM_FINGERS)]
                                         for b in range(0, NUM_IMAGES)]
+
+            # Scaling variables
+            self.old_width = None
+            self.old_height = None
 
         def update_colour(self):
             super().update_colour()
             self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
 
+        def update_image_size(self):
+            self.old_width = None
+            self.old_height = None
+
         def update_content(self):
             super().update_colour()
+
+            # Image scaling
+            if self.old_width != self.winfo_width() or self.old_height != self.winfo_height():
+                self.old_width = self.winfo_width()
+                self.old_height = self.winfo_height()
+
+                # Finds an image dimensions to sample # TODO, this assumes that all images have identical resolution
+                image_sample_width = None
+                image_sample_height = None
+
+                for row in self.stored_image_labels:
+                    for label in row:
+                        if label.winfo_ismapped():
+                            image_sample_width = label.orig_image.width()
+                            image_sample_height = label.orig_image.height()
+                            break
+
+                if image_sample_width is not None and image_sample_height is not None:
+                    # Counts number of visible rows
+                    shown_rows = 0
+                    for row in self.stored_image_labels:
+                        if row[0].winfo_ismapped():
+                            shown_rows += 1
+
+                    # Calculates the scale
+                    scale = (self.winfo_width() / float(Constants.NUM_FINGERS)) / float(image_sample_width)
+                    if int(scale * image_sample_height * shown_rows) > self.winfo_height():
+                        scale = (self.winfo_height() / float(shown_rows)) / float(image_sample_height)
+
+                    # More complex scaling calculations to combat the 1/scale issues
+                    subsampling_scale: int
+                    if scale < 1:
+                        subsampling_scale = \
+                            math.ceil(image_sample_width / (float(self.winfo_width()) / float(Constants.NUM_FINGERS)))
+                        if image_sample_height * shown_rows / subsampling_scale > self.winfo_height():
+                            subsampling_scale = \
+                                math.ceil(image_sample_height / (float(self.winfo_height()) / float(shown_rows)))
+
+                    # Resizes all images
+                    for row in self.stored_image_labels:
+                        for label in row:
+                            if label.winfo_ismapped():
+                                # pil_image = PIL.ImageTk(label.image)
+
+                                # pil_image = pil_image.resize((image_sample_width * scale, image_sample_height * scale)
+                                #                              , PIL.Image.ANTIALIAS)
+
+                                # label.image = tkinter.PhotoImage(pil_image)
+
+                                # label.image.zoom(int(self.old_width))
+                                # label.image.subsample(int(scale * self.winfo_width()))
+                                # label.image = label.image.resize(
+                                #     int(scale * label.image.width), int(scale * label.image.height),
+                                #     PIL.Image.ANTIALIAS)
+
+                                # Scales the original image
+                                # label.image = label.orig_image.copy()
+                                if scale >= 1:
+                                    label.image = label.orig_image.zoom(int(scale))
+                                else:
+                                    label.image = label.orig_image.subsample(subsampling_scale)
+
+                                # Applies the image to the label
+                                label.config(image=label.image)
 
         def change_image_layout(self, enabled_buttons):
             Log.debug("Updating the image layout with: " + str(enabled_buttons))
@@ -187,7 +292,6 @@ class Frame(tkinter.Frame, WidgetInterface):
                         if self.stored_image_labels[i][image_indx] is not None:
                             self.stored_image_labels[i][image_indx].grid_remove()
 
-
         def load_new_images(self, dataset_id, is_raw):
             Warnings.not_complete()
 
@@ -197,17 +301,9 @@ class Frame(tkinter.Frame, WidgetInterface):
                 photoImage_image = ClientConnection.fetch_dataset_finger_plot(
                     dataset_id=dataset_id, finger=image_index, metric=row_index)
 
-                # self.stored_images[row_index][image_index] = photoImage_image
-                self.stored_image_labels[row_index][image_index].image = photoImage_image
-                self.stored_image_labels[row_index][image_index].config(
-                    image=self.stored_image_labels[row_index][image_index].image)
-
-                # self.stored_image_labels[row_index][image_index].config(image=photoImage_image)
-
-                # self.stored_images[row_index][image_index] = \
-                #     self.stored_image_labels[row_index][image_index].cget("image")
-                # self.stored_image_labels[row_index][image_index]["image"] = \
-                #     self.stored_images[row_index][image_index]
+                # Saves the image
+                self.stored_image_labels[row_index][image_index].orig_image = \
+                    photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
 
             Log.trace("is_raw is: " + str(is_raw))
             if is_raw == 0:
@@ -216,42 +312,23 @@ class Frame(tkinter.Frame, WidgetInterface):
                         photoImage_image = ClientConnection.fetch_dataset_finger_plot(
                             dataset_id=dataset_id, finger=image_index, metric=row_index)
 
-                        # self.stored_images[row_index][image_index] = photoImage_image
-                        self.stored_image_labels[row_index][image_index].image = photoImage_image
-                        self.stored_image_labels[row_index][image_index].config(
-                            image=self.stored_image_labels[row_index][image_index].image)
-
-                        # self.stored_image_labels[row_index][image_index].config(image=photoImage_image)
-
-                        # self.stored_images[row_index][image_index] = \
-                        #     self.stored_image_labels[row_index][image_index].cget("image")
-                        # self.stored_image_labels[row_index][image_index]["image"] = \
-                        #     self.stored_images[row_index][image_index]
-                        # self.new = tkinter.Label(self, image=photoImage_image)
-                        # self.new.grid(column=0, row=0)
+                        # Saves the image
+                        self.stored_image_labels[row_index][image_index].orig_image = \
+                            photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
 
             # Fetches sensor images
             for image_index in range(0, Constants.NUM_SENSORS):
-                photoImage_image = ClientConnection.fetch_dataset_sensor_plot(dataset_id=dataset_id,
-                                                                              sensor=image_index)
-                # self.stored_image_labels[3][image_index].config(image=photoImage_image)
-                # self.stored_images[3][image_index] = self.stored_image_labels[3][image_index].cget("image")
-                # print(self.stored_images[3][image_index])
-                # self.stored_image_labels[3][image_index].image = photoImage_image
+                photoImage_image = ClientConnection.fetch_dataset_sensor_plot(dataset_id=dataset_id, sensor=image_index)
 
-                self.stored_image_labels[3][image_index].image = photoImage_image
-                self.stored_image_labels[3][image_index].config(
-                    image=self.stored_image_labels[3][image_index].image)
-
-                # self.stored_image_labels[3][image_index].config(image=photoImage_image)
-
-                # self.stored_image_labels[3][image_index]["image"] = self.stored_images[3][image_index]
+                # Saves the image
+                self.stored_image_labels[3][image_index].orig_image = \
+                    photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
 
     """
         Self methods
     """
 
-    def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.EW):
+    def __init__(self, root, column=0, row=0, columnspan=1, rowspan=1, sticky=tkinter.NSEW):
         # Creates self frame
         tkinter.Frame.__init__(
             self, root, relief=tkinter.RIDGE, bd=1)
@@ -269,7 +346,8 @@ class Frame(tkinter.Frame, WidgetInterface):
         # self.button_frame = Frame.ButtonFrame(self, column=0, row=0, rowspan=2)
         self.metric_button_frame = Frame.MetricButtonFrame(self,
                                                            button_display_command=self.image_frame.change_image_layout,
-                                                           column=1, row=0)
+                                                           column=1, row=0,
+                                                           update_image_size_command=self.image_frame.update_image_size)
 
     def update_colour(self):
         super().update_colour()

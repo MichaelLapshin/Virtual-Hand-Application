@@ -179,7 +179,8 @@ class JobSmooth(Job.Job):
         # Saves the data on the database
         result = DatabaseDatasets.create_new_dataset(
             name=self.dataset_name, owner_id=self.dataset_owner_name, date=self.dataset_date,
-            permission=self.dataset_permission, rating=self.dataset_rating,
+            permission=self.dataset_permission, rating=self.dataset_rating, is_raw=True,
+            # TODO, is_raw might have to depend on the smoothing parameters
             num_frames=self.dataset_num_frames, fps=self.dataset_fps, frames_shift=self.dataset_frames_shift,
             sensor_savagol_distance=self.sensor_savagol_distance, sensor_savagol_degree=self.sensor_savagol_degree,
             angle_savagol_distance=self.angle_savagol_distance, angle_savagol_degree=self.angle_savagol_degree,
