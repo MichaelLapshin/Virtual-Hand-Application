@@ -35,3 +35,6 @@ def dict_to_sql_update_features(a_dict):
     new_string_dict = str(a_dict).lstrip("{").rstrip("}").replace(":", "=")
     Log.info("Generated the new sql feature dict: " + new_string_dict)
     return new_string_dict
+
+def resizing_scale(width, height, space_width, space_height):
+    pass

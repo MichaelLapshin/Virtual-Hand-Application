@@ -137,3 +137,4 @@ FINGER_TYPE = ("Thumb", "Index", "Middle", "Ring", "Pinky")
 LIMB_TYPE = ("Proximal", "Middle", "Distal")
 METRIC = ("Position", "Velocity", "Acceleration")
 IMAGE_EXT = ".png"
+IMAGE_SAMPLING_ZOOM = 10

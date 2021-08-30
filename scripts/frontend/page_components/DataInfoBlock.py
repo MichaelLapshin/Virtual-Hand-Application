@@ -93,6 +93,8 @@ class Frame(GenericPage.Frame):
                     for p in Constants.PERMISSION_LEVELS.keys():
                         if int(Constants.PERMISSION_LEVELS.get(p)) == int(entries.get(k)):
                             self.general_frame.set_entry_value(self.GENERAL_BANK.get(k), p)
+                elif k == "Is_Raw":
+                    self.general_frame.set_entry_value(self.GENERAL_BANK.get(k), str(entries.get(k) == 1))
 
             elif k in self.RIGHT_BANK.keys():
                 self.right_frame.set_entry_value(self.RIGHT_BANK.get(k), entries.get(k))

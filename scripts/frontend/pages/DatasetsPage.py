@@ -152,6 +152,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Weights
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
+        self.rowconfigure(2, weight=1)
 
         """
             Search space
@@ -173,7 +174,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.smooth_frame = DataInfoBlock.DatasetInfo(
             self, column=1, row=0, title="Smoothed Dataset Information",
             general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
-                                  "Permission": False, "Rating": True},
+                                  "Permission": False, "Rating": True, "Is_Raw": False},
             right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": True,
                                 "Sensor_Savagol_Distance": True, "Sensor_Savagol_Degree": True,
                                 "Angle_Savagol_Distance": True, "Angle_Savagol_Degree": True},
@@ -183,7 +184,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.info_frame = DataInfoBlock.DatasetInfo(
             self, column=1, row=0, title="Selected Dataset Information",
             general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
-                                  "Permission": False, "Rating": True},
+                                  "Permission": False, "Rating": True, "Is_Raw": False},
             right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": False,
                                 "Sensor_Savagol_Distance": False, "Sensor_Savagol_Degree": False,
                                 "Angle_Savagol_Distance": False, "Angle_Savagol_Degree": False},
@@ -227,6 +228,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Prediction Preview frame
         self.graph_frame = DatasetGraphBlock.Frame(self, column=0, row=2, columnspan=2)
+        self.graph_frame.metric_button_frame.enable_all_buttons(False)
 
     def update_colour(self):
         super().update_colour()
@@ -289,6 +291,7 @@ class ViewFrame(GenericPage.NavigationFrame):
     def search_frame_command(self):
         self.info_frame.clear_info_frame()
         self.search_frame.search_button_command()
+        self.graph_frame.metric_button_frame.enable_all_buttons(False)
 
     def selected_entry_update_command(self):
         # Obtains the data
@@ -303,20 +306,13 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Updates the info frame
         self.info_frame.update_entries(entries=entries)
 
-        if int(self.info_frame.get_value("Frames_Shift")) != 0 \
-                or float(self.info_frame.get_value("Sensor_Savagol_Distance")) != 0.0 \
-                or float(self.info_frame.get_value("Sensor_Savagol_Degree")) != 0.0 \
-                or float(self.info_frame.get_value("Angle_Savagol_Distance")) != 0.0 \
-                or float(self.info_frame.get_value("Angle_Savagol_Degree")) != 0.0:
-            # enable_entries = False
+        self.graph_frame.metric_button_frame.enable_all_buttons(True)
+        if self.search_frame.get_selected_main_data()[Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 0:
             self.smooth_button.disable()
+            self.graph_frame.metric_button_frame.enable_vel_acc_buttons(True)
         else:
-            # enable_entries = True
             self.smooth_button.enable()
-
-        # entries_to_change_state = {"Sensor_Savagol_Distance": enable_entries, "Sensor_Savagol_Degree": enable_entries,
-        #                            "Angle_Savagol_Distance": enable_entries, "Angle_Savagol_Degree": enable_entries}
-        # self.info_frame.disable_enable_entries({"Name": True}, entries_to_change_state)
+            self.graph_frame.metric_button_frame.enable_vel_acc_buttons(False)
 
         # Updates the Dataset Graph Block
         selected_dataset_id = self.search_frame.get_selected_main_id()
@@ -352,6 +348,7 @@ class ViewFrame(GenericPage.NavigationFrame):
                         "Date_Created": General.get_current_slashed_date(),
                         "Permission": Constants.PERMISSION_LEVELS.get(self.info_frame.get_value("Permission")),
                         "Rating": self.info_frame.get_value("Rating"),
+                        "Is_Raw": 0,
                         "FPS": self.info_frame.get_value("FPS"),
                     })
                 else:
@@ -488,9 +485,7 @@ class NewFrame(GenericPage.NavigationFrame):
                 ratio = self.camera_frame.winfo_width() / float(image.width)
                 if int(ratio * image.height) > self.camera_frame.winfo_height():
                     ratio = self.camera_frame.winfo_height() / float(image.height)
-                    image = image.resize((int(ratio * image.width), int(ratio * image.height)))
-                else:
-                    image = image.resize((int(ratio * image.width), int(ratio * image.height)))
+                image = image.resize((int(ratio * image.width), int(ratio * image.height)))
 
                 # Apply image
                 imageTk = ImageTk.PhotoImage(image=image)

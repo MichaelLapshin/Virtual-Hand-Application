@@ -19,7 +19,7 @@ class Frame(GenericPage.Frame):
         GenericPage.Frame.__init__(self, root)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
-        self.grid(sticky=tkinter.NS)
+        self.grid(sticky=tkinter.NSEW)
 
         # Configure weights
         self.rowconfigure(2, weight=1)
@@ -116,9 +116,8 @@ class Frame(GenericPage.Frame):
         else:
             return self.list_storage[self.scroll_block.get_selected_main()][0]
 
-    def get_selected_entry_data(self):
-        Warnings.not_complete()
-
+    def get_selected_main_data(self):
+        return self.get_index_data(self.scroll_block.get_selected_main())
 
 
 class DatasetSearchFrame(Frame):

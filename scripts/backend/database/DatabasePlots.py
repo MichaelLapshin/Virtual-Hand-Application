@@ -105,5 +105,5 @@ def get_sensor_image_id(dataset_id, sensor_num):
 
 
 def get_sensor_image_file_path(dataset_id, sensor_num):
-    return Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_FINGERS_PATH \
+    return Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH \
            + str(get_sensor_image_id(dataset_id=dataset_id, sensor_num=sensor_num)) + Constants.IMAGE_EXT

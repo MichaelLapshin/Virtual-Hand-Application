@@ -4,7 +4,7 @@
 @author: Michael Lapshin
     - Some code was taken from https://google.github.io/mediapipe/solutions/hands for capturing and processing the video feed with mediapipe.
 """
-
+import math
 import os
 import time
 
@@ -28,7 +28,7 @@ def dot_product_3d_vector(a, b):
 # r1, r2, s are the coordinates of the 3 points.
 # r2 is the point in between the reference point r1 and the point for which we are trying to interpret the angle s
 # @return, angle in radians: angle is bound by [0, pi]
-def coord2angle(base_point, common_point, subject_point):
+def coord2radians(base_point, common_point, subject_point):
     reference_vector = [common_point[0] - base_point[0], common_point[1] - base_point[1],
                         common_point[2] - base_point[2]]
     direction_vector = [subject_point[0] - common_point[0], subject_point[1] - common_point[1],
@@ -42,6 +42,10 @@ def coord2angle(base_point, common_point, subject_point):
     # Compute final calculations
     angle = numpy.arccos(reference_dot_direction / (reference_norm * direction_norm))
     return angle
+
+
+def coord2degrees(base_point, common_point, subject_point):
+    return math.degrees(coord2radians(base_point=base_point, common_point=common_point, subject_point=subject_point))
 
 
 def extract_coord(joint):
@@ -125,17 +129,17 @@ class HandAngleReader(threading.Thread):
 
             for fingerIndex in range(0, 5):  # For each finger
                 # palm to proximal phalange angle
-                self._limb_angles[fingerIndex][0] = coord2angle(extract_coord(lm_list[0]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 1]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 2]))
+                self._limb_angles[fingerIndex][0] = coord2degrees(extract_coord(lm_list[0]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 1]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 2]))
                 # proximal phalange to middle phalange angle
-                self._limb_angles[fingerIndex][1] = coord2angle(extract_coord(lm_list[fingerIndex * 4 + 1]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 2]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 3]))
+                self._limb_angles[fingerIndex][1] = coord2degrees(extract_coord(lm_list[fingerIndex * 4 + 1]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 2]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 3]))
                 # middle phalange to distal phalange angle
-                self._limb_angles[fingerIndex][2] = coord2angle(extract_coord(lm_list[fingerIndex * 4 + 2]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 3]),
-                                                                extract_coord(lm_list[fingerIndex * 4 + 4]))
+                self._limb_angles[fingerIndex][2] = coord2degrees(extract_coord(lm_list[fingerIndex * 4 + 2]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 3]),
+                                                                  extract_coord(lm_list[fingerIndex * 4 + 4]))
         else:
             # nulls the data if the hand cannot be detected
             self._limb_angles = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
