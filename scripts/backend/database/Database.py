@@ -201,7 +201,7 @@ def _create_table_check(table_name, create_tables_function, replace):
 
     Log.info("The '" + table_name + "' table exists: " + str(exists))
 
-    # Logic for creating the tables
+    # logic for creating the tables
     if exists is True:
         if replace is True:
             # Drop the table

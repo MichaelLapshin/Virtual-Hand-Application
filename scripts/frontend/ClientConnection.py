@@ -346,7 +346,7 @@ def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rat
 
 
 def delete_dataset_entry(dataset_id):
-    Log.info("Attempting to delete the dataset with the id '" + dataset_id + "'.")
+    Log.info("Attempting to delete the dataset with the id '" + str(dataset_id) + "'.")
     result = send_get_request("/process/delete_dataset", {"id": dataset_id})
     if result is True:
         Log.info("The dataset with id '" + str(dataset_id) + "' was successfully deleted.")

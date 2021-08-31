@@ -122,13 +122,14 @@ class Frame(GenericPage.Frame):
 
 class DatasetSearchFrame(Frame):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, title=None, multi_select=False,
-                 sort_columnspan=2, select_change_command=None):
+                 sort_columnspan=2, select_change_command=None, search_frame_command=None):
         Frame.__init__(self, root=root, column=column, row=row,
                        columnspan=columnspan, rowspan=rowspan,
                        search_values=Constants.DATABASES_SORT_BY_OPTIONS.keys(),
                        default_search_value=list(Constants.DATABASES_SORT_BY_OPTIONS.keys())[0],
                        title=title, multi_select=multi_select, sort_columnspan=sort_columnspan,
                        select_change_command=select_change_command)
+        self.search_frame_command = search_frame_command
 
     def update_colour(self):
         super().update_colour()
@@ -154,6 +155,8 @@ class DatasetSearchFrame(Frame):
                 replace_list_sorted.append(" " + str(item[Constants.DATABASE_ENTRY_TRANSFER_DATA.index(sort_by)]))
 
         self.scroll_block.replace_list(replace_list, replace_list_sorted)
+        if self.search_frame_command is not None:
+            self.search_frame_command()
 
     def get_index_entry(self, index, entry):
         return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(entry)]

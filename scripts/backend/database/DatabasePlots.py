@@ -69,7 +69,7 @@ def get_finger_image_id(dataset_id, finger_num, metric_num):
     if len(ids) != 1:
         Log.error(
             "Using the inputs: " + str((dataset_id, finger_num, metric_num)) + ", found " + str(len(ids)) + " ids.")
-        Warnings.not_to_reach()
+        Warnings.not_to_reach(popup=False)
         return None
     else:
         Log.info("Found the finger image id '" + str(ids[0][0]) + "'")
@@ -97,7 +97,7 @@ def get_sensor_image_id(dataset_id, sensor_num):
     if len(ids) != 1:
         Log.error(
             "Using the inputs: " + str((dataset_id, sensor_num)) + ", found " + str(len(ids)) + " ids.")
-        Warnings.not_to_reach()
+        Warnings.not_to_reach(popup=False)
         return None
     else:
         Log.info("Found the finger image id '" + str(ids[0][0]) + "'")

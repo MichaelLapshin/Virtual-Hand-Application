@@ -66,6 +66,7 @@ MODEL_ACT_FUNC_OPTIONS = ("selu", "linear", "relu", "elu", "sigmoid")
 DEFAULT_USER = "admin"
 DEFAULT_PASSWORD = "password"
 DEFAULT_DATABASE_NAME = "database"
+DATASET_EXT = ".ds"
 
 # Fetching data
 URL_REPLACEMENT_MAP = {" ": "%"}
