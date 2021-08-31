@@ -57,8 +57,8 @@ def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps
             file.save(output_file_name)
         except:
             Log.debug(
-                "Could not save the smoothed dataset with file.save(); attempting to rename the file")
-            os.rename(file, output_file_name)
+                "Could not save the smoothed dataset with file.save(); attempting to rename (or replace) the file")
+            os.replace(file, output_file_name)
 
         # Creates image creation job
         job = DatasetPlotter.JobDatasetPlotter(title="Plotting Dataset", dataset_id=dataset_id,
@@ -85,7 +85,7 @@ def exists_dataset_by_name(dataset_name):
         return False
     else:
         Log.warning("Found multiple occurrences of datasets with the name '" + dataset_name + "'.")
-        Warnings.not_to_reach()
+        Warnings.not_to_reach(popup=False)
         return True
 
 
@@ -104,3 +104,36 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
     # Returning results
     Log.debug("Returning the results: " + str(results))
     return results
+
+
+def delete_dataset(dataset_id):
+    Log.info("Deleting the dataset with id '" + str(dataset_id) + "'")
+
+    # Delete the database file
+    os.remove(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + Constants.DATASET_EXT)
+
+    # Delete the finger images
+    Database.cursor.execute("SELECT ID FROM DatasetFingerPlots WHERE ID_Dataset=" + str(dataset_id))
+    finger_ids = Database.cursor.fetchall()
+
+    for f in finger_ids:
+        os.remove(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_FINGERS_PATH
+                  + str(f[0]) + Constants.IMAGE_EXT)
+
+    # Delete the sensor images
+    Database.cursor.execute("SELECT ID FROM DatasetSensorPlots WHERE ID_Dataset=" + str(dataset_id))
+    sensor_ids = Database.cursor.fetchall()
+
+    for s in sensor_ids:
+        os.remove(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH
+                  + str(s[0]) + Constants.IMAGE_EXT)
+
+    # Delete the database entries related to the dataset
+    Database.cursor.execute("DELETE FROM Datasets WHERE ID=" + str(dataset_id))
+    Database.cursor.execute("DELETE FROM DatasetDependencies WHERE ID_Dataset=" + str(dataset_id)
+                            + " OR ID_Dependency=" + str(dataset_id))
+    Database.cursor.execute("DELETE FROM DatasetFingerPlots WHERE ID_Dataset=" + str(dataset_id))
+    Database.cursor.execute("DELETE FROM DatasetSensorPlots WHERE ID_Dataset=" + str(dataset_id))
+    Database.connection.commit()
+
+    return True

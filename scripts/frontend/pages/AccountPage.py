@@ -264,7 +264,7 @@ class Frame(GenericPage.NavigationFrame):
                 can_create &= InputConstraints.assert_string_non_empty("Username", username)
                 can_create &= InputConstraints.assert_string_non_empty("Password", password)
 
-                # Logic for creating the user
+                # logic for creating the user
                 if can_create is True:
                     result = ClientConnection.create_user(user_name=username, password=password)
 
@@ -295,7 +295,7 @@ class Frame(GenericPage.NavigationFrame):
                 can_delete &= InputConstraints.assert_string_non_empty("Username", username)
                 can_delete &= InputConstraints.assert_string_non_empty("Password", password)
 
-                # Logic for creating the user
+                # logic for creating the user
                 if can_delete is True:
 
                     is_deleted = ClientConnection.delete_user(user_name=username, password=password)

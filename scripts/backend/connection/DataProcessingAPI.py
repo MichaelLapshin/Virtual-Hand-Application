@@ -34,19 +34,19 @@ def merge_datasets_update():
 
 @data_processing_api.route("/delete_dataset")
 def delete_dataset():
-    dataset_id = flarg("id")
+    dataset_id = int(flarg("id"))
     # TODO, complete this
-    # result = DatabaseDatasets.delete
+    result = DatabaseDatasets.delete_dataset(dataset_id)
 
     Warnings.not_complete()
-    return package(None, "")
+    return package(result, "The dataset with id '" + str(dataset_id) + "' was deleted.")
 
 
 @data_processing_api.route("/smooth_dataset")
 def smooth_dataset():
     # Get dataset information
     dataset_name = flarg("name")
-    dataset_owner_name = flarg("owner_id")
+    dataset_owner_name = int(flarg("owner_id"))
     dataset_date = flarg("date")
     dataset_permission = int(flarg("permission"))
     dataset_rating = int(flarg("rating"))

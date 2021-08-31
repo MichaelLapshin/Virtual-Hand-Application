@@ -160,7 +160,7 @@ class DatasetInfo(Frame):
                        RIGHT_BANK=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS,
                        columnspan=columnspan, rowspan=rowspan, right_column_title=right_column_title)
 
-    def save_item(self, is_selected, dataset_id, search_command=None):
+    def save_item(self, is_selected, dataset_id):
 
         if is_selected is True:
 
@@ -188,37 +188,42 @@ class DatasetInfo(Frame):
                 if result is True:
                     Log.info("The dataset update was successful.")
                     tkinter.messagebox.showwarning("Success!", "The dataset information was updated.")
-
-                    if search_command is not None:
-                        search_command()
+                    return True
                 else:
                     Log.info("The dataset update was not successful.")
                     tkinter.messagebox.showwarning("Failed!", "Could not update the dataset information.")
+                    return False
             else:
                 tkinter.messagebox.showwarning(
                     "Failed!", "Could not update the dataset information. The user is not logged-in.")
+                return False
         else:
             tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+            return False
 
     def delete_item(self, is_selected, item_id):
         if is_selected is True:
             if ClientConnection.is_logged_in():
 
                 confirm_delete = tkinter.messagebox.askyesno(
-                    "Confirmation", "Do you wish to delete the database with the id '" + item_id + "'?")
+                    "Confirmation", "Do you wish to delete the database with the id '" + str(item_id) + "'?")
                 Log.info("The user confirmed to delete the database: " + str(confirm_delete))
 
                 if confirm_delete is True:
                     result = ClientConnection.delete_dataset_entry(item_id)
                     if result is True:
                         Log.info("The database was successfully deleted.")
+                        return True
                     else:
                         Log.warning("The database was not successfully deleted.")
+                        return False
             else:
                 tkinter.messagebox.showwarning(
                     "Failed!", "Could not update the dataset information. The user is not logged-in.")
+                return False
         else:
             tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+            return False
 
     # def duplicate_item(self, item_id):
     #     if ClientConnection.is_logged_in():

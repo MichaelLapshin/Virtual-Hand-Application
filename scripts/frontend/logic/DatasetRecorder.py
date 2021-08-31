@@ -6,7 +6,7 @@
 import os
 import threading
 
-from scripts import Constants, Parameters
+from scripts import Constants, Parameters, Log
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import time
@@ -98,6 +98,8 @@ class Recorder(threading.Thread):
             sensor_to_index_map[key] = key_index
             key_index += 1
             sensor_list.append([])
+
+        Log.info("Found the sensors key characters: " + str(self.sensor_listener.get_key_list()))
 
         # Update progress bar
         self.progress_bar.set_max_count(self.training_length_seconds)

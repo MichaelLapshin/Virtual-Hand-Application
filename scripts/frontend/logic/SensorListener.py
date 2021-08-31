@@ -5,7 +5,7 @@
 """
 import os
 
-from scripts import Constants
+from scripts import Constants, Log
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import serial
@@ -115,7 +115,11 @@ class SensorReadingsListener(threading.Thread):
                         for index in range(0, max(int(len(raw_buffer_data) / 2) - 1, 0)):
                             used += raw_buffer_data[index * 2] + " " + raw_buffer_data[index * 2 + 1] + " "
 
-                            if False not in [(s in Constants.DIGITS) for s in raw_buffer_data[index * 2 + 1]]:
+                            if len(raw_buffer_data[index * 2 + 1]) <= 0:
+                                Log.warning("raw_buffer_data[index * 2 + 1] is empty")
+
+                            elif False not in [(s in Constants.DIGITS or s == "-") for s in
+                                               raw_buffer_data[index * 2 + 1]]:
                                 self._sensorReadings[raw_buffer_data[index * 2]] = int(raw_buffer_data[index * 2 + 1])
                             else:
                                 self._buffer = ""

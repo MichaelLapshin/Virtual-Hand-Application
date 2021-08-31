@@ -190,8 +190,7 @@ class Frame(tkinter.Frame, WidgetInterface):
                 self.columnconfigure(i, weight=1)
 
             # Stores images
-            self.stored_image_labels = [[tkinter.Label(self) for a in range(0, Constants.NUM_FINGERS)]
-                                        for b in range(0, NUM_IMAGES)]
+            self.stored_image_labels = self.create_label_list()
 
             # Scaling variables
             self.old_width = None
@@ -204,6 +203,17 @@ class Frame(tkinter.Frame, WidgetInterface):
         def update_image_size(self):
             self.old_width = None
             self.old_height = None
+
+        def create_label_list(self):
+            labels = [[tkinter.Label(self) for a in range(0, Constants.NUM_FINGERS)] for b in range(0, NUM_IMAGES)]
+
+            # Sets variables
+            for r in labels:
+                for l in r:
+                    l.orig_image = None
+                    l.image = None
+
+            return labels
 
         def update_content(self):
             super().update_colour()
@@ -219,7 +229,7 @@ class Frame(tkinter.Frame, WidgetInterface):
 
                 for row in self.stored_image_labels:
                     for label in row:
-                        if label.winfo_ismapped():
+                        if label.winfo_ismapped() and label.orig_image is not None:
                             image_sample_width = label.orig_image.width()
                             image_sample_height = label.orig_image.height()
                             break
@@ -352,4 +362,5 @@ class Frame(tkinter.Frame, WidgetInterface):
         for r in range(0, len(self.image_frame.stored_image_labels)):
             for l in range(0, len(self.image_frame.stored_image_labels[r])):
                 self.image_frame.stored_image_labels[r][l].destroy()
-                self.image_frame.stored_image_labels[r][l] = tkinter.Label(self.image_frame)
+
+        self.image_frame.stored_image_labels = self.image_frame.create_label_list()

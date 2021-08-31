@@ -159,7 +159,8 @@ class ViewFrame(GenericPage.NavigationFrame):
         """
         self.search_frame = SearchBlock.DatasetSearchFrame(self, column=0, row=0, rowspan=2, title="Dataset List",
                                                            multi_select=True, sort_columnspan=3,
-                                                           select_change_command=self.selected_entry_update_command)
+                                                           select_change_command=self.selected_entry_update_command,
+                                                           search_frame_command=self.search_frame_command)
         self.search_frame.grid(sticky=tkinter.NSEW)
 
         # Additional buttons for the search frame
@@ -216,9 +217,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.cancel_button = InformationButton(self.button_frame, column=3, row=0, text="Cancel",
                                                command=lambda: self.set_is_smoothing(False))
         self.delete_button = InformationButton(self.button_frame, column=4, row=0, text="Delete",
-                                               command=lambda: self.info_frame.delete_item(
-                                                   self.search_frame.scroll_block.is_selected_main(),
-                                                   self.search_frame.get_selected_main_id()))
+                                               command=self.delete_button_command)
         self.is_smoothing = False
         self.set_is_smoothing(False)
 
@@ -285,15 +284,26 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.update_content()
 
     def update_button_command(self):
-        self.info_frame.save_item(self.search_frame.scroll_block.is_selected_main(),
-                                  self.search_frame.get_selected_main_id(),
-                                  search_command=self.search_frame_command)
-        self.graph_frame.clear_images()
+        result = self.info_frame.save_item(self.search_frame.scroll_block.is_selected_main(),
+                                           self.search_frame.get_selected_main_id())
+        if result is True:
+            self.search_frame_command()
+            self.graph_frame.clear_images()
+
+    def delete_button_command(self):
+        result = self.info_frame.delete_item(self.search_frame.scroll_block.is_selected_main(),
+                                             self.search_frame.get_selected_main_id())
+        Log.debug("The database deletion result is: " + str(result))
+        if result is True:
+            self.search_frame_command()
+            self.graph_frame.clear_images()
 
     def search_frame_command(self):
+        # self.search_frame.search_button_command()
         self.info_frame.clear_info_frame()
-        self.search_frame.search_button_command()
         self.graph_frame.metric_button_frame.enable_all_buttons(False)
+        self.set_is_smoothing(False)
+        self.graph_frame.clear_images()
 
     def selected_entry_update_command(self):
         self.set_is_smoothing(False)
@@ -330,8 +340,11 @@ class ViewFrame(GenericPage.NavigationFrame):
 
     def smooth_dataset_button_command(self):
         result = self.smooth_frame.smooth_dataset(self.search_frame.get_selected_main_id())
+        Log.debug("The database smoothing result is: " + str(result))
         if result is True:
             self.set_is_smoothing(False)
+            self.search_frame_command()
+            self.graph_frame.clear_images()
 
     def set_is_smoothing(self, smooth):
 
