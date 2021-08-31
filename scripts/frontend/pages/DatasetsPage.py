@@ -202,10 +202,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Create buttons
         self.update_button = InformationButton(self.button_frame, column=0, row=0, text="Update",
-                                               command=lambda: self.info_frame.save_item(
-                                                   self.search_frame.scroll_block.is_selected_main(),
-                                                   self.search_frame.get_selected_main_id(),
-                                                   search_command=self.search_frame_command))
+                                               command=self.update_button_command)
         # self.favourite_button = InformationButton(self.button_frame, column=1, row=0, text="Favourite",
         #                                           command=lambda: self.info_frame.toggle_favourite_item(
         #                                               self.search_frame.get_selected_main_id()))
@@ -215,8 +212,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.smooth_button = InformationButton(self.button_frame, column=1, row=0, text="Smooth Dataset",
                                                command=lambda: self.set_is_smoothing(True))
         self.confirm_button = InformationButton(self.button_frame, column=2, row=0, text="Confirm",
-                                                command=lambda: self.smooth_frame.smooth_dataset(
-                                                    self.search_frame.get_selected_main_id()))
+                                                command=self.smooth_dataset_button_command)
         self.cancel_button = InformationButton(self.button_frame, column=3, row=0, text="Cancel",
                                                command=lambda: self.set_is_smoothing(False))
         self.delete_button = InformationButton(self.button_frame, column=4, row=0, text="Delete",
@@ -288,12 +284,20 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Other
         self.graph_frame.update_content()
 
+    def update_button_command(self):
+        self.info_frame.save_item(self.search_frame.scroll_block.is_selected_main(),
+                                  self.search_frame.get_selected_main_id(),
+                                  search_command=self.search_frame_command)
+        self.graph_frame.clear_images()
+
     def search_frame_command(self):
         self.info_frame.clear_info_frame()
         self.search_frame.search_button_command()
         self.graph_frame.metric_button_frame.enable_all_buttons(False)
 
     def selected_entry_update_command(self):
+        self.set_is_smoothing(False)
+
         # Obtains the data
         selected_index = self.search_frame.scroll_block.get_selected_main()
         data_at_index = self.search_frame.get_index_data(selected_index)
@@ -313,6 +317,8 @@ class ViewFrame(GenericPage.NavigationFrame):
         else:
             self.smooth_button.enable()
             self.graph_frame.metric_button_frame.enable_vel_acc_buttons(False)
+            self.graph_frame.metric_button_frame.set_image_state(1, False)
+            self.graph_frame.metric_button_frame.set_image_state(2, False)
 
         # Updates the Dataset Graph Block
         selected_dataset_id = self.search_frame.get_selected_main_id()
@@ -321,6 +327,11 @@ class ViewFrame(GenericPage.NavigationFrame):
             is_raw=self.search_frame.list_storage[selected_index][
                 Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")])
         self.graph_frame.metric_button_frame.update_image_state()
+
+    def smooth_dataset_button_command(self):
+        result = self.smooth_frame.smooth_dataset(self.search_frame.get_selected_main_id())
+        if result is True:
+            self.set_is_smoothing(False)
 
     def set_is_smoothing(self, smooth):
 
@@ -341,7 +352,6 @@ class ViewFrame(GenericPage.NavigationFrame):
                     self.delete_button.disable()
 
                     # Set entry values
-                    print(self.info_frame.get_value("FPS"))
                     self.smooth_frame.update_entries({
                         "Name": self.info_frame.get_value("Name") + "_smth",
                         "ID_Owner": ClientConnection.get_user_id(),
@@ -350,6 +360,15 @@ class ViewFrame(GenericPage.NavigationFrame):
                         "Rating": self.info_frame.get_value("Rating"),
                         "Is_Raw": 0,
                         "FPS": self.info_frame.get_value("FPS"),
+                    })
+
+                    # Clears the smoothing parameters
+                    self.smooth_frame.update_entries({
+                        "Frames_Shift": "",
+                        "Sensor_Savagol_Distance": "",
+                        "Sensor_Savagol_Degree": "",
+                        "Angle_Savagol_Distance": "",
+                        "Angle_Savagol_Degree": ""
                     })
                 else:
                     tkinter.messagebox.showwarning("Warning!", "Can not smooth the data. User is not logged in.")

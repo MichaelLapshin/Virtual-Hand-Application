@@ -138,3 +138,51 @@ def assert_float_positive(value_name, value, max_float=1000000000):
         warn("'" + str(value_name) + "' must be a positive float (less than " + str(
             max_float) + ").\nCurrent value: " + str(value))
         return False
+
+
+"""
+    Odd/even integers
+"""
+
+
+def assert_odd_integer(value_name, value):
+    if (value is not None) and assert_is_integer(value) and (int(value) % 2 == 1):
+        return True
+    else:
+        warn("'" + str(value_name) + "' must be an odd integer.\nCurrent value: " + str(value))
+        return False
+
+
+def assert_even_integer(value_name, value):
+    if (value is not None) and assert_is_integer(value) and (int(value) % 2 == 0):
+        return True
+    else:
+        warn("'" + str(value_name) + "' must be an even integer.\nCurrent value: " + str(value))
+        return False
+
+
+"""
+    Size comparison
+"""
+
+
+def assert_int_less_than(value1_name, value1, value2_name, value2):
+    if (value1 is not None) and assert_is_integer(value1) and \
+            (value2 is not None) and assert_is_integer(value2) and \
+            int(value1) < int(value2):
+        return True
+    else:
+        warn("'" + str(value1_name) + "' must be an integer and less than the integer '" + str(value2_name) + "'."
+             + "\nCurrent assertion: " + str(value1) + " < " + str(value2))
+        return False
+
+
+def assert_int_greater_than(value1_name, value1, value2_name, value2):
+    if (value1 is not None) and assert_is_integer(value1) and \
+            (value2 is not None) and assert_is_integer(value2) and \
+            int(value1) > int(value2):
+        return True
+    else:
+        warn("'" + str(value1_name) + "' must be an integer greater than the integer '" + str(value2_name) + "'."
+             + "\nCurrent assertion: " + str(value1) + " > " + str(value2))
+        return False

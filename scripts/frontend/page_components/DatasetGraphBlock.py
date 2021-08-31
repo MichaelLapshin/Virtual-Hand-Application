@@ -279,8 +279,6 @@ class Frame(tkinter.Frame, WidgetInterface):
                             self.stored_image_labels[i][image_indx].grid_remove()
 
         def load_new_images(self, dataset_id, is_raw):
-            Warnings.not_complete()
-
             # Fetches finger images
             for image_index in range(0, Constants.NUM_FINGERS):
                 row_index = Constants.METRIC.index("Position")
@@ -348,3 +346,10 @@ class Frame(tkinter.Frame, WidgetInterface):
         # self.button_frame.update_colour()
         self.image_frame.update_content()
         self.metric_button_frame.update_content()
+
+    def clear_images(self):
+        # Clears all images (destroys & re-instantiates)
+        for r in range(0, len(self.image_frame.stored_image_labels)):
+            for l in range(0, len(self.image_frame.stored_image_labels[r])):
+                self.image_frame.stored_image_labels[r][l].destroy()
+                self.image_frame.stored_image_labels[r][l] = tkinter.Label(self.image_frame)

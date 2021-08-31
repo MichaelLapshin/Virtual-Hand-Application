@@ -307,16 +307,17 @@ def update_model_entry(model_id, model_values):
 #     return result
 
 
-def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, num_frames, frames_per_second,
+def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, is_raw,
+                   num_frames, frames_per_second,
                    dataset_id, frames_shift,
                    sensor_savagol_distance, sensor_savagol_degree,
                    angle_savagol_distance, angle_savagol_degree):
     Log.info("Attempting to smooth the dataset with the id '" + str(dataset_id) + "'. With: "
-             + "                \nframes_shift=" + str(frames_shift)
-             + "                \nsensor_savagol_distance=" + str(sensor_savagol_distance)
-             + "                \nsensor_savagol_d egree=" + str(sensor_savagol_degree)
-             + "                \nangle_savagol_distance=" + str(angle_savagol_distance)
-             + "                \nangle_savagol_degree=" + str(angle_savagol_degree))
+             + "\n              frames_shift=" + str(frames_shift)
+             + "\n              sensor_savagol_distance=" + str(sensor_savagol_distance)
+             + "\n              sensor_savagol_degree=" + str(sensor_savagol_degree)
+             + "\n              angle_savagol_distance=" + str(angle_savagol_distance)
+             + "\n              angle_savagol_degree=" + str(angle_savagol_degree))
 
     result = send_get_request("/process/smooth_dataset",
                               values={"name": name,
@@ -324,9 +325,10 @@ def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rat
                                       "date": date_created,
                                       "permission": access_perm_level,
                                       "rating": personal_rating,
+                                      "is_raw": is_raw,
                                       "num_frames": num_frames,
                                       "FPS": frames_per_second,
-                                      "id": dataset_id,
+                                      "parent_id": dataset_id,
                                       "frames_shift": frames_shift,
                                       "sensor_savagol_distance": sensor_savagol_distance,
                                       "sensor_savagol_degree": sensor_savagol_degree,

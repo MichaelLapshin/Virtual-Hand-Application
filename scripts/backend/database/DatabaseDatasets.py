@@ -1,3 +1,5 @@
+import os
+
 from scripts import Warnings, Constants, Log, General, Parameters
 from scripts.backend.database import Database
 from scripts.backend.logic import Worker, DatasetPlotter
@@ -47,7 +49,16 @@ def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps
 
     # Saves the file locally
     if file is not None:
-        file.save(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + ".ds")
+
+        # Write to file
+        output_file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + ".ds"
+        try:
+            Log.trace("Trying to save the smoothed dataset by executing file.save()")
+            file.save(output_file_name)
+        except:
+            Log.debug(
+                "Could not save the smoothed dataset with file.save(); attempting to rename the file")
+            os.rename(file, output_file_name)
 
         # Creates image creation job
         job = DatasetPlotter.JobDatasetPlotter(title="Plotting Dataset", dataset_id=dataset_id,
@@ -93,4 +104,3 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
     # Returning results
     Log.debug("Returning the results: " + str(results))
     return results
-

@@ -115,10 +115,10 @@ def create_datasets_table():
                             Num_Frames     INTEGER NOT NULL,
                             FPS            INTEGER NOT NULL,
                             Frames_Shift   INTEGER NOT NULL,
-                            Sensor_Savagol_Distance    REAL,
-                            Sensor_Savagol_Degree      REAL,
-                            Angle_Savagol_Distance     REAL,
-                            Angle_Savagol_Degree       REAL)""")
+                            Sensor_Savagol_Distance    INTEGER NOT NULL,
+                            Sensor_Savagol_Degree      INTEGER NOT NULL,
+                            Angle_Savagol_Distance     INTEGER NOT NULL,
+                            Angle_Savagol_Degree       INTEGER NOT NULL)""")
 
 
 def create_dataset_dependency_table():
