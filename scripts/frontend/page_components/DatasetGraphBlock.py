@@ -260,10 +260,11 @@ class Frame(tkinter.Frame, WidgetInterface):
                         for label in row:
                             if label.winfo_ismapped():
                                 # Scales the original image
-                                if scale >= 1:
-                                    label.image = label.orig_image.zoom(int(scale))
-                                else:
-                                    label.image = label.orig_image.subsample(subsampling_scale)
+                                if label.orig_image is not None:
+                                    if scale >= 1:
+                                        label.image = label.orig_image.zoom(int(scale))
+                                    else:
+                                        label.image = label.orig_image.subsample(subsampling_scale)
 
                                 # Applies the image to the label
                                 label.config(image=label.image)
