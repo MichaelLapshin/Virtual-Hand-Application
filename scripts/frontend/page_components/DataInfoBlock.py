@@ -236,7 +236,18 @@ class DatasetInfo(Frame):
         Warnings.not_complete()
 
     def smooth_dataset(self, dataset_id):
-        # Obtain inputs
+        # Obtain inputs (general parameters)
+        name = self.get_value("Name")
+        owner_id = self.get_value("ID_Owner")
+        date_created = self.get_value("Date_Created")
+        access_permission = self.get_value("Permission")
+        rating = self.get_value("Rating")
+        is_raw = self.get_value("Is_Raw")
+
+        # Obtain inputs (smoothing parameters)
+        num_frames = self.get_value("Num_Frames")
+        fps = self.get_value("FPS")
+        frames_shift = self.get_value("Frames_Shift")
         sensor_savagol_distance = self.get_value("Sensor_Savagol_Distance")
         sensor_savagol_degree = self.get_value("Sensor_Savagol_Degree")
         angle_savagol_distance = self.get_value("Angle_Savagol_Distance")
@@ -244,34 +255,103 @@ class DatasetInfo(Frame):
 
         # Check assertions that inputs are integers
         can_smooth = True
-        can_smooth &= InputConstraints.assert_float_non_negative(
+
+        # Assertions on the general parameters
+        can_smooth &= InputConstraints.assert_string_non_empty(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Name"), name)
+        can_smooth &= InputConstraints.assert_string_non_empty(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("ID_Owner"), owner_id)
+        can_smooth &= InputConstraints.assert_string_non_empty(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Date_Created"), date_created)
+        can_smooth &= InputConstraints.assert_string_from_set(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Permission"), access_permission,
+            Constants.PERMISSION_LEVELS.keys())
+        can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Rating"), rating)
+        can_smooth &= InputConstraints.assert_string_from_set(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Is_Raw"), is_raw, Constants.BOOLEANS.keys())
+
+        # Assertions on the smoothing parameters
+        can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Num_Frames"), num_frames)
+        can_smooth &= InputConstraints.assert_int_positive(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("FPS"), fps)
+        can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Frames_Shift"), frames_shift)
+        can_smooth &= InputConstraints.assert_int_non_negative(
             Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Distance"), sensor_savagol_distance)
-        can_smooth &= InputConstraints.assert_int_non_negative(
+        can_smooth &= InputConstraints.assert_int_positive(
             Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Degree"), sensor_savagol_degree)
-        can_smooth &= InputConstraints.assert_float_non_negative(
-            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Distance"), angle_savagol_distance)
         can_smooth &= InputConstraints.assert_int_non_negative(
+            Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Distance"), angle_savagol_distance)
+        can_smooth &= InputConstraints.assert_int_positive(
             Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Degree"), angle_savagol_degree)
 
         if can_smooth is True:
-            if ClientConnection.is_logged_in():
+            # Additional smoothing assertions (degree < window)
+            can_smooth &= InputConstraints.assert_int_less_than(
+                value1_name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Degree"),
+                value1=sensor_savagol_degree,
+                value2_name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Distance"),
+                value2=sensor_savagol_distance)
+            can_smooth &= InputConstraints.assert_int_less_than(
+                value1_name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Degree"),
+                value1=angle_savagol_degree,
+                value2_name=Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Distance"),
+                value2=angle_savagol_distance)
 
-                result = ClientConnection.smooth_dataset(dataset_id=dataset_id,
-                                                         sensor_savagol_distance=sensor_savagol_distance,
-                                                         sensor_savagol_degree=sensor_savagol_degree,
-                                                         angle_savagol_distance=angle_savagol_distance,
-                                                         angle_savagol_degree=angle_savagol_degree)
+            # Additional smoothing assertions (degree & window are odd)
+            can_smooth &= InputConstraints.assert_odd_integer(
+                Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Distance"),
+                sensor_savagol_distance)
+            can_smooth &= InputConstraints.assert_odd_integer(
+                Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Sensor_Savagol_Degree"), sensor_savagol_degree)
+            can_smooth &= InputConstraints.assert_odd_integer(
+                Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Distance"), angle_savagol_distance)
+            can_smooth &= InputConstraints.assert_odd_integer(
+                Constants.DATABASE_SMOOTHING_INFORMATION_OPTIONS.get("Angle_Savagol_Degree"), angle_savagol_degree)
 
-                if result is True:
-                    Log.info("The dataset was successfully smoothed.")
+            if can_smooth is True:
+                if ClientConnection.is_logged_in():
+
+                    result = ClientConnection.smooth_dataset(
+                        # General parameters
+                        name=name,
+                        owner_id=owner_id,
+                        date_created=date_created,
+                        access_perm_level=Constants.PERMISSION_LEVELS.get(access_permission),
+                        personal_rating=rating,
+                        is_raw=Constants.BOOLEANS.get(is_raw),
+
+                        # Smoothing parameters
+                        dataset_id=dataset_id,
+                        num_frames=num_frames,
+                        frames_per_second=fps,
+                        frames_shift=frames_shift,
+                        sensor_savagol_distance=sensor_savagol_distance,
+                        sensor_savagol_degree=sensor_savagol_degree,
+                        angle_savagol_distance=angle_savagol_distance,
+                        angle_savagol_degree=angle_savagol_degree)
+
+                    if result is True:
+                        Log.info("The dataset was successfully smoothed.")
+                        return True
+                    else:
+                        Log.warning("The dataset was not successfully smoothed.")
+                        return False
+
                 else:
-                    Log.warning("The dataset was not successfully smoothed.")
-
+                    tkinter.messagebox.showwarning("Failed!",
+                                                   "Could not smooth the dataset. The user is not logged-in.")
+                    return False
             else:
-                tkinter.messagebox.showwarning("Failed!", "Could not smooth the dataset. The user is not logged-in.")
+                tkinter.messagebox.showwarning(
+                    "Failed!", "Could not smooth the dataset. Input constraints where not satisfied.")
+                return False
         else:
             tkinter.messagebox.showwarning(
                 "Failed!", "Could not smooth the dataset. Input constraints where not satisfied.")
+            return False
 
 
 class ModelInfo(Frame):

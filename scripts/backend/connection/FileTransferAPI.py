@@ -63,12 +63,10 @@ def get_dataset_finger_image():
     image_finger = flarg("finger")
     image_metric = flarg("metric")
 
-    image = PIL.Image.open(DatabasePlots.get_finger_image_file_path(
-        dataset_id=dataset_id, finger_num=image_finger, metric_num=image_metric))
-    bytes_io = io.BytesIO()
-    image.save(bytes_io, "PNG")
-
-    return package(None, base64.b64encode(bytes_io.getvalue()))
+    # Loads the image and sends the encoded version of it
+    image = open(DatabasePlots.get_finger_image_file_path(dataset_id=dataset_id,
+                                                          finger_num=image_finger, metric_num=image_metric), "rb")
+    return package(None, base64.b64encode(image.read()))
 
 
 @file_transfer_api.route("/get_dataset_sensor_image")
@@ -76,11 +74,6 @@ def get_dataset_sensor_image():
     dataset_id = flarg("dataset_id")
     sensor = flarg("sensor")
 
-    # image = PIL.Image.open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor))
-    # image = tkinter.PhotoImage(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor))
+    # Loads the image and sends the encoded version of it
     image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
-    # bytes_io = io.BytesIO()
-    # image.save(bytes_io, "PNG")
-
-    # return package(None, base64.b64encode(bytes_io.getvalue()))
     return package(None, base64.b64encode(image.read()))

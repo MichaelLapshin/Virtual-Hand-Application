@@ -131,10 +131,11 @@ NUM_LIMBS_PER_FINGER = 3
 NUM_SENSORS = 5
 eps = np.finfo(np.float32).eps.item()
 DIGITS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+BOOLEANS = {"False": 0, "True": 1}
 
 # Dataset Plot Type Conversions
 FINGER_TYPE = ("Thumb", "Index", "Middle", "Ring", "Pinky")
 LIMB_TYPE = ("Proximal", "Middle", "Distal")
 METRIC = ("Position", "Velocity", "Acceleration")
 IMAGE_EXT = ".png"
-IMAGE_SAMPLING_ZOOM = 10
+IMAGE_SAMPLING_ZOOM = 5

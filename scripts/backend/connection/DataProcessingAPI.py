@@ -50,16 +50,17 @@ def smooth_dataset():
     dataset_date = flarg("date")
     dataset_permission = int(flarg("permission"))
     dataset_rating = int(flarg("rating"))
+    dataset_is_raw = int(flarg("is_raw"))
     dataset_num_frames = int(flarg("num_frames"))
     dataset_fps = int(flarg("FPS"))
 
     # Get dataset smoothing information
     dataset_parent_id = flarg("parent_id")
     dataset_frames_shift = int(flarg("frames_shift"))
-    sensor_savagol_distance = float(flarg("sensor_savagol_distance"))
-    sensor_savagol_degree = float(flarg("sensor_savagol_degree"))
-    angle_savagol_distance = float(flarg("angle_savagol_distance"))
-    angle_savagol_degree = float(flarg("angle_savagol_degree"))
+    sensor_savagol_distance = int(flarg("sensor_savagol_distance"))
+    sensor_savagol_degree = int(flarg("sensor_savagol_degree"))
+    angle_savagol_distance = int(flarg("angle_savagol_distance"))
+    angle_savagol_degree = int(flarg("angle_savagol_degree"))
 
     # if result is True:
 
@@ -70,7 +71,7 @@ def smooth_dataset():
         sensor_savagol_distance=sensor_savagol_distance, sensor_savagol_degree=sensor_savagol_degree,
         angle_savagol_distance=angle_savagol_distance, angle_savagol_degree=angle_savagol_degree,
         dataset_name=dataset_name, dataset_owner_name=dataset_owner_name, dataset_date=dataset_date,
-        dataset_permission=dataset_permission, dataset_rating=dataset_rating)
+        dataset_permission=dataset_permission, dataset_rating=dataset_rating, dataset_is_raw=dataset_is_raw)
 
     Worker.dataset_worker.add_task(job=job)
 
