@@ -1,5 +1,7 @@
 import datetime
 
+import numpy
+
 from scripts import Log
 
 
@@ -39,7 +41,21 @@ def dict_to_sql_update_features(a_dict):
 
 def resizing_scale(width, height, space_width, space_height):
     # Calculates the scale
-    scale = space_width / float(width)
+    scale = space_width / max(1, float(width))
     if int(scale * height) > space_height:
-        scale = space_height / float(height)
+        scale = space_height / max(1, float(height))
     return scale
+
+
+# Original lists which the post-processing will be based off of
+def float_int_unknownArray2list(u_list):
+    if type(u_list) == float or type(u_list) == int \
+            or type(u_list) == numpy.int32 or type(u_list) == numpy.float64:
+        return u_list
+    elif type(u_list) != list:
+        u_list = list(u_list)
+
+    for i in range(0, len(u_list)):
+        u_list[i] = float_int_unknownArray2list(u_list[i])
+
+    return u_list

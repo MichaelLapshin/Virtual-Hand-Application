@@ -5,18 +5,14 @@
 """
 import os
 
-from scripts import Log, Parameters, Constants, Warnings
+from scripts import Log, Parameters, Constants, Warnings, General
 from scripts.backend.database import DatabaseDatasets
 from scripts.backend.logic import Job
 from scripts.frontend.logic import DatasetRecorder
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
-import numpy
 import h5py
-import math
-import numpy as np
 import scipy.signal
-import time
 
 """
 # Training data format
@@ -35,20 +31,6 @@ acceleration: [[[fingerAngularAcceleration]*fingerLimb]*fingers]
 """
 
 
-# Original lists which the post-processing will be based off of
-def _float_int_unknownArray2list(u_list):
-    if type(u_list) == float or type(u_list) == int \
-            or type(u_list) == numpy.int32 or type(u_list) == numpy.float64:
-        return u_list
-    elif type(u_list) != list:
-        u_list = list(u_list)
-
-    for i in range(0, len(u_list)):
-        u_list[i] = _float_int_unknownArray2list(u_list[i])
-
-    return u_list
-
-
 # Post-processing to obtain limb angular velocity/acceleration
 def _generate_derivative_limb_data(original_list, frames_per_second):
     derivative_list = []
@@ -59,11 +41,11 @@ def _generate_derivative_limb_data(original_list, frames_per_second):
 
 
 class JobSmooth(Job.Job):
-    def __init__(self, title, dataset_parent_id, dataset_num_frames, dataset_fps, dataset_frames_shift,
+    def __init__(self, dataset_parent_id, dataset_num_frames, dataset_fps, dataset_frames_shift,
                  sensor_savagol_distance, sensor_savagol_degree, angle_savagol_distance, angle_savagol_degree,
-                 dataset_name, dataset_owner_name, dataset_date, dataset_permission, dataset_rating, dataset_is_raw,
+                 dataset_name, dataset_owner_id, dataset_date, dataset_permission, dataset_rating, dataset_is_raw,
                  info=None):
-        Job.Job.__init__(self, title=title, info=info)
+        Job.Job.__init__(self, title="Smoothing Dataset: " + str(dataset_parent_id), info=info)
         self.dataset_parent_id = dataset_parent_id
         self.dataset_num_frames = dataset_num_frames
         self.dataset_fps = dataset_fps
@@ -73,7 +55,7 @@ class JobSmooth(Job.Job):
         self.angle_savagol_distance = angle_savagol_distance
         self.angle_savagol_degree = angle_savagol_degree
         self.dataset_name = dataset_name
-        self.dataset_owner_name = dataset_owner_name
+        self.dataset_owner_id = dataset_owner_id
         self.dataset_date = dataset_date
         self.dataset_permission = dataset_permission
         self.dataset_rating = dataset_rating
@@ -89,13 +71,14 @@ class JobSmooth(Job.Job):
 
         # Obtains old file input
         reader = h5py.File(
-            Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(self.dataset_parent_id) + ".ds", 'r')
+            Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(
+                self.dataset_parent_id) + Constants.DATASET_EXT, 'r')
 
-        old_sensor_list = _float_int_unknownArray2list(reader.get("sensor"))
-        old_angle_list = _float_int_unknownArray2list(reader.get("angle"))
+        old_sensor_list = General.float_int_unknownArray2list(reader.get("sensor"))
+        old_angle_list = General.float_int_unknownArray2list(reader.get("angle"))
 
         if DatasetRecorder.Recorder.RECORD_TIME is True:
-            old_time_list = _float_int_unknownArray2list(reader.get("time"))
+            old_time_list = General.float_int_unknownArray2list(reader.get("time"))
             assert len(old_time_list) == len(old_sensor_list[0]) == len(old_angle_list[0][0])
         else:
             assert len(old_sensor_list[0]) == len(old_angle_list[0][0])
@@ -169,10 +152,10 @@ class JobSmooth(Job.Job):
         # Just in case
         if DatasetRecorder.Recorder.RECORD_TIME is True:
             assert len(angle_list[0][0]) == len(velocity_list[0][0]) == len(acceleration_list[0][0]) \
-                   == len(time_list) == len(sensor_list[0] == self.dataset_num_frames)
+                   == len(time_list) == len(sensor_list[0]) == self.dataset_num_frames
         else:
             assert len(angle_list[0][0]) == len(velocity_list[0][0]) == len(acceleration_list[0][0]) \
-                   == len(sensor_list[0] == self.dataset_num_frames)
+                   == len(sensor_list[0]) == self.dataset_num_frames
 
         self.dataset_num_frames = len(angle_list[0][0])
         self.set_progress(95, "Saving the temporary dataset file.")
@@ -192,7 +175,7 @@ class JobSmooth(Job.Job):
 
         # Saves the data on the database
         result = DatabaseDatasets.create_new_dataset(
-            name=self.dataset_name, owner_id=self.dataset_owner_name, date=self.dataset_date,
+            name=self.dataset_name, owner_id=self.dataset_owner_id, date=self.dataset_date,
             permission=self.dataset_permission, rating=self.dataset_rating, is_raw=self.is_raw,
             num_frames=self.dataset_num_frames, fps=self.dataset_fps, frames_shift=self.dataset_frames_shift,
             sensor_savagol_distance=self.sensor_savagol_distance, sensor_savagol_degree=self.sensor_savagol_degree,
