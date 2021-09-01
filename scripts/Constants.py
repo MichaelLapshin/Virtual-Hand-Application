@@ -69,7 +69,7 @@ DEFAULT_DATABASE_NAME = "database"
 DATASET_EXT = ".ds"
 
 # Fetching data
-URL_REPLACEMENT_MAP = {" ": "%"}
+URL_REPLACEMENT_MAP = {" ": "%", ":": "~"}
 DATABASE_ENTRY_TRANSFER_DATA = ("ID", "Name", "ID_Owner", "Date_Created", "Permission", "Rating",
                                 "Is_Raw", "Num_Frames", "FPS", "Frames_Shift",
                                 "Sensor_Savagol_Distance", "Sensor_Savagol_Degree",

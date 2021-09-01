@@ -64,9 +64,12 @@ def get_dataset_finger_image():
     image_metric = flarg("metric")
 
     # Loads the image and sends the encoded version of it
-    image = open(DatabasePlots.get_finger_image_file_path(dataset_id=dataset_id,
-                                                          finger_num=image_finger, metric_num=image_metric), "rb")
-    return package(None, base64.b64encode(image.read()))
+    try:
+        image = open(DatabasePlots.get_finger_image_file_path(dataset_id=dataset_id,
+                                                              finger_num=image_finger, metric_num=image_metric), "rb")
+        return package(None, base64.b64encode(image.read()))
+    except:
+        return package(None, "")
 
 
 @file_transfer_api.route("/get_dataset_sensor_image")
@@ -75,5 +78,8 @@ def get_dataset_sensor_image():
     sensor = flarg("sensor")
 
     # Loads the image and sends the encoded version of it
-    image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
-    return package(None, base64.b64encode(image.read()))
+    try:
+        image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
+        return package(None, base64.b64encode(image.read()))
+    except:
+        return package(None, "")

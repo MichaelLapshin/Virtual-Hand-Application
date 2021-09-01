@@ -167,7 +167,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.new_dataset_button = SearchButton(self.search_frame.button_frame, column=0, row=0, text="New",
                                                command=Warnings.not_complete)
         self.merge_selected_button = SearchButton(self.search_frame.button_frame, column=1, row=0,
-                                                  text="Merge Selected", command=self.merge_selected_datasets)
+                                                  text="Merge Selected", command=self.merge_selected_button_command)
 
         """
             Info Frame
@@ -287,16 +287,21 @@ class ViewFrame(GenericPage.NavigationFrame):
         result = self.info_frame.save_item(self.search_frame.scroll_block.is_selected_main(),
                                            self.search_frame.get_selected_main_id())
         if result is True:
-            self.search_frame_command()
-            self.graph_frame.clear_images()
+            self.search_frame.search_button_command()
 
     def delete_button_command(self):
         result = self.info_frame.delete_item(self.search_frame.scroll_block.is_selected_main(),
                                              self.search_frame.get_selected_main_id())
         Log.debug("The database deletion result is: " + str(result))
         if result is True:
-            self.search_frame_command()
-            self.graph_frame.clear_images()
+            self.search_frame.search_button_command()
+
+    def merge_selected_button_command(self):
+        result = self.search_frame.merge_selected_datasets()
+
+        Log.debug("The database merging result is: " + str(result))
+        if result is True:
+            self.search_frame.search_button_command()
 
     def search_frame_command(self):
         # self.search_frame.search_button_command()
@@ -403,9 +408,6 @@ class ViewFrame(GenericPage.NavigationFrame):
 
     def set_switch_to_new_frame(self, command):
         self.new_dataset_button.config(command=command)
-
-    def merge_selected_datasets(self):
-        Warnings.not_complete()
 
 
 class NewFrame(GenericPage.NavigationFrame):

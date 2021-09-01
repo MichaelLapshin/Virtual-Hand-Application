@@ -27,6 +27,12 @@ def package(success, message):
     return to_return
 
 
+def url_replacement_mapping(string):
+    for k in Constants.URL_REPLACEMENT_MAP:
+        string = string.replace(k, Constants.URL_REPLACEMENT_MAP.get(k))
+    return string
+
+
 def reverse_url_replacement_mapping(string):
     for k in Constants.URL_REPLACEMENT_MAP:
         string = string.replace(Constants.URL_REPLACEMENT_MAP.get(k), k)

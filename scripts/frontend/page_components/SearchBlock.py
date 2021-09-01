@@ -1,6 +1,6 @@
-import tkinter
+import tkinter, tkinter.messagebox
 
-from scripts import Constants, Warnings, General, Parameters, InputConstraints
+from scripts import Constants, Warnings, General, Parameters, InputConstraints, Log
 from scripts.frontend import ClientConnection
 from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.custom_widgets.CustomButtons import SearchButton
@@ -157,6 +157,70 @@ class DatasetSearchFrame(Frame):
         self.scroll_block.replace_list(replace_list, replace_list_sorted)
         if self.search_frame_command is not None:
             self.search_frame_command()
+
+    def merge_selected_datasets(self):
+        assert self.scroll_block.multi_select is True
+
+        # Obtains the dataset ids to merge
+        dataset_indices = self.scroll_block.get_selected_multi()
+        dataset_ids = []
+        for i in dataset_indices:
+            dataset_ids.append(self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("ID")])
+
+        # Performs the merging if datasets are selected
+        if len(dataset_ids) > 0:
+            Log.debug("Selected datasets to merge: " + str(dataset_ids))
+
+            are_all_raw = True
+            for i in dataset_indices:
+                are_all_raw &= self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 1
+
+            if are_all_raw is True:
+
+                # Asserting that the fps of each dataset is the same
+                are_all_fps_same = True
+                cur_fps = None
+                for i in dataset_indices:
+                    if cur_fps is None:
+                        cur_fps = self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("FPS")]
+                    are_all_fps_same &= \
+                        (cur_fps == self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("FPS")])
+
+                if are_all_fps_same is True:
+                    # Merging the datasets
+                    Log.info("Merging the datasets: " + str(dataset_ids))
+
+                    # Generates the merged dataset name
+                    dataset_name = "Merged-"
+                    for i in dataset_ids:
+                        dataset_name += str(i) + ","
+                    dataset_name = dataset_name.rstrip(",")
+
+                    # Computes average rating of the datasets
+                    rating = 0
+                    for i in dataset_indices:
+                        rating += self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Rating")]
+                    rating = int(rating / len(dataset_ids))
+
+                    result = ClientConnection.merge_datasets(dataset_ids=dataset_ids, dataset_name=dataset_name,
+                                                             dataset_owner_id=ClientConnection.get_user_id(),
+                                                             dataset_rating=rating, dataset_fps=cur_fps)
+                    if result is True:
+                        tkinter.messagebox.showwarning("Success!", "The datasets have been merged.")
+                        return True
+                    else:
+                        tkinter.messagebox.showwarning("Failed!", "The datasets failed to merge.")
+                        return False
+                else:
+                    tkinter.messagebox.showwarning("Failed!",
+                                                   "All selected datasets must have the same 'Frames per second'.")
+                    return False
+            else:
+                tkinter.messagebox.showwarning("Failed!", "All selected datasets must be raw (not smoothed).")
+                return False
+        else:
+            tkinter.messagebox.showwarning("Failed!", "No dataset is selected.")
+            return False
 
     def get_index_entry(self, index, entry):
         return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(entry)]

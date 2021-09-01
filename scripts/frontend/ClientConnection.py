@@ -7,7 +7,8 @@ import tkinter
 # import PIL.Image, PIL.ImageTk
 import requests
 
-from scripts import Warnings, Parameters, InputConstraints, Log, Constants
+from scripts import Warnings, Parameters, InputConstraints, Log, Constants, General
+from scripts.backend.connection import API_Helper
 
 """
     Connection Variables
@@ -31,7 +32,7 @@ def get_server_address():
 
 def is_server_online(ip_address=None, port=None):
     # Compiles the server address
-    server_address = None
+    server_address: str
     if (ip_address is not None) and (port is not None):
         server_address = ip_address + ":" + port
     else:
@@ -61,8 +62,9 @@ def send_get_request(url_extension="", values={}, ovrd_ltst_msg=True):
 
     # Sends the get request if the server is online. Returns the boolean result
     if is_online:
-        return process_response(requests.get(get_server_address() + url_extension + url_values),
-                                ovrd_ltst_msg=ovrd_ltst_msg)
+        get_request = get_server_address() + url_extension + url_values
+        Log.debug("Sending the get request: " + get_request)
+        return process_response(requests.get(get_request), ovrd_ltst_msg=ovrd_ltst_msg)
     else:
         Log.warning("The server appears to be offline. Did not send the GET request to "
                     "'" + get_server_address() + url_extension + url_values + "'")
@@ -181,7 +183,7 @@ def is_logged_in():
 
 def get_user_name():
     global _user_name
-    Log.trace("Fetched the user name '" + str(_user_name) + "'.")
+    # Log.trace("Fetched the user name '" + str(_user_name) + "'.")
     return _user_name
 
 
@@ -252,8 +254,7 @@ def update_dataset_entry(dataset_id, dataset_values):
 
     # Replaces the values
     for k in dataset_values.keys():
-        for r in Constants.URL_REPLACEMENT_MAP:
-            dataset_values[k] = dataset_values.get(k).replace(r, Constants.URL_REPLACEMENT_MAP.get(r))
+        dataset_values[k] = API_Helper.url_replacement_mapping(dataset_values.get(k))
 
     # Sends the information
     result = send_get_request("/update/dataset_entry", values={"id": dataset_id, "new_values": dataset_values})
@@ -292,7 +293,7 @@ def update_model_entry(model_id, model_values):
 
 
 """
-    Other Data Management
+    Other Dataset Management
 """
 
 
@@ -340,6 +341,23 @@ def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rat
         Log.warning("The smoothing of dataset with id '" + str(dataset_id) + "' failed to begin.")
 
 
+def merge_datasets(dataset_ids, dataset_name, dataset_owner_id, dataset_rating, dataset_fps):
+    Log.info("Merging the datasets with ids: " + str(dataset_ids))
+
+    result = send_get_request("/process/merge_datasets",
+                              values={"dataset_ids": API_Helper.url_replacement_mapping(str(dataset_ids)),
+                                      "name": API_Helper.url_replacement_mapping(dataset_name),
+                                      "owner_id": dataset_owner_id,
+                                      "rating": dataset_rating,
+                                      "fps": dataset_fps})
+    if result is True:
+        Log.info("The datasets were successfully merged.")
+        return True
+    else:
+        Log.info("The datasets were not successfully merged.")
+        return False
+
+
 """
     Data Deletion Management
 """
@@ -350,8 +368,10 @@ def delete_dataset_entry(dataset_id):
     result = send_get_request("/process/delete_dataset", {"id": dataset_id})
     if result is True:
         Log.info("The dataset with id '" + str(dataset_id) + "' was successfully deleted.")
+        return True
     else:
         Log.warning("The dataset with id '" + str(dataset_id) + "' was not successfully deleted.")
+        return False
 
 
 """
