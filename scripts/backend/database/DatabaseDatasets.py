@@ -2,8 +2,8 @@ import os
 
 from scripts import Warnings, Constants, Log, General, Parameters
 from scripts.backend.database import Database
-from scripts.backend.logic import Worker, DatasetPlotter
-from scripts.backend.logic.Worker import dataset_worker
+from scripts.backend.logic import DatasetPlotter
+from scripts.logic import Worker
 
 
 def get_all_datasets():

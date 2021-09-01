@@ -1,7 +1,6 @@
 import pathlib
 
 import PIL
-import werkzeug.datastructures
 
 from scripts import Warnings, Parameters, Constants, Log
 from scripts.backend.database import DatabasePlots
@@ -11,8 +10,6 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-# import pandas as pd
 
 class JobDatasetPlotter(Job.Job):
     def __init__(self, title, dataset_id, plot_vel_acc=False, info=None):
@@ -48,17 +45,6 @@ class JobDatasetPlotter(Job.Job):
         reader = h5py.File(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(self.dataset_id) + ".ds", 'r')
 
         # Plots the data below
-        # plt.title("Time")
-        # plt.plot(np.array(reader.get("time")))
-        # plt.xlabel("Frame")
-        # plt.ylabel("Milliseconds since Start")
-        # plt.savefig(training_name + "_Time.png", bbox_inches='tight')
-        # self.save_image()
-
-        # finger_name = ["Thumb Finger", "Index Finger", "Middle Finger", "Ring Finger", "Pinky Finger"]
-        # limb_part = ["proximal", "middle", "distal"]
-        # finger_label = ["thumb", "index", "middle", "ring", "pinky"]
-
         sensors_count = len(list(reader.get("sensor")))
         fingers_count = len(list(reader.get("angle")))
 

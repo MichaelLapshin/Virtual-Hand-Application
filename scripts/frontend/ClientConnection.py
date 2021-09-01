@@ -296,18 +296,6 @@ def update_model_entry(model_id, model_values):
     Other Dataset Management
 """
 
-
-# def duplicate_dataset_entry(dataset_id):
-#     Log.info("Attempting to duplicate the dataset with the id '" + dataset_id + "'.")
-#     result = send_get_request("/process/duplicate_dataset", {"id": dataset_id})
-#
-#     if result is True:
-#         Log.info("The dataset with the id '" + dataset_id + "' was successfully duplicated.")
-#     else:
-#         Log.info("The dataset with the id '" + dataset_id + "' failed to duplicated.")
-#     return result
-
-
 def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, is_raw,
                    num_frames, frames_per_second,
                    dataset_id, frames_shift,

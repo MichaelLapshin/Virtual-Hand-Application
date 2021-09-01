@@ -1,6 +1,5 @@
-from scripts import Warnings, Log, Constants, General
+from scripts import Log, Constants, General
 from scripts.backend.database import Database
-from scripts.backend.logic.Worker import model_worker
 
 
 def get_all_models():

@@ -85,8 +85,7 @@ class Frame(tkinter.Frame, WidgetInterface):
         selection_changed = False
         if self.listbox.size() > 0:  # TODO, add a function that will trigger upon select change
 
-            if len(self.listbox.curselection()) > 0 and \
-                    self.selected_index_listbox != self.listbox.curselection()[0]:
+            if len(self.listbox.curselection()) > 0 and self.selected_index_listbox != self.listbox.curselection()[0]:
                 self.selected_index_listbox = self.listbox.curselection()[0]
                 self.sorted_listbox.selection_clear(0, tkinter.END)
                 self.sorted_listbox.selection_set(self.selected_index_listbox)

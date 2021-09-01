@@ -12,7 +12,6 @@ import time
 import flask
 
 # Import REST API scripts
-import requests
 
 from API_Helper import package
 from AccountAPI import account_api
@@ -22,11 +21,11 @@ from DataFetchingAPI import data_fetching_api
 from DataUpdatingAPI import data_updating_api
 
 # Import miscellaneous scripts
-from scripts import Log, Warnings, General
+from scripts import Log
 from scripts.backend.database import Database
 
 # Database
-from scripts.backend.logic import Worker
+from scripts.logic import Worker
 
 # Questionnaire for the server setup
 

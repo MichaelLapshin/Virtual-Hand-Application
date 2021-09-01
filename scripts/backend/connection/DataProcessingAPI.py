@@ -3,8 +3,9 @@ import flask
 from API_Helper import flarg, package
 from scripts import Warnings, Log
 from scripts.backend.connection import API_Helper
-from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts
-from scripts.backend.logic import Worker, Job, DatasetSmoother, DatasetMerger
+from scripts.backend.database import DatabaseDatasets
+from scripts.backend.logic import DatasetSmoother, DatasetMerger
+from scripts.logic import Worker
 
 data_processing_api = flask.Blueprint('data_processing_api', __name__)
 

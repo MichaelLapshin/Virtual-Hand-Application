@@ -9,6 +9,7 @@ from scripts.frontend.pages import \
 
 from scripts.frontend import \
     Navigation
+from scripts.logic import Worker
 
 """
     Process client app/connection constants
@@ -81,7 +82,6 @@ class UpdateThread(threading.Thread):
         self.daemon = True
 
     def run(self):
-
         while self.running:
             self.navig_bar.update_content()
             time.sleep(Parameters.UPDATE_DELAY_MS / 1000.0)
@@ -92,13 +92,17 @@ class UpdateThread(threading.Thread):
         self.running = False
 
 
+# Starting worker threads
+Worker.dataset_image_worker = Worker.Worker(sleep_delay=0.1)
+Worker.dataset_image_worker.start()
 updater = UpdateThread(navig_bar=navig_bar)
 updater.start()
 
 # Starts the GUI
 root.mainloop()
 
-# Ending functions
+# Ending worker threads
 updater.stop()
+Worker.dataset_image_worker.stop()
 
 print("The client application has ended.")
