@@ -164,7 +164,9 @@ class Frame(tkinter.Frame, WidgetInterface):
         self.listbox.insert(index, item_display_name)
         self.sorted_listbox.insert(index, str(item_display_sorted))
         if self.selectbox is not None:
-            self.selectbox.insert(index, " " + str(index))
+            selectbox_text = " " + str(index)
+            self.selectbox.insert(index, selectbox_text)
+            self.selectbox.config(width=len(selectbox_text))
         return True
 
     def remove_from_list(self, item_display_name):
