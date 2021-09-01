@@ -13,7 +13,7 @@ import flask
 
 # Import REST API scripts
 
-from API_Helper import package
+from API_Helper import package, flarg
 from AccountAPI import account_api
 from FileTransferAPI import file_transfer_api
 from DataProcessingAPI import data_processing_api
@@ -21,8 +21,8 @@ from DataFetchingAPI import data_fetching_api
 from DataUpdatingAPI import data_updating_api
 
 # Import miscellaneous scripts
-from scripts import Log
-from scripts.backend.database import Database
+from scripts import Log, Constants, Warnings
+from scripts.backend.database import Database, DatabaseAccounts
 
 # Database
 from scripts.logic import Worker
@@ -36,57 +36,64 @@ start_server = Database.connect("server_database.db")
 Database.create_all_new_tables(replace=False)
 workers = []
 
+# Create the Admin user (if does not already exist)
+exists_admin = DatabaseAccounts.exists_user_by_name(user_name=Constants.ADMIN_USER_NAME) \
+               and DatabaseAccounts.check_user(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD)
+if exists_admin is False:
+    DatabaseAccounts.add_user(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD,
+                              permission=Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_ADMIN))
 
-class ConsoleReader(threading.Thread):
-    def __init__(self, stop_processes_command):
-        threading.Thread.__init__(self)
-        self._stop_processes_command = stop_processes_command
-        self._running = False
-        self.daemon = True
-        self._stopped = True
 
-    def run(self):
-        self._stopped = False
-        while self._running is True:
-            inp = input()
-            if inp.lower() == "stop" or inp.lower() == "shutdown":
-                # requests.get(HOST + ":" + str(PORT) + "/shutdown"
-                print("[ServerApp] Stopping the processes.")
-                self._stop_processes_command()
-                print("[ServerApp] All processes have been stopped.")
-                print("[ServerApp] You may now stop the (flask) server.")
-            else:
-                print("[ServerApp] Did not recognize the command.")
-            time.sleep(3)
-        self._stopped = True
-        Log.info("The  console reader thread has stopped.")
-
-    def start(self):
-        Log.info("Starting the console reader thread...")
-        self._running = True
-        super().start()
-
-    def stop(self):
-        Log.info("Stopping the console reader thread...")
-        self._running = False
-
-    """
-        Getters
-    """
-
-    def is_running(self):
-        return self._running
-
-    def is_stopped(self):
-        return self._stopped
+# class ConsoleReader(threading.Thread):
+#     def __init__(self, stop_processes_command):
+#         threading.Thread.__init__(self)
+#         self._stop_processes_command = stop_processes_command
+#         self._running = False
+#         self.daemon = True
+#         self._stopped = True
+#
+#     def run(self):
+#         self._stopped = False
+#         while self._running is True:
+#             inp = input()
+#             if inp.lower() == "stop" or inp.lower() == "shutdown":
+#                 # requests.get(HOST + ":" + str(PORT) + "/shutdown"
+#                 print("[ServerApp] Stopping the processes.")
+#                 self._stop_processes_command()
+#                 print("[ServerApp] All processes have been stopped.")
+#                 print("[ServerApp] You may now stop the (flask) server.")
+#             else:
+#                 print("[ServerApp] Did not recognize the command.")
+#             time.sleep(3)
+#         self._stopped = True
+#         Log.info("The  console reader thread has stopped.")
+#
+#     def start(self):
+#         Log.info("Starting the console reader thread...")
+#         self._running = True
+#         super().start()
+#
+#     def stop(self):
+#         Log.info("Stopping the console reader thread...")
+#         self._running = False
+#
+#     """
+#         Getters
+#     """
+#
+#     def is_running(self):
+#         return self._running
+#
+#     def is_stopped(self):
+#         return self._stopped
 
 
 def stop_processes():
     # Stops the console reader
-    if console_reader is not None:
-        console_reader.stop()
-        while console_reader.is_stopped() is False:
-            time.sleep(1)
+    # if console_reader is not None:
+    #     console_reader.stop()
+    #     while console_reader.is_stopped() is False:
+    #         time.sleep(1)
 
     # Stops the workers
     for w in workers:
@@ -115,8 +122,8 @@ if start_server:
     server_app.register_blueprint(data_updating_api, url_prefix="/update")
 
     # Create console reader
-    console_reader = ConsoleReader(stop_processes)
-    console_reader.start()
+    # console_reader = ConsoleReader(stop_processes)
+    # console_reader.start()
 
     # Creates workers
     Worker.dataset_worker = Worker.Worker()
@@ -137,17 +144,50 @@ if start_server:
     if __name__ == "__main__":
         server_app.run(host=HOST, port=PORT, threaded=True)
 
+"""
+    Flask REST API
+"""
+
+
+class ShutDown(threading.Thread):
+    """
+        For shutting down the flask server.
+    """
+
+    def __init__(self, shutdown_func, delay_s=0):
+        threading.Thread.__init__(self)
+        self.shutdown_func = shutdown_func
+        self.delay_s = delay_s
+
+        # Thread
+        self.daemon = True
+        self.start()
+
+    def run(self):
+        time.sleep(self.delay_s)
+
+        # Shuts down the flask server
+        if self.shutdown_func is None:
+            raise RuntimeError('Not running werkzeug')
+        self.shutdown_func()
+
 
 @server_app.route('/shutdown')
 def shutdown():
-    stop_processes()
+    Log.debug("Received request to shutdown the server...")
+    user_id = int(flarg("user_id"))
 
-    # Shutting down the flask server
-    shutdown_func = flask.request.environ.get('werkzeug.server.shutdown')
-    if shutdown_func is None:
-        raise RuntimeError('Not running werkzeug')
-    shutdown_func()
-    return package(True, "Shutting down the server...")
+    if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD):
+        Log.info("Shutting down the server...")
+
+        stop_processes()
+
+        # Shutting down the flask server
+        ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
+
+        return package(True, "Shutting down the server...")
+    else:
+        return package(False, "Could not shutdown the server. The current user is not the Administrator.")
 
 
 @server_app.route('/is_online')

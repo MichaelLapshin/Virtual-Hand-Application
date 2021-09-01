@@ -1,4 +1,4 @@
-import tkinter
+import tkinter, tkinter.messagebox
 
 import requests
 
@@ -30,6 +30,7 @@ VERIFY_PASSWORD_ENTRY = "Verify Password:"
 STATUS_SERVER_UNKNOWN = "Server status: Unknown"
 STATUS_SERVER_ONLINE = "Server status: Online"
 STATUS_SERVER_OFFLINE = "Server status: Offline"
+SHUTDOWN_SERVER = "Shutdown Server"
 SERVER_IP_ENTRY = "IP Address:"
 SERVER_PORT_ENTRY = "Port:"
 CHECK_STATUS = "Check Status"
@@ -175,6 +176,8 @@ class Frame(GenericPage.NavigationFrame):
         def __init__(self, root, column, row, columnspan=1, rowspan=1):
             GenericPage.Frame.__init__(self, root=root, column=column, row=row, columnspan=columnspan, rowspan=rowspan)
 
+            self.root = root
+
             # Create login frame
             self.config(bd=2)
             self.grid(sticky=tkinter.N)
@@ -268,12 +271,13 @@ class Frame(GenericPage.NavigationFrame):
                 if can_create is True:
                     result = ClientConnection.create_user(user_name=username, password=password)
 
-                    Warnings.not_complete()
-
                     if result is True:
                         Log.info("The user named '" + username + "' was created.")
+                        tkinter.messagebox.showinfo("Success!", "The user '" + username + "' was successfully created.")
                     else:
                         Log.info("The user named '" + username + "' was not created.")
+                        tkinter.messagebox.showwarning("Failed!", "The user was not created.\n"
+                                                                  "Does the user already exist?")
 
                 else:
                     InputConstraints.warn("Could not create the user. Input constraints were not met.")
@@ -282,7 +286,7 @@ class Frame(GenericPage.NavigationFrame):
                 InputConstraints.warn("The password verification does not match the original.")
 
         def delete_user(self):
-            Log.info("Attempting to delete a new user.")
+            Log.info("Attempting to delete a user.")
 
             # Obtains inputs
             username = self.entry_username.get()
@@ -294,18 +298,23 @@ class Frame(GenericPage.NavigationFrame):
                 can_delete = True
                 can_delete &= InputConstraints.assert_string_non_empty("Username", username)
                 can_delete &= InputConstraints.assert_string_non_empty("Password", password)
+                can_delete &= InputConstraints.assert_string_non_empty("Verify Password", verify_password)
 
                 # logic for creating the user
                 if can_delete is True:
 
-                    is_deleted = ClientConnection.delete_user(user_name=username, password=password)
-
-                    Warnings.not_complete()
+                    user_id = ClientConnection.get_user_id_of(user_name=username, password=password)
+                    is_deleted = ClientConnection.delete_user(user_id=user_id)
 
                     if is_deleted is True:
-                        Log.info("The user named '" + username + "' was deleted.")
+                        Log.info("The user with id '" + str(user_id) + "' was successfully deleted.")
+
+                        # Log out user if self-deleted
+                        if user_id == ClientConnection.get_user_id():
+                            self.root.login_frame.logout_button_function()
+                            Log.debug("The current user was logged out.")
                     else:
-                        Log.info("The user named '" + username + "' was not deleted.")
+                        Log.info("The user with id '" + str(user_id) + "' was not deleted.")
                 else:
                     InputConstraints.warn("Could not delete the user. Input constraints were not met.")
 
@@ -331,32 +340,32 @@ class Frame(GenericPage.NavigationFrame):
             self.label_status = AccountLabel(
                 self, text=STATUS_SERVER_UNKNOWN,
                 column=0, row=1,
-                columnspan=2, rowspan=1)
+                columnspan=6, rowspan=1)
 
             # Server information fields
             self.label_server_ip = AccountLabel(
                 self, text=SERVER_IP_ENTRY,
                 column=0, row=2,
-                columnspan=1, rowspan=1)
+                columnspan=3, rowspan=1)
 
             self.entry_server_ip = AccountEntry(
                 self, text=Parameters.SERVER_IP_ADDRESS,
-                column=1, row=2,
-                columnspan=1, rowspan=1,
-                width=ENTRY_WIDTH,
+                column=3, row=2,
+                columnspan=3, rowspan=1,
+                width=ENTRY_WIDTH * 2,
                 trace_command=self.neutralize_server_status)
             self.entry_server_ip.config(validatecommand=self.neutralize_server_status)
 
             self.label_server_port = AccountLabel(
                 self, text=SERVER_PORT_ENTRY,
                 column=0, row=3,
-                columnspan=1, rowspan=1)
+                columnspan=3, rowspan=1)
 
             self.entry_server_port = AccountEntry(
                 self, text=Parameters.SERVER_PORT,
-                column=1, row=3,
-                columnspan=1, rowspan=1,
-                width=ENTRY_WIDTH,
+                column=3, row=3,
+                columnspan=3, rowspan=1,
+                width=ENTRY_WIDTH * 2,
                 trace_command=self.neutralize_server_status)
             self.entry_server_port.config(validatecommand=self.neutralize_server_status)
 
@@ -365,17 +374,28 @@ class Frame(GenericPage.NavigationFrame):
                 self, command=self.check_server_status,
                 text=CHECK_STATUS,
                 column=0, row=4,
-                columnspan=1, rowspan=1)
+                columnspan=2, rowspan=1)
+            self.button_check_server_status.grid(padx=12)
 
             self.button_register_server = AccountButton(
                 self, command=self.register_server,
                 text=REGISTER_TEXT,
-                column=1, row=4,
-                columnspan=1, rowspan=1)
+                column=2, row=4,
+                columnspan=2, rowspan=1)
+            self.button_register_server.grid(padx=0)
+
+            self.shutdown_button = AccountButton(
+                self, command=self.shutdown_button_command,
+                text=SHUTDOWN_SERVER,
+                column=4, row=4,
+                columnspan=2, rowspan=1)
+            self.shutdown_button.grid(padx=12)
+
 
         def update_colour(self):
             super().update_colour()
             self.title.update_colour()
+            self.shutdown_button.update_colour()
             self.label_status.update_colour()
             self.label_server_ip.update_colour()
             self.entry_server_ip.update_colour()
@@ -387,6 +407,7 @@ class Frame(GenericPage.NavigationFrame):
         def update_content(self):
             super().update_content()
             self.title.update_content()
+            self.shutdown_button.update_content()
             self.label_status.update_content()
             self.label_server_ip.update_content()
             self.entry_server_ip.update_content()
@@ -394,6 +415,29 @@ class Frame(GenericPage.NavigationFrame):
             self.entry_server_port.update_content()
             self.button_check_server_status.update_content()
             self.button_register_server.update_content()
+
+        def shutdown_button_command(self):
+            Log.info("Attempting to shutdown the server.")
+
+            if ClientConnection.is_logged_in():
+                Log.debug("Send the request to shutdown the server.")
+                result = ClientConnection.shutdown_server(ClientConnection.get_user_id())
+
+                if result is True:
+                    Log.info("The server has stopped.")
+                    self.root.login_frame.logout_button_function()
+                    self.check_server_status()
+                    return True
+                else:
+                    Log.debug("The server was not stopped.")
+                    tkinter.messagebox.showwarning("Failed!", "The server was not shutdown."
+                                                              "\nIs the user not logged in as the Administrator?")
+                    return False
+            else:
+                Log.debug("The server was not stopped. The user is not logged in.")
+                tkinter.messagebox.showwarning("Failed!", "The server was not shutdown."
+                                                          "\nThe user must be logged in as the Administrator.")
+                return False
 
         def neutralize_server_status(self, *args):
             self.label_status.config(text=STATUS_SERVER_UNKNOWN)

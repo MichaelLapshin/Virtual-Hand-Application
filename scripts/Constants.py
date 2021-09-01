@@ -8,6 +8,8 @@ import numpy as np
 default_resolution = "1155x800"
 
 # Server constants
+ADMIN_USER_NAME = "Admin"
+ADMIN_PASSWORD = "livelink"
 
 # GUI Spacing
 LONG_SPACING = 20

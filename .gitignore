@@ -6,8 +6,6 @@
 /AppData-Client/
 /AppData-Client/temp-models/
 /AppData-Client/temp-datasets/
-/AppData-Client/temp-images-models/
-/AppData-Client/temp-images-datasets/
 
 # Ignore Server Data
 /AppData-Server/

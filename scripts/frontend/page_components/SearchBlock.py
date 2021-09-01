@@ -141,10 +141,13 @@ class DatasetSearchFrame(Frame):
         sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
 
         # Obtains the information
+        user_id = ClientConnection.get_user_id()
+        if user_id is None:
+            user_id = "NULL"
         self.list_storage = ClientConnection.fetch_ordered_datasets(
             sort_by=sort_by,
             direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
-            user_name=ClientConnection.get_user_name())
+            user_id=user_id)
 
         # Replaces the list
         replace_list = []
@@ -247,7 +250,7 @@ class ModelSearchFrame(Frame):
         self.list_storage = ClientConnection.fetch_ordered_models(
             sort_by=Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
             direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
-            user_name=ClientConnection.get_user_name())
+            user_id=ClientConnection.get_user_id())
         self.scroll_block.replace_list(self.list_storage[::][2])
 
     def get_index_entry(self, index, entry):

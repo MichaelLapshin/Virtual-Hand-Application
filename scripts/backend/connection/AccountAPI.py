@@ -12,30 +12,34 @@ def create_user():
     user_name = flarg('user_name')
     password = flarg('password')
 
-    create_status = DatabaseAccounts.add_user(user_name=user_name, password=password)
+    if DatabaseAccounts.exists_user_by_name(user_name) is False or \
+            DatabaseAccounts.check_user(user_name=user_name, password=password) is False:
 
-    if create_status is True:
-        return package(True, "Created a new user named '" + user_name + "'.")
+        create_status = DatabaseAccounts.add_user(user_name=user_name, password=password)
+
+        if create_status is True:
+            return package(True, "Created a new user named '" + user_name + "'.")
+        else:
+            return package(False, "Could not create the new user named '" + user_name + "'.")
     else:
-        return package(False, "Could not create the new user named '" + user_name + "'.")
+        return package(False, "Could not create the new user named '" + user_name + "'. The user already exists.")
 
 
 @account_api.route('/delete')  # TODO, Done
 def delete_user():
-    user_name = flarg('user_name')
-    password = flarg('password')
+    user_id = int(flarg('user_id'))
+    Log.info("Deleting the user with id '" + str(user_id) + "'.")
 
-    if flask.session.get('user_name') == user_name:
-        flask.session['is_logged_in'] = False
+    # if flask.session.get('user_name') == user_name:
+    #     flask.session['is_logged_in'] = False
 
-    exists_user = DatabaseAccounts.exists_user_by_name(user_name=user_name)
-    good_user_credential = exists_user and DatabaseAccounts.check_user(user_name=user_name, password=password)
-    delete_status = good_user_credential and DatabaseAccounts.delete_user(user_name=user_name, password=password)
+    exists_user = DatabaseAccounts.exists_user_by_id(user_id=user_id)
+    delete_status = exists_user and DatabaseAccounts.delete_user(user_id=user_id)
 
     if delete_status is True:
-        return package(True, "Deleted the user '" + user_name + "'.")
+        return package(True, "Deleted the user with id '" + str(user_id) + "'.")
     else:
-        return package(False, "Could not delete the user '" + user_name + "'.")
+        return package(False, "Could not delete the user with id '" + str(user_id) + "'.")
 
 
 @account_api.route('/check_user')  # TODO, Done
@@ -58,7 +62,8 @@ def logged_in():
 @account_api.route('/get_user_id')
 def get_user_id():
     user_name = flarg("user_name")
-    return package(None, DatabaseAccounts.get_user_id(user_name=user_name))
+    password = flarg("password")
+    return package(None, DatabaseAccounts.get_user_id(user_name=user_name, password=password))
 
 
 @account_api.route('/log_in')  # TODO, Done
@@ -74,7 +79,7 @@ def log_in():
     else:
 
         # Checks with the database if the user exists
-        exists_status = DatabaseAccounts.exists_user_by_name(user_name)
+        exists_status = DatabaseAccounts.exists_user_by_name(user_name=user_name, password=password)
         if exists_status is False:
             return package(False, "Could not log-in as the user '" + user_name + "'. User does not exist.")
 
