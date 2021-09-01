@@ -1,7 +1,7 @@
 import flask
 
 from API_Helper import flarg, package
-from scripts import Warnings, Log
+from scripts import Warnings, Log, Constants
 from scripts.backend.database import Database, DatabaseAccounts
 
 account_api = flask.Blueprint('account_api', __name__)
@@ -30,16 +30,18 @@ def delete_user():
     user_id = int(flarg('user_id'))
     Log.info("Deleting the user with id '" + str(user_id) + "'.")
 
-    # if flask.session.get('user_name') == user_name:
-    #     flask.session['is_logged_in'] = False
+    admin_id = DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD)
 
-    exists_user = DatabaseAccounts.exists_user_by_id(user_id=user_id)
-    delete_status = exists_user and DatabaseAccounts.delete_user(user_id=user_id)
+    if user_id != admin_id:
+        exists_user = DatabaseAccounts.exists_user_by_id(user_id=user_id)
+        delete_status = exists_user and DatabaseAccounts.delete_user(user_id=user_id)
 
-    if delete_status is True:
-        return package(True, "Deleted the user with id '" + str(user_id) + "'.")
+        if delete_status is True:
+            return package(True, "Deleted the user with id '" + str(user_id) + "'.")
+        else:
+            return package(False, "Could not delete the user with id '" + str(user_id) + "'.")
     else:
-        return package(False, "Could not delete the user with id '" + str(user_id) + "'.")
+        return package(False, "Could not delete the user. Cannot delete the Administrator user.")
 
 
 @account_api.route('/check_user')  # TODO, Done

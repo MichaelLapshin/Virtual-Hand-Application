@@ -313,11 +313,13 @@ class Frame(GenericPage.NavigationFrame):
                         if user_id == ClientConnection.get_user_id():
                             self.root.login_frame.logout_button_function()
                             Log.debug("The current user was logged out.")
+
+                        tkinter.messagebox.showinfo("Success!", "The user was successfully deleted.")
                     else:
                         Log.info("The user with id '" + str(user_id) + "' was not deleted.")
+                        tkinter.messagebox.showwarning("Failed!", "Could not delete the user.")
                 else:
                     InputConstraints.warn("Could not delete the user. Input constraints were not met.")
-
             else:
                 Log.info("Password and verify password do not match!")
                 InputConstraints.warn("The password verification does not match the original.")
@@ -390,7 +392,6 @@ class Frame(GenericPage.NavigationFrame):
                 column=4, row=4,
                 columnspan=2, rowspan=1)
             self.shutdown_button.grid(padx=12)
-
 
         def update_colour(self):
             super().update_colour()
