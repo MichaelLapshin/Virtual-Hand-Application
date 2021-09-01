@@ -107,7 +107,7 @@ def create_datasets_table():
     cursor.execute("""CREATE TABLE Datasets (
                             ID             INTEGER PRIMARY KEY,
                             Name           TEXT NOT NULL,
-                            ID_Owner       INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
+                            ID_Owner       INTEGER REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created   DATE,
                             Permission     INTEGER NOT NULL,
                             Rating         INTEGER,
@@ -159,7 +159,7 @@ def create_models_table():
     cursor.execute("""CREATE TABLE Models (
                             ID                  INTEGER PRIMARY KEY,
                             Name                TEXT NOT NULL,
-                            ID_Owner            INTEGER NOT NULL REFERENCES Users(ID) ON UPDATE CASCADE,
+                            ID_Owner            INTEGER REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created        DATE,
                             View_Domain         INTEGER NOT NULL,
                             Rating              INTEGER,

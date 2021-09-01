@@ -138,13 +138,11 @@ def process_response(response, ovrd_ltst_msg=True):
         return None
 
 
-#
-# def bytesIO_to_pil_image(bytesIO_stream) -> PIL.Image:
-#     return PIL.Image.open(bytesIO_stream)
-#
-#
-# def pil_image_to_photoImage(pil_image: PIL.Image) -> PIL.ImageTk:
-#     return PIL.ImageTk.PhotoImage(pil_image)
+def shutdown_server(user_id):
+    Log.info("Sending request to shutdown the server as the user with id '" + str(user_id) + "'.")
+    result = send_get_request("/shutdown", values={"user_id": user_id})
+    Log.debug("The server was shutdown: " + str(result))
+    return result
 
 
 """
@@ -159,7 +157,7 @@ def log_in(user_name, password):
 
     if result is True:
         Log.info("Logged in as the user '" + user_name + "'.")
-        _user_id = send_get_request("/account/get_user_id", {"user_name": user_name})
+        _user_id = get_user_id_of(user_name=user_name, password=password)
         _user_name = user_name
         _password = password
     return result
@@ -198,6 +196,11 @@ def get_user_id():
 """
 
 
+def get_user_id_of(user_name, password):
+    Log.info("Fetching the user id of user '" + user_name + "'.")
+    return send_get_request("/account/get_user_id", {"user_name": user_name, "password": password})
+
+
 def get_all_user_names():
     Log.debug("Getting all user names from the database.")
     result = send_get_request("/fetch/all_user_names", ovrd_ltst_msg=False)
@@ -229,16 +232,16 @@ def create_user(user_name, password):
         return False
 
 
-def delete_user(user_name, password):
-    Log.info("Attempting to delete the user named '" + user_name + "' with password '" + password + "'.")
+def delete_user(user_id):
+    Log.info("Attempting to delete the user with id '" + str(user_id) + "'.")
 
-    result = send_get_request("/account/delete", {"user_name": user_name, "password": password})
+    result = send_get_request("/account/delete", {"user_id": user_id})
 
     if result is True:
-        Log.info("User named '" + user_name + "' with password '" + password + "' was successfully deleted.")
+        Log.info("User with id '" + str(user_id) + "' was successfully deleted.")
         return True
     else:
-        Log.info("User named '" + user_name + "' with password '" + password + "' was not deleted.")
+        Log.info("User with id '" + str(user_id) + "' was not deleted.")
         return False
 
 
@@ -295,6 +298,7 @@ def update_model_entry(model_id, model_values):
 """
     Other Dataset Management
 """
+
 
 def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, is_raw,
                    num_frames, frames_per_second,
@@ -392,29 +396,29 @@ def upload_dataset(name, owner_id, date_created, access_perm_level, personal_rat
 """
 
 
-def fetch_ordered_datasets(sort_by, direction, user_name):
+def fetch_ordered_datasets(sort_by, direction, user_id):
     Log.info("Fetching ordered datasets list using the constraints: "
-             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + str(user_name) + "'.")
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_id='" + str(user_id) + "'.")
 
     result = send_get_request(
         url_extension="/fetch/sorted_datasets",
         values={"sort_by": sort_by,
                 "direction": direction,
-                "user_name": user_name},
+                "user_id": user_id},
         ovrd_ltst_msg=False)
 
     return result
 
 
-def fetch_ordered_models(sort_by, direction, user_name):
+def fetch_ordered_models(sort_by, direction, user_id):
     Log.info("Fetching ordered models list using the constraints: "
-             "sort_by='" + sort_by + "', direction='" + direction + "', user_name='" + user_name + "'.")
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_id='" + user_id + "'.")
 
     result = send_get_request(
         url_extension="/fetch/sorted_models",
         values={"sort_by": sort_by,
                 "direction": direction,
-                "user_name": user_name},
+                "user_id": user_id},
         ovrd_ltst_msg=False)
 
     return result

@@ -40,10 +40,9 @@ def fetch_all_models():
 def fetch_datasets():
     sort_by = flarg("sort_by")
     direction = flarg("direction")
-    user_name = flarg("user_name")
+    user_id = flarg("user_id")
 
     # Fetches the data
-    user_id = DatabaseAccounts.get_user_id(user_name=user_name)
     return package(None, DatabaseDatasets.fetch_ordered_datasets(sort_by=sort_by, direction=direction, user_id=user_id))
 
 
@@ -51,10 +50,9 @@ def fetch_datasets():
 def fetch_models():
     sort_by = flarg("sort_by")
     direction = flarg("direction")
-    user_name = flarg("user_name")
+    user_id = flarg("user_id")
 
     # Fetches the data
-    user_id = DatabaseAccounts.get_user_id(user_name=user_name)
     return package(None, DatabaseModels.fetch_ordered_models(sort_by=sort_by, direction=direction, user_id=user_id))
 
 

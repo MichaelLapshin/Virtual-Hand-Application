@@ -89,15 +89,15 @@ def exists_dataset_by_name(dataset_name):
         return True
 
 
-def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id=None):
+def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id="NULL"):
     Log.info("Fetching a set of datasets for the user id:'" + str(user_id) +
              "'. Executing " + direction + " sorting on the column " + sort_by + ".")
 
     # Fetching the ordered data
     Database.cursor.execute(
         "SELECT " + General.list_to_sql_select_features(Constants.DATABASE_ENTRY_TRANSFER_DATA)
-        + " FROM Datasets WHERE ID_Owner = " + str(user_id) + " or "
-        + "Permission <= " + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
+        + " FROM Datasets WHERE ID_Owner=" + str(user_id) + " or "
+        + "Permission<=" + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
         + " ORDER BY " + sort_by + " " + direction)
     results = Database.cursor.fetchall()
 

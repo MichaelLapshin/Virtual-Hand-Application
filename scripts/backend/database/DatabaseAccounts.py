@@ -28,9 +28,9 @@ def get_all_account():
     return result
 
 
-def get_user_id(user_name):
+def get_user_id(user_name, password):
     Log.debug("Getting the ID of a user named '" + user_name + "'.")
-    Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "'")
+    Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")
 
     fetched_data = Database.cursor.fetchall()
 
@@ -39,27 +39,28 @@ def get_user_id(user_name):
 
     # Obtain the user ID
     id = int(fetched_data[0][0])
-    Log.info("Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "'")
+    Log.info(
+        "Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "' with password '" + password + "'")
     return id
 
 
-def exists_user_by_id(user_id):
-    Log.info("Checking if a user exists with the ID '" + user_id + "'.")
-    Database.cursor.execute("SELECT ID FROM Users WHERE rowid=" + str(user_id))
+def exists_user_by_id(user_id: int):
+    Log.info("Checking if a user exists with the ID '" + str(user_id) + "'.")
+    Database.cursor.execute("SELECT ID FROM Users WHERE ID=" + str(user_id))
 
     # Checks the number of users found with the given user ID
     result = Database.cursor.fetchall()
     num_users = len(result)
-    Log.debug("Found " + str(num_users) + " users with the ID '" + user_id + "'.")
+    Log.debug("Found " + str(num_users) + " users with the ID '" + str(user_id) + "'.")
 
     if num_users == 1:
-        Log.info("Found the user with the ID '" + user_id + "'.")
+        Log.info("Found the user with the ID '" + str(user_id) + "'.")
         return True
     elif num_users == 0:
-        Log.info("Did not find the user with the ID '" + user_id + "'.")
+        Log.info("Did not find the user with the ID '" + str(user_id) + "'.")
         return False
     else:
-        Log.warning("Found multiple occurrences of the user with the ID '" + user_id + "'.")
+        Log.warning("Found multiple occurrences of the user with the ID '" + str(user_id) + "'.")
         Warnings.not_to_reach()
         return True
 
@@ -102,7 +103,7 @@ def check_user(user_name, password):
         return False
     else:
         Log.warning("Multiple users matching the credentials have been found.")
-        Warnings.not_to_reach()
+        Warnings.not_to_reach(popup=False)
         return True
 
 
@@ -118,7 +119,7 @@ def add_user(user_name, password, permission=Constants.PERMISSION_LEVELS.get(Con
     Log.info("Adding a new user to the database with the credentials: Name='" + user_name +
              "', Password='" + password + "', Permission='" + str(permission) + "'")
 
-    assert (permission == 0) or (permission == 1)
+    assert permission in Constants.PERMISSION_LEVELS.values()
     assert exists_user_by_name(user_name) is False
 
     # Creates a user
@@ -135,19 +136,26 @@ def add_user(user_name, password, permission=Constants.PERMISSION_LEVELS.get(Con
         return False
 
 
-def delete_user(user_name, password):
+def delete_user(user_id):
     """
     Deletes the user. Transfers all possessions to the Admin user.
-    :param user_name: the user
-    :param password: the password
+    :param user_id: user with user_id to delete
     """
 
-    Log.debug("Deleting the user '" + user_name + "' from the database. Using the password '" + password + "'.")
+    Log.debug("Deleting the user with id '" + str(user_id) + "' from the database.")
 
-    assert check_user(user_name=user_name, password=password) is True
+    assert exists_user_by_id(user_id=user_id) is True
 
     # Deletes the user
-    Database.cursor.execute("DELETE FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")
+    Database.cursor.execute("DELETE FROM Users WHERE ID=" + str(user_id))
+
+    # Changes Owner ID of all related datasets and models
+    admin_id = get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD)
+    Database.cursor.execute("UPDATE Datasets SET ID_Owner=" + str(admin_id) + " WHERE ID_Owner=" + str(user_id))
+    Database.cursor.execute("UPDATE Models SET ID_Owner=" + str(admin_id) + " WHERE ID_Owner=" + str(user_id))
+
+    # Saves the changes
     Database.connection.commit()
 
-    Log.info("Deleted the user '" + user_name + "'.")
+    Log.info("Deleted the user with id '" + str(user_id) + "'.")
+    return True
