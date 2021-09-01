@@ -16,13 +16,14 @@ class Worker(threading.Thread):
         Thread performing long-lasting tasks
     """
 
-    def __init__(self):
+    def __init__(self, sleep_delay=1):
         threading.Thread.__init__(self)
         self._running = False
         self.daemon = True
         self._queue = []
         self._complete = []
         self._stopped = True
+        self._sleep_delay = sleep_delay
 
     def add_task(self, job):
         self._queue.append(job)
@@ -35,10 +36,10 @@ class Worker(threading.Thread):
                 self._queue[0].perform_task()
                 self._complete.append(self._queue[0])
                 self._queue.pop(0)
-            time.sleep(3)
+            time.sleep(self._sleep_delay)
 
         self._stopped = True
-        Log.info("The update worker has stopped.")
+        Log.info("The worker has stopped.")
 
     def start(self):
         Log.info("Starting the worker thread...")

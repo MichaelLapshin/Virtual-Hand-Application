@@ -6,7 +6,9 @@ from scripts import General, Warnings, Parameters, Constants, Log
 from scripts.frontend import ClientConnection
 from scripts.frontend.custom_widgets import CustomButtons
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
+from scripts.frontend.logic import ImageLoader
 from scripts.frontend.page_components import InformationBlock
+from scripts.logic import Worker
 
 TITLE = "Dataset Graphs"
 NUM_IMAGES = 4
@@ -289,35 +291,57 @@ class Frame(tkinter.Frame, WidgetInterface):
                         if self.stored_image_labels[i][image_indx] is not None:
                             self.stored_image_labels[i][image_indx].grid_remove()
 
-        def load_new_images(self, dataset_id, is_raw):
+        def load_new_images(self, dataset_id, is_raw, update_image_visibility_command):
             # Fetches finger images
             for image_index in range(0, Constants.NUM_FINGERS):
                 row_index = Constants.METRIC.index("Position")
-                photoImage_image = ClientConnection.fetch_dataset_finger_plot(
-                    dataset_id=dataset_id, finger=image_index, metric=row_index)
+                # photoImage_image = ClientConnection.fetch_dataset_finger_plot(
+                #     dataset_id=dataset_id, finger=image_index, metric=row_index)
 
                 # Saves the image
-                self.stored_image_labels[row_index][image_index].orig_image = \
-                    photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+                # self.stored_image_labels[row_index][image_index].orig_image = \
+                #     photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+
+                job = ImageLoader.JobDatasetFingers(
+                    dataset_id=dataset_id,
+                    finger_index=image_index,
+                    metric_index=row_index,
+                    dest_obj=self.stored_image_labels[row_index][image_index],
+                    update_image_visibility_command=update_image_visibility_command)
+                Worker.dataset_image_worker.add_task(job=job)
 
             Log.trace("is_raw is: " + str(is_raw))
             if is_raw == 0:
                 for row_index in range(0, len(Constants.METRIC)):
                     for image_index in range(0, Constants.NUM_FINGERS):
-                        photoImage_image = ClientConnection.fetch_dataset_finger_plot(
-                            dataset_id=dataset_id, finger=image_index, metric=row_index)
+                        # photoImage_image = ClientConnection.fetch_dataset_finger_plot(
+                        #     dataset_id=dataset_id, finger=image_index, metric=row_index)
 
                         # Saves the image
-                        self.stored_image_labels[row_index][image_index].orig_image = \
-                            photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+                        # self.stored_image_labels[row_index][image_index].orig_image = \
+                        #     photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+                        job = ImageLoader.JobDatasetFingers(
+                            dataset_id=dataset_id,
+                            finger_index=image_index,
+                            metric_index=row_index,
+                            dest_obj=self.stored_image_labels[row_index][image_index],
+                            update_image_visibility_command=update_image_visibility_command)
+                        Worker.dataset_image_worker.add_task(job=job)
 
             # Fetches sensor images
             for image_index in range(0, Constants.NUM_SENSORS):
-                photoImage_image = ClientConnection.fetch_dataset_sensor_plot(dataset_id=dataset_id, sensor=image_index)
+                # photoImage_image = ClientConnection.fetch_dataset_sensor_plot(dataset_id=dataset_id, sensor=image_index)
 
                 # Saves the image
-                self.stored_image_labels[3][image_index].orig_image = \
-                    photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+                # self.stored_image_labels[3][image_index].orig_image = \
+                #     photoImage_image.zoom(Constants.IMAGE_SAMPLING_ZOOM)
+
+                job = ImageLoader.JobDatasetSensors(
+                    dataset_id=dataset_id,
+                    sensor_index=image_index,
+                    dest_obj=self.stored_image_labels[3][image_index],
+                    update_image_visibility_command=update_image_visibility_command)
+                Worker.dataset_image_worker.add_task(job=job)
 
     """
         Self methods
