@@ -2,6 +2,9 @@
 *.log
 /logs/
 
+# Ignore Libraries
+/venv/
+
 # Ignore Client App Data
 /AppData-Client/
 /AppData-Client/temp-models/
