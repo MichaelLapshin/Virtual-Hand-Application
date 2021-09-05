@@ -159,6 +159,15 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Updates the info frame
         self.info_frame.update_entries(entries=entries, owner_name=owner_name)
 
+        # Loads in the prediction and error images
+        selected_dataset_id = self.search_frame.get_selected_main_id()
+        self.prediction_preview_block.image_frame.load_new_images(
+            dataset_id=selected_dataset_id,
+            is_raw=self.search_frame.list_storage[selected_index][
+                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")],
+            update_image_visibility_command=self.prediction_preview_block.metric_button_frame.update_image_size_command)
+        self.prediction_preview_block.metric_button_frame.update_image_state()
+
     def create_model_process_button_command(self):
         Warnings.not_complete()  # TODO, finish this
 
@@ -168,6 +177,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         Log.debug("The model deletion result is: " + str(result))
         if result is True:
             self.search_frame.search_button_command()
+            self.prediction_preview_block.image_frame.clear_images()
 
     def set_switch_to_new_frame(self, command):
         self.new_button.config(command=command)

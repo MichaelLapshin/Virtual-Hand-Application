@@ -237,7 +237,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.info_frame.clear_info_frame()
         self.graph_frame.metric_button_frame.enable_all_buttons(False)
         self.set_is_smoothing(False)
-        self.graph_frame.clear_images()
+        self.graph_frame.image_frame.clear_images()
 
     def selected_entry_update_command(self):
         self.set_is_smoothing(False)
@@ -284,7 +284,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         if result is True:
             self.set_is_smoothing(False)
             self.search_frame.search_button_command()
-            self.graph_frame.clear_images()
+            self.graph_frame.image_frame.clear_images()
 
     def set_is_smoothing(self, smooth):
 
