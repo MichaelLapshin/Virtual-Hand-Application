@@ -31,6 +31,11 @@ def get_server_address():
 
 
 def is_server_online(ip_address=None, port=None):
+    if ip_address is None:
+        ip_address = Parameters.SERVER_IP_ADDRESS
+    if port is None:
+        port = Parameters.SERVER_PORT
+
     # Compiles the server address
     server_address: str
     if (ip_address is not None) and (port is not None):
@@ -196,9 +201,14 @@ def get_user_id():
 """
 
 
-def get_user_id_of(user_name, password):
+def get_user_id_of(user_name: str, password: str):
     Log.info("Fetching the user id of user '" + user_name + "'.")
     return send_get_request("/account/get_user_id", {"user_name": user_name, "password": password})
+
+
+def get_user_name_of(user_id: int):
+    Log.info("Fetching the user name of user with id '" + str(user_id) + "'.")
+    return send_get_request("/account/get_user_name", {"user_id": user_id})
 
 
 def get_all_user_names():
@@ -208,7 +218,7 @@ def get_all_user_names():
     return result
 
 
-def check_exists_user(user_name, password):
+def check_exists_user(user_name: str, password: str):
     Log.trace("Checking if the user named '" + user_name + "' exists with the password '" + password + "'.")
     result = send_get_request("/account/check_user", {"user_name": user_name, "password": password},
                               ovrd_ltst_msg=False)
@@ -219,7 +229,7 @@ def check_exists_user(user_name, password):
     return result
 
 
-def create_user(user_name, password):
+def create_user(user_name: str, password: str):
     Log.info("Attempting to create a new user '" + user_name + "' with password '" + password + "'.")
 
     is_created = send_get_request("/account/create", {"user_name": user_name, "password": password})
@@ -232,7 +242,7 @@ def create_user(user_name, password):
         return False
 
 
-def delete_user(user_id):
+def delete_user(user_id: int):
     Log.info("Attempting to delete the user with id '" + str(user_id) + "'.")
 
     result = send_get_request("/account/delete", {"user_id": user_id})
@@ -253,7 +263,7 @@ def delete_user(user_id):
 def update_dataset_entry(dataset_id, dataset_values):
     # Asserts that all send values are a part of the transfer list
     for k in dataset_values.keys():
-        assert k in Constants.DATABASE_ENTRY_TRANSFER_DATA
+        assert k in Constants.DATASET_ENTRY_TRANSFER_DATA
 
     # Replaces the values
     for k in dataset_values.keys():
@@ -300,77 +310,6 @@ def update_model_entry(model_id, model_values):
 """
 
 
-def smooth_dataset(name, owner_id, date_created, access_perm_level, personal_rating, is_raw,
-                   num_frames, frames_per_second,
-                   dataset_id, frames_shift,
-                   sensor_savagol_distance, sensor_savagol_degree,
-                   angle_savagol_distance, angle_savagol_degree):
-    Log.info("Attempting to smooth the dataset with the id '" + str(dataset_id) + "'. With: "
-             + "\n              frames_shift=" + str(frames_shift)
-             + "\n              sensor_savagol_distance=" + str(sensor_savagol_distance)
-             + "\n              sensor_savagol_degree=" + str(sensor_savagol_degree)
-             + "\n              angle_savagol_distance=" + str(angle_savagol_distance)
-             + "\n              angle_savagol_degree=" + str(angle_savagol_degree))
-
-    result = send_get_request("/process/smooth_dataset",
-                              values={"name": name,
-                                      "owner_id": owner_id,
-                                      "date": date_created,
-                                      "permission": access_perm_level,
-                                      "rating": personal_rating,
-                                      "is_raw": is_raw,
-                                      "num_frames": num_frames,
-                                      "FPS": frames_per_second,
-                                      "parent_id": dataset_id,
-                                      "frames_shift": frames_shift,
-                                      "sensor_savagol_distance": sensor_savagol_distance,
-                                      "sensor_savagol_degree": sensor_savagol_degree,
-                                      "angle_savagol_distance": angle_savagol_distance,
-                                      "angle_savagol_degree": angle_savagol_degree})
-    if result is True:
-        Log.info("The smoothing of dataset with id '" + str(dataset_id) + "' has begun.")
-    else:
-        Log.warning("The smoothing of dataset with id '" + str(dataset_id) + "' failed to begin.")
-
-
-def merge_datasets(dataset_ids, dataset_name, dataset_owner_id, dataset_rating, dataset_fps):
-    Log.info("Merging the datasets with ids: " + str(dataset_ids))
-
-    result = send_get_request("/process/merge_datasets",
-                              values={"dataset_ids": API_Helper.url_replacement_mapping(str(dataset_ids)),
-                                      "name": API_Helper.url_replacement_mapping(dataset_name),
-                                      "owner_id": dataset_owner_id,
-                                      "rating": dataset_rating,
-                                      "fps": dataset_fps})
-    if result is True:
-        Log.info("The datasets were successfully merged.")
-        return True
-    else:
-        Log.info("The datasets were not successfully merged.")
-        return False
-
-
-"""
-    Data Deletion Management
-"""
-
-
-def delete_dataset_entry(dataset_id):
-    Log.info("Attempting to delete the dataset with the id '" + str(dataset_id) + "'.")
-    result = send_get_request("/process/delete_dataset", {"id": dataset_id})
-    if result is True:
-        Log.info("The dataset with id '" + str(dataset_id) + "' was successfully deleted.")
-        return True
-    else:
-        Log.warning("The dataset with id '" + str(dataset_id) + "' was not successfully deleted.")
-        return False
-
-
-"""
-    File Transfer Management
-"""
-
-
 def upload_dataset(name, owner_id, date_created, access_perm_level, personal_rating, num_frames, frames_per_second):
     Log.info("Attempting to upload the dataset named '" + name + "'.")
     result = send_post_request(
@@ -391,12 +330,111 @@ def upload_dataset(name, owner_id, date_created, access_perm_level, personal_rat
         return False
 
 
+def smooth_dataset(name: str, owner_id: int, date_created: str, permission: int, rating: int,
+                   is_raw: int, num_frames: int, frames_per_second: int, dataset_id: int,
+                   sensor_savagol_distance: int, sensor_savagol_degree: int,
+                   angle_savagol_distance: int, angle_savagol_degree: int):
+    Log.info("Attempting to smooth the dataset with the id '" + str(dataset_id) + "'. With: "
+             + "\n              sensor_savagol_distance=" + str(sensor_savagol_distance)
+             + "\n              sensor_savagol_degree=" + str(sensor_savagol_degree)
+             + "\n              angle_savagol_distance=" + str(angle_savagol_distance)
+             + "\n              angle_savagol_degree=" + str(angle_savagol_degree))
+
+    result = send_get_request("/process/smooth_dataset",
+                              values={"name": name,
+                                      "owner_id": owner_id,
+                                      "date": date_created,
+                                      "permission": permission,
+                                      "rating": rating,
+                                      "is_raw": is_raw,
+                                      "num_frames": num_frames,
+                                      "FPS": frames_per_second,
+                                      "parent_id": dataset_id,
+                                      "sensor_savagol_distance": sensor_savagol_distance,
+                                      "sensor_savagol_degree": sensor_savagol_degree,
+                                      "angle_savagol_distance": angle_savagol_distance,
+                                      "angle_savagol_degree": angle_savagol_degree})
+    if result is True:
+        Log.info("The smoothing of dataset with id '" + str(dataset_id) + "' has begun.")
+        return True
+    else:
+        Log.warning("The smoothing of dataset with id '" + str(dataset_id) + "' failed to begin.")
+        return False
+
+
+def merge_datasets(dataset_ids, dataset_name, dataset_owner_id, dataset_rating, dataset_num_frames, dataset_fps):
+    Log.info("Merging the datasets with ids: " + str(dataset_ids))
+
+    result = send_get_request("/process/merge_datasets",
+                              values={"dataset_ids": API_Helper.url_replacement_mapping(str(dataset_ids)),
+                                      "name": API_Helper.url_replacement_mapping(dataset_name),
+                                      "owner_id": dataset_owner_id,
+                                      "rating": dataset_rating,
+                                      "num_frames": dataset_num_frames,
+                                      "fps": dataset_fps})
+    if result is True:
+        Log.info("The datasets were successfully merged.")
+        return True
+    else:
+        Log.info("The datasets were not successfully merged.")
+        return False
+
+
+"""
+    Other Model Management
+"""
+
+
+def create_model_training_process(name: str, owner_id: int, date_created: str,
+                                  permission: int, rating: int, dataset_id: int, frames_shift: int,
+                                  num_training_frames: int, learning_rate: float, batch_size: int, num_epochs: int,
+                                  layer_type: str, num_layers: int, num_nodes_per_layer: int):
+    result = send_get_request("/process/create_model_training_process",
+                              values={"name": name, "owner_id": owner_id, "date_created": date_created,
+                                      "permission": permission, "rating": rating,
+                                      "dataset_id": dataset_id, "frames_shift": frames_shift,
+                                      "num_training_frames": num_training_frames, "learning_rate": learning_rate,
+                                      "batch_size": batch_size, "num_epochs": num_epochs, "layer_type": layer_type,
+                                      "num_layers": num_layers, "num_nodes_per_layer": num_nodes_per_layer})
+
+    if result is True:
+        Log.info("The model training process of the dataset with id '" + str(dataset_id) + "' has begun.")
+        return True
+    else:
+        Log.warning("The model training process of the dataset with id '" + str(dataset_id) + "' failed to begin.")
+        return False
+
+
+"""
+    Data Deletion Management
+"""
+
+
+def general_delete_entry(id, type_text):
+    Log.info("Attempting to delete the " + type_text + " with the id '" + str(id) + "'.")
+    result = send_get_request("/process/delete_" + type_text, {"id": id})
+    if result is True:
+        Log.info("The " + type_text + " with id '" + str(id) + "' was successfully deleted.")
+        return True
+    else:
+        Log.warning("The " + type_text + " with id '" + str(id) + "' was not successfully deleted.")
+        return False
+
+
+def delete_dataset_entry(dataset_id):
+    return general_delete_entry(id=dataset_id, type_text="dataset")
+
+
+def delete_model_entry(model_id):
+    return general_delete_entry(id=model_id, type_text="model")
+
+
 """
     Data Fetching Management
 """
 
 
-def fetch_ordered_datasets(sort_by, direction, user_id):
+def fetch_ordered_datasets(sort_by: str, direction: str, user_id: int):
     Log.info("Fetching ordered datasets list using the constraints: "
              "sort_by='" + sort_by + "', direction='" + direction + "', user_id='" + str(user_id) + "'.")
 
@@ -410,9 +448,9 @@ def fetch_ordered_datasets(sort_by, direction, user_id):
     return result
 
 
-def fetch_ordered_models(sort_by, direction, user_id):
+def fetch_ordered_models(sort_by: str, direction: str, user_id: int):
     Log.info("Fetching ordered models list using the constraints: "
-             "sort_by='" + sort_by + "', direction='" + direction + "', user_id='" + user_id + "'.")
+             "sort_by='" + sort_by + "', direction='" + direction + "', user_id='" + str(user_id) + "'.")
 
     result = send_get_request(
         url_extension="/fetch/sorted_models",

@@ -308,7 +308,7 @@ class Frame(tkinter.Frame, WidgetInterface):
                     metric_index=row_index,
                     dest_obj=self.stored_image_labels[row_index][image_index],
                     update_image_visibility_command=update_image_visibility_command)
-                Worker.dataset_image_worker.add_task(job=job)
+                Worker.worker.add_task(job=job)
 
             Log.trace("is_raw is: " + str(is_raw))
             if is_raw == 0:
@@ -326,7 +326,7 @@ class Frame(tkinter.Frame, WidgetInterface):
                             metric_index=row_index,
                             dest_obj=self.stored_image_labels[row_index][image_index],
                             update_image_visibility_command=update_image_visibility_command)
-                        Worker.dataset_image_worker.add_task(job=job)
+                        Worker.worker.add_task(job=job)
 
             # Fetches sensor images
             for image_index in range(0, Constants.NUM_SENSORS):
@@ -341,7 +341,7 @@ class Frame(tkinter.Frame, WidgetInterface):
                     sensor_index=image_index,
                     dest_obj=self.stored_image_labels[3][image_index],
                     update_image_visibility_command=update_image_visibility_command)
-                Worker.dataset_image_worker.add_task(job=job)
+                Worker.worker.add_task(job=job)
 
     """
         Self methods

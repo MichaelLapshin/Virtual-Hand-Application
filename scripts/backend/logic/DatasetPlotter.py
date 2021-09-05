@@ -2,9 +2,9 @@ import pathlib
 
 import PIL
 
-from scripts import Warnings, Parameters, Constants, Log
+from scripts import Parameters, Constants, Log
 from scripts.backend.database import DatabasePlots
-from scripts.backend.logic import Job
+from scripts.logic import Job
 
 import h5py
 import matplotlib.pyplot as plt
@@ -20,29 +20,32 @@ class JobDatasetPlotter(Job.Job):
         Log.info("A new dataset plotting task has been created for dataset with id '" + str(self.dataset_id) + "'")
 
     def save_sensor_image(self, sensor_num):
-        plot_path = Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH + Constants.TEMP_SAVE_IMAGE_NAME
-        plt.savefig(plot_path, bbox_inches='tight')
-        plt.clf()
+        # Create a database entry
+        image_id = DatabasePlots.create_dataset_sensor_image_entry(dataset_id=self.dataset_id, sensor_num=sensor_num)
 
-        # Stores the file inside the database
-        file = PIL.Image.open(pathlib.Path(plot_path))
-        DatabasePlots.create_dataset_sensor_image_entry(dataset_id=self.dataset_id, sensor_num=sensor_num, file=file)
+        # Stores the file locally
+        plt.grid(True)
+        plt.savefig(pathlib.Path(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH
+                                 + str(image_id) + Constants.IMAGE_EXT, bbox_inches='tight'))
+        plt.clf()
 
     def save_finger_image(self, finger_num, metric):
-        plot_path = Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_FINGERS_PATH + Constants.TEMP_SAVE_IMAGE_NAME
-        plt.savefig(plot_path, bbox_inches='tight')
+        # Stores the file inside the database
+        image_id = DatabasePlots.create_dataset_finger_image_entry(dataset_id=self.dataset_id,
+                                                                   finger_num=finger_num, metric=metric)
+
+        # Saves the file locally
+        plt.grid(True)
+        plt.savefig(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_FINGERS_PATH
+                    + str(image_id) + Constants.IMAGE_EXT, bbox_inches='tight')
         plt.clf()
 
-        # Stores the file inside the database
-        file = PIL.Image.open(pathlib.Path(plot_path))
-        DatabasePlots.create_dataset_finger_image_entry(
-            dataset_id=self.dataset_id, finger_num=finger_num, metric=metric, file=file)
-
     def perform_task(self):
-
+        Log.info("The plotting of dataset with id '" + str(self.dataset_id) + "' has begun.")
         self.set_progress(0, "Starting to plot the dataset with id '" + str(self.dataset_id) + "'")
 
-        reader = h5py.File(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(self.dataset_id) + ".ds", 'r')
+        reader = h5py.File(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH
+                           + str(self.dataset_id) + Constants.DATASET_EXT, 'r')
 
         # Plots the data below
         sensors_count = len(list(reader.get("sensor")))
@@ -102,4 +105,5 @@ class JobDatasetPlotter(Job.Job):
                 self.add_progress(1, "Plotting the accelerations: " + str(finger) + "/" + str(fingers_count))
 
         reader.close()
-        self.set_progress(total_image, "The dataset plotting is complete.")
+        self.complete_progress("The dataset plotting is complete.")
+        Log.info("The plotting of dataset with id '" + str(self.dataset_id) + "' is complete.")

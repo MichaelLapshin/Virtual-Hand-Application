@@ -68,6 +68,12 @@ def get_user_id():
     return package(None, DatabaseAccounts.get_user_id(user_name=user_name, password=password))
 
 
+@account_api.route('/get_user_name')
+def get_user_name():
+    user_id = int(flarg("user_id"))
+    return package(None, DatabaseAccounts.get_user_name(user_id=user_id))
+
+
 @account_api.route('/log_in')  # TODO, Done
 def log_in():
     user_name = flarg('user')

@@ -9,49 +9,41 @@ from scripts.backend.database import Database
     All functions return the id of the dataset that was just created
 """
 
+"""
+    Datasets
+"""
 
-def create_dataset_sensor_image_entry(dataset_id, sensor_num, file=None):
-    Log.info("Inserting a dataset sensor image entry: " + str((dataset_id, sensor_num)))
+
+def create_dataset_sensor_image_entry(dataset_id, sensor_num):
+    info_data = (dataset_id, sensor_num)
+    Log.info("Inserting a dataset sensor image entry: " + str(info_data))
 
     # Create new dataset
-    Database.cursor.execute("INSERT INTO DatasetSensorPlots VALUES (NULL, ?, ?)", (dataset_id, sensor_num))
+    Database.cursor.execute("INSERT INTO DatasetSensorPlots VALUES (NULL, ?, ?)", info_data)
     Database.connection.commit()
 
     # Obtains the ID of the new dataset
     # TODO, Warning: can cause problem with multiple users since lastrowid returns id for the cursor (cursor is shared)
     image_id = Database.cursor.lastrowid
-    Log.debug("Create a dataset sensor image entry with the id '" + str(image_id) + "'")
+    Log.debug("Created a dataset sensor image entry with the id '" + str(image_id) + "'")
 
-    # Saves the file locally
-    if file is not None:
-        file.save(pathlib.Path(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH
-                               + str(image_id) + Constants.IMAGE_EXT))
-        file.close()
-    else:
-        Log.warning("A dataset sensor image entry with id '" + str(image_id) + "' is being saved without a file.")
-    return True
+    return image_id
 
 
-def create_dataset_finger_image_entry(dataset_id, finger_num, metric, file=None):
-    Log.info("Inserting a dataset finger image entry: " + str((dataset_id, finger_num, metric)))
+def create_dataset_finger_image_entry(dataset_id, finger_num, metric):
+    info_data = (dataset_id, finger_num, metric)
+    Log.info("Inserting a dataset finger image entry: " + str(info_data))
 
     # Create new dataset
-    Database.cursor.execute("INSERT INTO DatasetFingerPlots VALUES (NULL, ?, ?, ?)", (dataset_id, finger_num, metric))
+    Database.cursor.execute("INSERT INTO DatasetFingerPlots VALUES (NULL, ?, ?, ?)", info_data)
     Database.connection.commit()
 
     # Obtains the ID of the new dataset
     # TODO, Warning: can cause problem with multiple users since lastrowid returns id for the cursor (cursor is shared)
     image_id = Database.cursor.lastrowid
-    Log.debug("Create a dataset finger image entry with the id '" + str(image_id) + "'")
+    Log.debug("Created a dataset finger image entry with the id '" + str(image_id) + "'")
 
-    # Saves the file locally
-    if file is not None:
-        file.save(pathlib.Path(Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_FINGERS_PATH
-                               + str(image_id) + Constants.IMAGE_EXT))
-        file.close()
-    else:
-        Log.warning("A dataset finger image entry with id '" + str(image_id) + "' is being saved without a file.")
-    return True
+    return image_id
 
 
 # Get finger images
@@ -107,3 +99,40 @@ def get_sensor_image_id(dataset_id, sensor_num):
 def get_sensor_image_file_path(dataset_id, sensor_num):
     return Parameters.PROJECT_PATH + Constants.SERVER_IMAGES_DATASETS_SENSORS_PATH \
            + str(get_sensor_image_id(dataset_id=dataset_id, sensor_num=sensor_num)) + Constants.IMAGE_EXT
+
+
+"""
+    Models
+"""
+
+
+def create_model_error_image_entry(model_id, finger_index, limb_index):
+    info_data = (model_id, finger_index, limb_index)
+    Log.info("Inserting a model error image entry: " + str((model_id, finger_index, limb_index)))
+
+    # Create new dataset
+    Database.cursor.execute("INSERT INTO ModelErrorPlots VALUES (NULL, ?, ?, ?)", info_data)
+    Database.connection.commit()
+
+    # Obtains the ID of the new dataset
+    # TODO, Warning: can cause problem with multiple users since lastrowid returns id for the cursor (cursor is shared)
+    image_id = Database.cursor.lastrowid
+    Log.debug("Created a model error image entry with the id '" + str(image_id) + "'")
+
+    return image_id
+
+
+def create_model_prediction_image_entry(model_id, finger_index, limb_index):
+    info_data = (model_id, finger_index, limb_index)
+    Log.info("Inserting a model prediction image entry: " + str((model_id, finger_index, limb_index)))
+
+    # Create new dataset
+    Database.cursor.execute("INSERT INTO ModelPredictionPlots VALUES (NULL, ?, ?, ?)", info_data)
+    Database.connection.commit()
+
+    # Obtains the ID of the new dataset
+    # TODO, Warning: can cause problem with multiple users since lastrowid returns id for the cursor (cursor is shared)
+    image_id = Database.cursor.lastrowid
+    Log.debug("Created a model prediction image entry with the id '" + str(image_id) + "'")
+
+    return image_id

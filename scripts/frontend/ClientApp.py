@@ -93,8 +93,8 @@ class UpdateThread(threading.Thread):
 
 
 # Starting worker threads
-Worker.dataset_image_worker = Worker.Worker(sleep_delay=0.1)
-Worker.dataset_image_worker.start()
+Worker.worker = Worker.Worker(sleep_delay=0.1)
+Worker.worker.start()
 updater = UpdateThread(navig_bar=navig_bar)
 updater.start()
 
@@ -103,6 +103,6 @@ root.mainloop()
 
 # Ending worker threads
 updater.stop()
-Worker.dataset_image_worker.stop()
+Worker.worker.stop()
 
 print("The client application has ended.")

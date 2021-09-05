@@ -1,26 +1,17 @@
 import h5py
 
-from scripts import Warnings, Log, Parameters, Constants, General
+from scripts import Log, Parameters, Constants, General
 from scripts.backend.database import DatabaseDatasets
-from scripts.backend.logic import Job
+from scripts.logic import Job
 from scripts.frontend.logic import DatasetRecorder
 
 
 class JobMerge(Job.Job):
-    def __init__(self, dataset_ids, dataset_name, dataset_owner_id, dataset_rating, dataset_fps, info=None):
+    def __init__(self, dataset_id, dataset_ids, info=None):
         Job.Job.__init__(self, title="Merging Datasets: " + str(dataset_ids), info=info)
+        self.dataset_id = dataset_id
         self.dataset_ids = dataset_ids
         self.set_max_progress(len(self.dataset_ids) + 3)
-
-        # New dataset parameters
-        self.dataset_name = dataset_name
-        self.dataset_owner_id = dataset_owner_id
-        self.dataset_date = General.get_current_slashed_date()
-        self.dataset_permission = Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC)
-        self.dataset_rating = dataset_rating
-
-        # New dataset smoothing parameters
-        self.dataset_fps = dataset_fps
 
     def perform_task(self):
 
@@ -71,7 +62,8 @@ class JobMerge(Job.Job):
         self.set_progress(len(self.dataset_ids) + 1, "Saving the temporary dataset file.")
 
         # Saves the training data
-        file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME
+        file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH \
+                    + str(self.dataset_id) + Constants.DATASET_EXT
         hf = h5py.File(file_name, 'w')
         if DatasetRecorder.Recorder.RECORD_TIME is True:
             hf.create_dataset("time", data=time_list)
@@ -81,15 +73,6 @@ class JobMerge(Job.Job):
 
         self.set_progress(len(self.dataset_ids) + 2, "Saving the merged dataset into the database.")
 
-        # Saves the data on the database
-        result = DatabaseDatasets.create_new_dataset(
-            name=self.dataset_name, owner_id=self.dataset_owner_id, date=self.dataset_date,
-            permission=self.dataset_permission, rating=self.dataset_rating,
-            num_frames=dataset_num_frames, fps=self.dataset_fps, file=file_name)
+        self.complete_progress("The new merged dataset was saved into the database.")
 
-        self.set_progress(len(self.dataset_ids) + 3, "The new merged dataset was saved into the database.")
-
-        if result is True:
-            Log.info("The merged dataset was saved on the database.")
-        else:
-            Log.warning("The merged dataset was not saved on the database.")
+        Log.info("The merged dataset was successfully saved locally.")

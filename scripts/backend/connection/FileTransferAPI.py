@@ -8,6 +8,8 @@ import base64
 from API_Helper import flarg, flreq, package
 from scripts import Warnings, Log, Constants, Parameters
 from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts, DatabasePlots
+from scripts.backend.logic import DatasetPlotter
+from scripts.logic import Worker
 
 file_transfer_api = flask.Blueprint('file_transfer_api', __name__)
 
@@ -35,19 +37,23 @@ def upload_dataset():
                   + "num_frames='" + str(dataset_num_frames) + "', "
                   + "FPS='" + str(dataset_fps) + "'")
 
-        # # Saves the dataset if it satisfied the constraints
-        # if DatabaseDatasets.exists_dataset_by_name(dataset_name) is True:
-        #     return package(False, "A dataset with the name '" + dataset_name + "' already exists.")
-        # else:
-
         # Get dataset file
         file = flreq(Constants.UPLOAD_KEY_WORD)
         Log.debug("Obtained the dataset file '" + dataset_name + "'.")
 
         # Save the file and create a dataset entry
-        DatabaseDatasets.create_new_dataset(name=dataset_name, owner_id=dataset_owner_id,
-                                            date=dataset_date, permission=dataset_permission, rating=dataset_rating,
-                                            num_frames=dataset_num_frames, fps=dataset_fps, file=file)
+        dataset_id = DatabaseDatasets.create_new_dataset(
+            name=dataset_name, owner_id=dataset_owner_id,
+            date_created=dataset_date, permission=dataset_permission, rating=dataset_rating,
+            num_frames=dataset_num_frames, fps=dataset_fps)
+
+        # Saves the dataset
+        file.save(Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + Constants.DATASET_EXT)
+
+        # Creates image creation job
+        job = DatasetPlotter.JobDatasetPlotter(
+            title="Plotting Raw Dataset with id '" + str(dataset_id) + "'", dataset_id=dataset_id, plot_vel_acc=False)
+        Worker.worker.add_task(job=job)
 
         Log.info("Successfully stored the new dataset '" + dataset_name + "'.")
         return package(True, "Successfully stored the new dataset '" + dataset_name + "'.")

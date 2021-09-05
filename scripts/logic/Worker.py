@@ -5,10 +5,7 @@ import time
 
 from scripts import Log, General
 
-dataset_worker = None
-dataset_image_worker = None
-model_worker = None
-model_image_worker = None
+worker = None
 
 
 class Worker(threading.Thread):
@@ -16,7 +13,7 @@ class Worker(threading.Thread):
         Thread performing long-lasting tasks
     """
 
-    def __init__(self, sleep_delay=1):
+    def __init__(self, sleep_delay=1, thread_jobs=False):
         threading.Thread.__init__(self)
         self._running = False
         self.daemon = True
@@ -26,8 +23,10 @@ class Worker(threading.Thread):
         self._end_time = []
         self._stopped = True
         self._sleep_delay = sleep_delay
+        self._thread_jobs = thread_jobs
 
     def add_task(self, job):
+        Log.info("Added the job '" + job.get_title() + "'")
         self._queue.append(job)
 
     def run(self):
@@ -36,7 +35,9 @@ class Worker(threading.Thread):
             while len(self._queue) > 0:
                 # TODO, change 'while' to 'if' once you get the worker tasks to be stored within the database
                 self._start_time.append(General.get_current_slashed_date())
+                Log.info("Starting to process the job '" + self._queue[0].get_title() + "'")
                 self._queue[0].perform_task()
+                Log.info("Completed the job '" + self._queue[0].get_title() + "'")
                 self._end_time.append(General.get_current_slashed_date())
 
                 # Transfers the task to the queue complete

@@ -1,7 +1,7 @@
 import time
 
 from scripts import Log, Constants
-from scripts.backend.logic import Job
+from scripts.logic import Job
 from scripts.frontend import ClientConnection
 
 
@@ -88,4 +88,6 @@ class JobDatasetSensors(Job.Job):
         self.set_progress(3, "Saving the image into the destination object.")
         self.update_image_visibility_command()
 
-        self.set_progress(4, "The image loading is complete.")
+        self.complete_progress("The image loading is complete.")
+
+# class JobModel  # TODO, create this class for generating model images

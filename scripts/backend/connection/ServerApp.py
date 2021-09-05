@@ -34,7 +34,6 @@ HOST = "127.0.0.1"
 PORT = 5000
 start_server = Database.connect("server_database.db")
 Database.create_all_new_tables(replace=False)
-workers = []
 
 # Create the Admin user (if does not already exist)
 exists_admin = DatabaseAccounts.exists_user_by_name(user_name=Constants.ADMIN_USER_NAME) \
@@ -95,15 +94,13 @@ def stop_processes():
     #     while console_reader.is_stopped() is False:
     #         time.sleep(1)
 
-    # Stops the workers
-    for w in workers:
-        if w is not None:
-            w.stop()
+    # Stops the worker
+    if Worker.worker is not None:
+        Worker.worker.stop()
 
     # Waits until the workers are done their tasks
-    for w in workers:
-        while w.is_stopped() is False:
-            time.sleep(1)
+    while Worker.worker.is_stopped() is False:
+        time.sleep(1)
 
     # Disconnects the database
     Database.disconnect()
@@ -125,21 +122,9 @@ if start_server:
     # console_reader = ConsoleReader(stop_processes)
     # console_reader.start()
 
-    # Creates workers
-    Worker.dataset_worker = Worker.Worker()
-    Worker.dataset_image_worker = Worker.Worker()
-    Worker.model_worker = Worker.Worker()
-    Worker.model_image_worker = Worker.Worker()
-
-    # Appends all workers to a list
-    workers.append(Worker.dataset_worker)
-    workers.append(Worker.dataset_image_worker)
-    workers.append(Worker.model_worker)
-    workers.append(Worker.model_image_worker)
-
-    # Starts the worker threads
-    for w in workers:
-        w.start()
+    # Creates & starts the worker thread
+    Worker.worker = Worker.Worker()
+    Worker.worker.start()
 
     if __name__ == "__main__":
         server_app.run(host=HOST, port=PORT, threaded=True)

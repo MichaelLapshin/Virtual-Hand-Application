@@ -6,6 +6,7 @@ from scripts import Log
 NOT_COMPLETE_MESSAGE = "This part of the program is not yet complete."
 NOT_WORKING_MESSAGE = "This part of the program is not working."
 NOT_TO_REACH_MESSAGE = "The code has entered a part of the code that should never be reached."
+NOT_OVERRIDDEN_MESSAGE = "This part of the program should be overridden."
 
 """
     Warning messages to use
@@ -40,3 +41,7 @@ def not_working(popup=True):
 # Not to reach warnings
 def not_to_reach(popup=True):
     return generic_warning(NOT_TO_REACH_MESSAGE, inspect.getouterframes(inspect.currentframe(), 2), popup)
+
+# Not to reach warnings
+def not_overridden(popup=True):
+    return generic_warning(NOT_OVERRIDDEN_MESSAGE, inspect.getouterframes(inspect.currentframe(), 2), popup)
