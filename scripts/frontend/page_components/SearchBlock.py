@@ -138,7 +138,7 @@ class DatasetSearchFrame(Frame):
         super().update_content()
 
     def search_button_command(self):
-        if ClientConnection.is_logged_in() is True:
+        if ClientConnection.is_server_online() is True:
             sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
 
             # Obtains the information

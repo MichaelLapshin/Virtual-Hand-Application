@@ -270,8 +270,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.image_frame.load_new_images(
             dataset_id=selected_dataset_id,
             is_raw=self.search_frame.list_storage[selected_index][
-                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")],
-            update_image_visibility_command=self.graph_frame.metric_button_frame.update_image_size_command)
+                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")])
         self.graph_frame.metric_button_frame.update_image_state()
 
     def smooth_dataset_button_command(self):

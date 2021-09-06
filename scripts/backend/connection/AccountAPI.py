@@ -7,7 +7,7 @@ from scripts.backend.database import Database, DatabaseAccounts
 account_api = flask.Blueprint('account_api', __name__)
 
 
-@account_api.route('/create')  # TODO, Done
+@account_api.route('/create')
 def create_user():
     user_name = flarg('user_name')
     password = flarg('password')
@@ -25,7 +25,7 @@ def create_user():
         return package(False, "Could not create the new user named '" + user_name + "'. The user already exists.")
 
 
-@account_api.route('/delete')  # TODO, Done
+@account_api.route('/delete')
 def delete_user():
     user_id = int(flarg('user_id'))
     Log.info("Deleting the user with id '" + str(user_id) + "'.")
@@ -44,7 +44,7 @@ def delete_user():
         return package(False, "Could not delete the user. Cannot delete the Administrator user.")
 
 
-@account_api.route('/check_user')  # TODO, Done
+@account_api.route('/check_user')
 def logged_in():
     user_name = flarg("user_name")
     password = flarg("password")
@@ -74,7 +74,7 @@ def get_user_name():
     return package(None, DatabaseAccounts.get_user_name(user_id=user_id))
 
 
-@account_api.route('/log_in')  # TODO, Done
+@account_api.route('/log_in')
 def log_in():
     user_name = flarg('user')
     password = flarg('password')
@@ -99,7 +99,7 @@ def log_in():
             return package(False, "Could not log-in as the user '" + user_name + "'. Incorrect password.")
 
 
-@account_api.route("/log_out")  # TODO, Done
+@account_api.route("/log_out")
 def log_out():
     if flask.session["is_logged_in"] is True:
         flask.session["is_logged_in"] = False

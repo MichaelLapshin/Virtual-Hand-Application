@@ -71,8 +71,9 @@ def get_dataset_finger_image():
 
     # Loads the image and sends the encoded version of it
     try:
-        image = open(DatabasePlots.get_finger_image_file_path(dataset_id=dataset_id,
-                                                              finger_num=image_finger, metric_num=image_metric), "rb")
+        image = open(DatabasePlots.get_dataset_finger_image_file_path(dataset_id=dataset_id,
+                                                                      finger_num=image_finger, metric_num=image_metric),
+                     "rb")
         return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")
@@ -86,6 +87,36 @@ def get_dataset_sensor_image():
     # Loads the image and sends the encoded version of it
     try:
         image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
+        return package(None, base64.b64encode(image.read()))
+    except:
+        return package(None, "")
+
+
+@file_transfer_api.route("/get_model_prediction_image")
+def get_model_prediction_image():
+    model_id = flarg("model_id")
+    finger = flarg("finger")
+    limb = flarg("limb")
+
+    # Loads the image and sends the encoded version of it
+    try:
+        image = open(DatabasePlots.get_model_prediction_image_file_path(model_id=model_id,
+                                                                        finger_num=finger, limb_num=limb), "rb")
+        return package(None, base64.b64encode(image.read()))
+    except:
+        return package(None, "")
+
+
+@file_transfer_api.route("/get_model_error_image")
+def get_model_error_image():
+    model_id = flarg("model_id")
+    finger = flarg("finger")
+    limb = flarg("limb")
+
+    # Loads the image and sends the encoded version of it
+    try:
+        image = open(DatabasePlots.get_model_error_image_file_path(model_id=model_id,
+                                                                   finger_num=finger, limb_num=limb), "rb")
         return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")

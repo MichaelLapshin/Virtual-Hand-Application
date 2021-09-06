@@ -1,10 +1,11 @@
 """
     Connection Handler used to interact with the server
 """
-# import io
+import base64
+import io
 import tkinter
 
-# import PIL.Image, PIL.ImageTk
+import PIL.ImageTk, PIL.Image
 import requests
 
 from scripts import Warnings, Parameters, InputConstraints, Log, Constants, General
@@ -467,7 +468,7 @@ def fetch_ordered_models(sort_by: str, direction: str, user_id: int):
 """
 
 
-def fetch_dataset_finger_plot(dataset_id, finger, metric):
+def fetch_dataset_finger_plot(dataset_id: int, finger: int, metric: int):
     Log.info("Fetching finger images for the dataset with id '" + str(dataset_id) + "'")
 
     result = send_get_request(
@@ -476,10 +477,10 @@ def fetch_dataset_finger_plot(dataset_id, finger, metric):
                 "finger": finger,
                 "metric": metric})
 
-    return tkinter.PhotoImage(data=result)
+    return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
 
-def fetch_dataset_sensor_plot(dataset_id, sensor):
+def fetch_dataset_sensor_plot(dataset_id: int, sensor: int):
     Log.info("Fetching sensor images for the dataset with id '" + str(dataset_id) + "'")
 
     result = send_get_request(
@@ -487,4 +488,30 @@ def fetch_dataset_sensor_plot(dataset_id, sensor):
         values={"dataset_id": dataset_id,
                 "sensor": sensor})
 
-    return tkinter.PhotoImage(data=result)
+    return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
+
+
+def fetch_model_prediction_plot(model_id: int, finger: int, limb: int):
+    Log.info("Fetching prediction images for the model with id '" + str(model_id) + "'."
+             + " finger=" + str(finger) + " limb=" + str(limb))
+
+    result = send_get_request(
+        url_extension="/transfer/get_model_prediction_image",
+        values={"model_id": model_id,
+                "finger": finger,
+                "limb": limb})
+
+    return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
+
+
+def fetch_model_error_plot(model_id: int, finger: int, limb: int):
+    Log.info("Fetching error images for the model with id '" + str(model_id) + "'."
+             + " finger=" + str(finger) + " limb=" + str(limb))
+
+    result = send_get_request(
+        url_extension="/transfer/get_model_error_image",
+        values={"model_id": model_id,
+                "finger": finger,
+                "limb": limb})
+
+    return PIL.Image.open(io.BytesIO(base64.b64decode(result)))

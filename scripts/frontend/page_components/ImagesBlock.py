@@ -1,6 +1,8 @@
 import math
 import tkinter
 
+import PIL.ImageTk
+
 from scripts import Constants, Parameters, General, Log, Warnings
 from scripts.frontend.custom_widgets.WidgetInterface import WidgetInterface
 
@@ -68,8 +70,7 @@ class ImagesFrame(tkinter.Frame, WidgetInterface):
             for row in self.stored_image_labels:
                 for label in row:
                     if label.winfo_ismapped() and label.orig_image is not None:
-                        image_sample_width = label.orig_image.width()
-                        image_sample_height = label.orig_image.height()
+                        image_sample_width, image_sample_height = label.orig_image.size
                         break
 
             if image_sample_width is not None and image_sample_height is not None:
@@ -84,27 +85,12 @@ class ImagesFrame(tkinter.Frame, WidgetInterface):
                                                space_width=self.winfo_width() / float(Constants.NUM_FINGERS),
                                                space_height=self.winfo_height() / float(shown_rows))
 
-                # More complex scaling calculations to combat the 1/scale issues
-                subsampling_scale: int
-                if scale < 1:
-                    subsampling_scale = \
-                        math.ceil(image_sample_width / (float(self.winfo_width()) / float(Constants.NUM_FINGERS)))
-                    if image_sample_height * shown_rows / subsampling_scale > self.winfo_height():
-                        subsampling_scale = \
-                            math.ceil(image_sample_height / (float(self.winfo_height()) / float(shown_rows)))
-
                 # Resizes all images
                 for row in self.stored_image_labels:
                     for label in row:
-                        if label.winfo_ismapped():
-                            # Scales the original image
-                            if label.orig_image is not None:
-                                if scale >= 1:
-                                    label.image = label.orig_image.zoom(int(scale))
-                                else:
-                                    label.image = label.orig_image.subsample(subsampling_scale)
-
-                            # Applies the image to the label
+                        if label.winfo_ismapped() is not None and label.orig_image is not None:
+                            label.image = PIL.ImageTk.PhotoImage(label.orig_image.resize(
+                                (int(label.orig_image.size[0] * scale), int(label.orig_image.size[1] * scale))))
                             label.config(image=label.image)
 
     def change_image_layout(self, enabled_rows):

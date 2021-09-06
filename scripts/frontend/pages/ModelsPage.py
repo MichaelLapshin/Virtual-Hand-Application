@@ -68,6 +68,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Weights
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=3)
+        self.rowconfigure(2, weight=1)
 
         # Search space
         self.search_frame = SearchBlock.ModelSearchFrame(self, column=0, row=0, rowspan=2,
@@ -161,12 +162,8 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Loads in the prediction and error images
         selected_dataset_id = self.search_frame.get_selected_main_id()
-        self.prediction_preview_block.image_frame.load_new_images(
-            dataset_id=selected_dataset_id,
-            is_raw=self.search_frame.list_storage[selected_index][
-                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")],
-            update_image_visibility_command=self.prediction_preview_block.metric_button_frame.update_image_size_command)
-        self.prediction_preview_block.metric_button_frame.update_image_state()
+        self.prediction_preview_block.image_frame.load_new_images(model_id=selected_dataset_id)
+        self.prediction_preview_block.button_frame.update_image_state()
 
     def create_model_process_button_command(self):
         Warnings.not_complete()  # TODO, finish this

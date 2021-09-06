@@ -90,6 +90,7 @@ class Frame(GenericPage.NavigationFrame):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=3)
+        self.rowconfigure(1, weight=1)
 
         # Search space
         # self.queue_search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
