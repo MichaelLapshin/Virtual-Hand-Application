@@ -14,6 +14,7 @@ import flask
 # Import REST API scripts
 
 from API_Helper import package, flarg
+from WorkerAPI import worker_api
 from AccountAPI import account_api
 from FileTransferAPI import file_transfer_api
 from DataProcessingAPI import data_processing_api
@@ -112,6 +113,7 @@ if start_server:
     Log.info("Starting the server...")
     server_app = flask.Flask(__name__)
     server_app.config['SECRET_KEY'] = os.urandom(16)  # Random secret key
+    server_app.register_blueprint(worker_api, url_prefix="/worker")
     server_app.register_blueprint(account_api, url_prefix="/account")
     server_app.register_blueprint(file_transfer_api, url_prefix="/transfer")
     server_app.register_blueprint(data_processing_api, url_prefix="/process")

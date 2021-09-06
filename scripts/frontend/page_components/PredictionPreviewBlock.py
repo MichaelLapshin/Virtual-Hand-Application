@@ -68,6 +68,16 @@ class Frame(tkinter.Frame, WidgetInterface):
                                              sticky=sticky)
 
         def load_new_images(self, model_id):
+            # Deletes all model image loading jobs
+            to_remove_ids = []
+            for q in Worker.worker.get_queue():
+                if (q.get_info() is not None) and (type(q.get_info()) == dict) \
+                        and (q.get_info().get("model_image") == True):
+                    to_remove_ids.append(q.get_id())
+
+            for id in to_remove_ids:
+                Worker.worker.remove_queue_job(id)
+
             # Fetches the prediction plots
             for row_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
                 for image_index in range(0, self.image_columns):

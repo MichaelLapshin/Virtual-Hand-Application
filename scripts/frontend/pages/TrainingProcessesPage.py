@@ -1,86 +1,18 @@
 import tkinter
 
 from scripts import General, Warnings, Parameters, Constants
-from scripts.frontend import Navigation
+from scripts.frontend import Navigation, ClientConnection
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
-from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock
+from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock, \
+    DataInfoBlock, ProgressBar
 from scripts.frontend.pages import GenericPage
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
 
 
 class Frame(GenericPage.NavigationFrame):
-    class InfoFrame(GenericPage.Frame):
-
-        def __init__(self, root, column, row, columnspan=1, rowspan=1):
-            GenericPage.Frame.__init__(self,
-                                       root,
-                                       column=column, row=row,
-                                       columnspan=columnspan, rowspan=rowspan)
-            self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure weights
-            self.columnconfigure(0, weight=1)
-            self.rowconfigure(0, weight=1)
-            self.rowconfigure(1, weight=0)
-
-            # Information frame
-            self.info_block = InformationBlock.Frame(self, title=TITLE_MODEL_INFORMATION,
-                                                     num_columns=2, num_rows=2)
-            self.info_block.config()
-            self.info_block.grid(column=0, row=0)
-            self.info_block.grid(columnspan=1, rowspan=1)
-
-            # Buttons Frame
-            self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=1,
-                                                  columnspan=1, rowspan=1)
-            self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure button frame weights
-            self.button_frame.columnconfigure(0, weight=1)
-            self.button_frame.columnconfigure(1, weight=1)
-            self.button_frame.columnconfigure(2, weight=3)
-            self.button_frame.columnconfigure(3, weight=3)
-            self.button_frame.columnconfigure(4, weight=1)
-
-            # Create buttons
-            self.favourite_button = \
-                InformationButton(self.button_frame, column=0, row=0, text="Favourite", command=Warnings.not_complete)
-            self.duplicate_button = \
-                InformationButton(self.button_frame, column=1, row=0, text="Duplicate", command=Warnings.not_complete)
-            self.process_button = \
-                InformationButton(self.button_frame, column=2, row=0, text="Process:", command=Warnings.not_complete)
-            self.game_engine_button = \
-                InformationButton(self.button_frame, column=3, row=0, text="Connection:", command=Warnings.not_complete)
-            self.delete_button = \
-                InformationButton(self.button_frame, column=4, row=0, text="Delete", command=Warnings.not_complete)
-
-            """
-                Additional information
-            """
-            # Fill in data for the information block
-            # self.info_block.add_info(0, 0, User.get_name())
-            self.info_block.add_info(1, 0, "hello world!")
-            self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
-
-        def update_colour(self):
-            super().update_colour()
-            self.button_frame.update_colour()
-            self.favourite_button.update_colour()
-            self.duplicate_button.update_colour()
-            self.process_button.update_colour()
-            self.game_engine_button.update_colour()
-            self.delete_button.update_colour()
-
-            self.info_block.set_frame_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.update_colour()
-
-            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
-            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
@@ -93,14 +25,29 @@ class Frame(GenericPage.NavigationFrame):
         self.rowconfigure(1, weight=1)
 
         # Search space
-        # self.queue_search_frame = Frame.QueueSearchFrame(self, column=0, row=0)
-        # self.complete_search_frame = Frame.CompleteSearchFrame(self, column=1, row=0)
+        self.queue_search_frame = SearchBlock.ModelTrainingSearchFrame(
+            self, column=0, row=0, queue_fetch_function=ClientConnection.get_model_training_queue,
+            title="Queue", multi_select=False,
+            select_change_command= self.queue_selected_entry_update_command)
 
-        self.queue_search_frame = SearchBlock.ModelSearchFrame(self, column=0, row=0, title="Queue")
-        self.complete_search_frame = SearchBlock.ModelSearchFrame(self, column=1, row=0, title="Complete")
+        self.complete_search_frame = SearchBlock.ModelTrainingSearchFrame(
+            self, column=1, row=0, queue_fetch_function=ClientConnection.get_model_complete_queue,
+            title="Complete", multi_select=False,
+            select_change_command= self.complete_selected_entry_update_command)
+        self.clear_button = SearchButton(
+            self.complete_search_frame.button_frame, column=0, row=0, text="Clear", command=self.clear_complete_list)
 
         # Info frame
-        self.info_frame = Frame.InfoFrame(self, column=2, row=0)
+        self.info_frame = DataInfoBlock.ModelInfo(
+            self, column=2, row=0, title="Model Information",
+            general_options_data={"Name": False, "ID_Owner": False, "Date_Created": False,
+                                  "Permission": False, "Rating": False, "ID_Dataset": False, "Frames_Shift": False},
+            right_options_data={"Num_Training_Frames": False, "Learning_Rate": False,
+                                "Batch_Size": False, "Num_Epochs": False,
+                                "Layer_Types": False, "Num_Layers": False, "Num_Nodes_Per_Layer": False},
+            right_column_title="Training Information")
+
+        self.progress_bar = ProgressBar.Frame(self.info_frame, column=0, row=3, columnspan=2, metric_text=" Epochs")
 
         # Prediction Preview frame
         self.prediction_preview_block = PredictionPreviewBlock.Frame(self, column=0, row=1, columnspan=3)
@@ -109,6 +56,7 @@ class Frame(GenericPage.NavigationFrame):
         super().update_colour()
         self.queue_search_frame.update_colour()
         self.complete_search_frame.update_colour()
+        self.clear_button.update_colour()
         self.info_frame.update_colour()
         self.prediction_preview_block.update_colour()
 
@@ -116,6 +64,40 @@ class Frame(GenericPage.NavigationFrame):
         super().update_content()
         self.queue_search_frame.update_content()
         self.complete_search_frame.update_content()
+        self.clear_button.update_content()
+        self.info_frame.update_content()
+        self.prediction_preview_block.update_content()
 
     def destroy(self):
         super().destroy()
+
+    def selected_entry_update_command(self, search_frame):
+        # Obtains the data
+        selected_index = search_frame.scroll_block.get_selected_main()
+        data_at_index = search_frame.get_index_data(selected_index)
+
+        # Prepares the entries
+        entries = {}
+        for i in range(0, len(Constants.MODEL_ENTRY_TRANSFER_DATA)):
+            entries[Constants.MODEL_ENTRY_TRANSFER_DATA[i]] = data_at_index[i]
+        owner_name = ClientConnection.get_user_name_of(entries.get("ID_Owner"))
+
+        # Updates the info frame
+        self.info_frame.update_entries(entries=entries, owner_name=owner_name)
+
+        # Loads in the prediction and error images
+        selected_model_id = search_frame.get_selected_main_id()
+        self.prediction_preview_block.image_frame.load_new_images(model_id=selected_model_id)
+        self.prediction_preview_block.button_frame.update_image_state()
+
+    def clear_complete_list(self):
+        ClientConnection.clear_worker_complete_queue()
+        self.complete_search_frame.search_button_command()
+
+    def queue_selected_entry_update_command(self):
+        self.selected_entry_update_command(search_frame=self.queue_search_frame)
+        self.complete_search_frame.scroll_block.unselect_main()
+
+    def complete_selected_entry_update_command(self):
+        self.selected_entry_update_command(search_frame=self.complete_search_frame)
+        self.queue_search_frame.scroll_block.unselect_main()

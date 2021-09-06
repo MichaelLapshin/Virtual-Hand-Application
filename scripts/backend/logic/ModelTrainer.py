@@ -37,7 +37,7 @@ class JobModelTrain(Job.Job):
                  dataset_id: int, frames_shift: int, num_training_frames: int,
                  learning_rate: float, batch_size: int, num_epochs: int,
                  layer_type: str, num_layers: int, num_nodes_per_layer: int, info=None):
-        Job.Job.__init__(self, title="Training a Model using the Dataset: " + str(dataset_id), info=info)
+        Job.Job.__init__(self, title="Training a Model using the Dataset: " + str(dataset_id),info=info)
 
         self.model_id = model_id
         self.finger_index = finger_index

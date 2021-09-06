@@ -161,8 +161,8 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.info_frame.update_entries(entries=entries, owner_name=owner_name)
 
         # Loads in the prediction and error images
-        selected_dataset_id = self.search_frame.get_selected_main_id()
-        self.prediction_preview_block.image_frame.load_new_images(model_id=selected_dataset_id)
+        selected_model_id = self.search_frame.get_selected_main_id()
+        self.prediction_preview_block.image_frame.load_new_images(model_id=selected_model_id)
         self.prediction_preview_block.button_frame.update_image_state()
 
     def create_model_process_button_command(self):

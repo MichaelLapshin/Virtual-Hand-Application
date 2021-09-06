@@ -284,4 +284,48 @@ class ModelSearchFrame(Frame):
         return self.list_storage[index][Constants.MODEL_ENTRY_TRANSFER_DATA.index(entry)]
 
 
+class ModelTrainingSearchFrame(ModelSearchFrame):
+    def __init__(self, root, column, row, queue_fetch_function, columnspan=1, rowspan=1, title=None, multi_select=False,
+                 sort_columnspan=2, select_change_command=None):
+        ModelSearchFrame.__init__(self, root, column=column, row=row, columnspan=columnspan, rowspan=rowspan,
+                                  title=title, multi_select=multi_select, sort_columnspan=sort_columnspan,
+                                  select_change_command=select_change_command)
+        self._queue_fetch_function = queue_fetch_function
+        self._queue_list = []
 
+    def search_button_command(self):
+        if ClientConnection.is_server_online() is True:
+            sort_by = Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
+
+            # Obtains the information
+            user_id = ClientConnection.get_user_id()
+            if user_id is None:
+                user_id = "NULL"
+            self.list_storage = ClientConnection.fetch_ordered_models(
+                sort_by=Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
+                direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
+                user_id=user_id)
+
+            # Remove all none-queue models
+            self._queue_list = self._queue_fetch_function()
+            model_queue_ids = [q[1] for q in self._queue_list]
+            temp_list_storage = []
+            for item in self.list_storage:
+                if item[Constants.MODEL_ENTRY_TRANSFER_DATA.index("ID")] in model_queue_ids:
+                    temp_list_storage.append(item)
+            self.list_storage = temp_list_storage
+
+            # Replaces the list
+            replace_list = []
+            replace_list_sorted = []
+            if self.list_storage is not None:
+                for item in self.list_storage:
+                    replace_list.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index("Name")]))
+                    replace_list_sorted.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index(sort_by)]))
+
+            self.scroll_block.replace_list(replace_list, replace_list_sorted)
+        else:
+            tkinter.messagebox.showwarning("Warning!", "The registered server is currently unavailable.")
+
+    def get_queue_list(self):
+        return self._queue_list

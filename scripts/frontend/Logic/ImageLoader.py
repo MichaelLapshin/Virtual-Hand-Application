@@ -6,9 +6,10 @@ from scripts.frontend import ClientConnection
 
 
 class JobDatasetFingers(Job.Job):
-    def __init__(self, dataset_id, finger_index, metric_index, dest_obj, update_image_visibility_command, info=None):
+    def __init__(self, dataset_id, finger_index, metric_index, dest_obj, update_image_visibility_command):
         Job.Job.__init__(self, title="Loading the dataset '" + str(dataset_id) + "' finger image with 'finger_index="
-                                     + str(finger_index) + "' and 'metric_index=" + str(metric_index) + "'", info=info)
+                                     + str(finger_index) + "' and 'metric_index=" + str(metric_index) + "'",
+                         info={"dataset_image": True})
         # Parameters for retrieving the image
         self.dataset_id = dataset_id
         self.finger_index = finger_index
@@ -34,7 +35,7 @@ class JobDatasetFingers(Job.Job):
             image = ClientConnection.fetch_dataset_finger_plot(
                 dataset_id=self.dataset_id, finger=self.finger_index, metric=self.metric_index)
 
-            if image.size[0] == 0 and image.size[1] == 0:
+            if image is None or (image.size[0] == 0 and image.size[1] == 0):
                 image = None
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 attempts -= 1
@@ -51,9 +52,9 @@ class JobDatasetFingers(Job.Job):
 
 
 class JobDatasetSensors(Job.Job):
-    def __init__(self, dataset_id, sensor_index, dest_obj, update_image_visibility_command, info=None):
+    def __init__(self, dataset_id, sensor_index, dest_obj, update_image_visibility_command):
         Job.Job.__init__(self, title="Loading the dataset '" + str(dataset_id) + "' sensor image with 'sensor_index="
-                                     + str(sensor_index) + "'", info=info)
+                                     + str(sensor_index) + "'", info={"dataset_image": True})
         # Parameters for retrieving the image
         self.dataset_id = dataset_id
         self.sensor_index = sensor_index
@@ -77,7 +78,7 @@ class JobDatasetSensors(Job.Job):
         while image is None and attempts > 0:
             image = ClientConnection.fetch_dataset_sensor_plot(dataset_id=self.dataset_id, sensor=self.sensor_index)
 
-            if image.size[0] == 0 and image.size[1] == 0:
+            if image is None or (image.size[0] == 0 and image.size[1] == 0):
                 image = None
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 attempts -= 1
@@ -94,9 +95,10 @@ class JobDatasetSensors(Job.Job):
 
 
 class JobModelPredictions(Job.Job):
-    def __init__(self, model_id, finger_index, limb_index, dest_obj, update_image_visibility_command, info=None):
+    def __init__(self, model_id, finger_index, limb_index, dest_obj, update_image_visibility_command):
         Job.Job.__init__(self, title="Loading the prediction image of model '" + str(model_id) + "' with 'finger_index="
-                                     + str(finger_index) + "' and 'limb_index=" + str(limb_index) + "'", info=info)
+                                     + str(finger_index) + "' and 'limb_index=" + str(limb_index) + "'",
+                         info={"model_image": True})
         # Parameters for retrieving the image
         self.model_id = model_id
         self.finger_index = finger_index
@@ -122,7 +124,7 @@ class JobModelPredictions(Job.Job):
             image = ClientConnection.fetch_model_prediction_plot(
                 model_id=self.model_id, finger=self.finger_index, limb=self.limb_index)
 
-            if image.size[0] == 0 and image.size[1] == 0:
+            if image is None or (image.size[0] == 0 and image.size[1] == 0):
                 image = None
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 attempts -= 1
@@ -139,9 +141,10 @@ class JobModelPredictions(Job.Job):
 
 
 class JobModelErrors(Job.Job):
-    def __init__(self, model_id, finger_index, limb_index, dest_obj, update_image_visibility_command, info=None):
+    def __init__(self, model_id, finger_index, limb_index, dest_obj, update_image_visibility_command):
         Job.Job.__init__(self, title="Loading the error image of model '" + str(model_id) + "' with 'finger_index="
-                                     + str(finger_index) + "' and 'limb_index=" + str(limb_index) + "'", info=info)
+                                     + str(finger_index) + "' and 'limb_index=" + str(limb_index) + "'",
+                         info={"model_image": True})
         # Parameters for retrieving the image
         self.model_id = model_id
         self.finger_index = finger_index
@@ -167,7 +170,7 @@ class JobModelErrors(Job.Job):
             image = ClientConnection.fetch_model_error_plot(
                 model_id=self.model_id, finger=self.finger_index, limb=self.limb_index)
 
-            if image.size[0] == 0 and image.size[1] == 0:
+            if image is None or (image.size[0] == 0 and image.size[1] == 0):
                 image = None
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 attempts -= 1

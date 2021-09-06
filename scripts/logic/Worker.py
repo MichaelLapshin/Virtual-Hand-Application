@@ -34,13 +34,14 @@ class Worker(threading.Thread):
         while self._running is True:
             while len(self._queue) > 0:
                 # TODO, change 'while' to 'if' once you get the worker tasks to be stored within the database
-                self._start_time.append(General.get_current_slashed_date())
+                # Performs the task
                 Log.info("Starting to process the job '" + self._queue[0].get_title() + "'")
+                self._start_time.append(General.get_current_slashed_date())
                 self._queue[0].perform_task()
-                Log.info("Completed the job '" + self._queue[0].get_title() + "'")
-                self._end_time.append(General.get_current_slashed_date())
 
                 # Transfers the task to the queue complete
+                Log.info("Completed the job '" + self._queue[0].get_title() + "'")
+                self._end_time.append(General.get_current_slashed_date())
                 self._complete.append(self._queue[0])
                 self._queue.pop(0)
             time.sleep(self._sleep_delay)
@@ -62,6 +63,12 @@ class Worker(threading.Thread):
             self._start_time.pop(0)
             self._end_time.pop(0)
             self._complete.pop(0)
+
+    def remove_queue_job(self, id: int):
+        for q in self._queue:
+            if id == q.get_id() and (len(self._queue) > 0 and self._queue[0].get_id() != id):
+                self._queue.remove(q)
+                break
 
     """
         Getters

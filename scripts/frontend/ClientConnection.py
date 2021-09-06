@@ -193,7 +193,7 @@ def get_user_name():
 
 def get_user_id():
     global _user_id
-    Log.trace("Fetched the user id '" + str(_user_id) + "'.")
+    # Log.trace("Fetched the user id '" + str(_user_id) + "'.")
     return _user_id
 
 
@@ -477,6 +477,8 @@ def fetch_dataset_finger_plot(dataset_id: int, finger: int, metric: int):
                 "finger": finger,
                 "metric": metric})
 
+    if result is "":
+        return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
 
@@ -488,6 +490,8 @@ def fetch_dataset_sensor_plot(dataset_id: int, sensor: int):
         values={"dataset_id": dataset_id,
                 "sensor": sensor})
 
+    if result is "":
+        return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
 
@@ -501,6 +505,8 @@ def fetch_model_prediction_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
+    if result is "":
+        return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
 
@@ -514,4 +520,35 @@ def fetch_model_error_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
+    if result is "":
+        return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
+
+
+"""
+    Worker Queue Management
+"""
+
+
+def get_model_training_queue():
+    Log.debug("Retrieving the model training queue.")
+    return send_get_request("/worker/get_model_training_queue")
+
+
+def get_model_complete_queue():
+    Log.debug("Retrieving the model complete queue.")
+    return send_get_request("/worker/get_model_complete_queue")
+
+
+def get_worker_progress_message(id: int):
+    Log.debug("Retrieving the progress message of task with id '" + str(id) + "'")
+    return send_get_request("/worker/get_model_progress_message")
+
+
+def clear_worker_complete_queue():
+    Log.debug("Clearing the worker complete queue.")
+    result = send_get_request("/worker/clear_complete_queue")
+    if result is True:
+        Log.info("The worker complete queue was cleared.")
+    else:
+        Log.warning("The worker complete queue was not cleared.")

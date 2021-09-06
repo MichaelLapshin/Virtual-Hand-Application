@@ -9,7 +9,8 @@ class Frame(tkinter.Frame, WidgetInterface):
     _progress = "Progress: "
     _percentage = "%"
 
-    def __init__(self, root, column, row, metric_text, max_count, is_default_percentage=False, columnspan=1, rowspan=1):
+    def __init__(self, root, column, row, metric_text, max_count=-1, is_default_percentage=False, columnspan=1,
+                 rowspan=1):
         tkinter.Frame.__init__(self, root)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)

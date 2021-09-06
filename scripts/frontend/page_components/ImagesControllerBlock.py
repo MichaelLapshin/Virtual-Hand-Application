@@ -33,6 +33,7 @@ class ButtonsFrame(tkinter.Frame, WidgetInterface):
         else:
             for i in range(0, len(self.buttons)):
                 self.buttons[i].grid(column=button_grid_offset + i, row=0)
+                self.buttons[i].grid(sticky=tkinter.EW)
                 self.columnconfigure(button_grid_offset + i, weight=1)
 
         # Toggle states

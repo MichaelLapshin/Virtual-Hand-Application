@@ -152,14 +152,15 @@ def create_model():
                                               title="Training model with id '" + str(model_id)
                                                     + "' using the dataset with id '" + str(dataset_id) + "'",
                                               progress_message="Model training in progress...",
-                                              complete_message="Model training is complete.")
+                                              complete_message="Model training is complete.",
+                                              info={"is_model": True, "model_id": model_id})
     Worker.worker.add_task(job=multi_training_job)
 
     # Creates error plotting job
     # error_plot_job = # Note: error plot is created within the training of the model
 
     # Creates prediction plotting job
-    prediction_plot_jobs = []
+    # prediction_plot_jobs = []
     for finger_index in range(0, Constants.NUM_FINGERS):
         for limb_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
             training_jobs_index = finger_index * 3 + limb_index

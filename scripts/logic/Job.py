@@ -3,6 +3,14 @@ import time
 
 from scripts import Warnings, Log
 
+job_id = 0
+
+
+def get_job_id():
+    global job_id
+    job_id += 1
+    return job_id
+
 
 class Job:
     """
@@ -11,6 +19,7 @@ class Job:
 
     def __init__(self, title, info=None):
         Log.debug("Created Job task with title '" + title + "'.")
+        self._id = get_job_id()
         self._title = title
         self._progress_count = 0
         self._progress_max = 0
@@ -51,6 +60,9 @@ class Job:
         Getters
     """
 
+    def get_id(self):
+        return self._id
+
     def get_title(self):
         return self._title
 
@@ -59,6 +71,9 @@ class Job:
 
     def get_max_progress(self):
         return self._progress_max
+
+    def get_progress_message(self):
+        return self._progress_message
 
     def get_info(self):
         return self._info
