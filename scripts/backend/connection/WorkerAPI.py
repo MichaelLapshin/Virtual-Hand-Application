@@ -61,7 +61,7 @@ def fetch_job_progress():
             message = q.get_progress_message()
             break
 
-    if len(message) == 0:
+    if found_job is False:
         for q in Worker.worker.get_complete():
             if q.get_id() == id:
                 found_job = True
@@ -70,7 +70,7 @@ def fetch_job_progress():
                 message = q.get_progress_message()
                 break
 
-    return package(None, (found_job,progress, max_progress, message))
+    return package(None, (found_job, progress, max_progress, message))
 
 
 @worker_api.route("/clear_complete_queue")

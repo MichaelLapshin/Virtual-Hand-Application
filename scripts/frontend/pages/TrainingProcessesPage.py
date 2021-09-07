@@ -100,6 +100,8 @@ class Frame(GenericPage.NavigationFrame):
         ClientConnection.clear_worker_complete_queue()
         self.complete_search_frame.search_button_command()
         self.prediction_preview_block.image_frame.clear_images()
+        self.info_frame.clear_info_frame()
+        self.progress_bar.clear()
 
     def queue_selected_entry_update_command(self):
         # Updates progress bar

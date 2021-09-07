@@ -26,8 +26,10 @@ class JobUpdateProgressBar(Job.Job):
         Job.Job.__init__(self, title="Update progress bar task.", info={"progress_bar": True})
         self._job_id = job_id
         self._progress_bar_obj = progress_bar_obj
+        self.set_max_progress(1)
 
     def perform_task(self):
+        self.set_progress(0, "Starting to update the progress bar.")
         found_job, progress, max_progress, message = ClientConnection.get_worker_job_message(self._job_id)
 
         if found_job is True:
@@ -44,3 +46,5 @@ class JobUpdateProgressBar(Job.Job):
                 time.sleep(Constants.UPDATE_PROGRESS_BAR_FREQ)
                 Worker.worker.add_task(
                     job=JobUpdateProgressBar(job_id=self._job_id, progress_bar_obj=self._progress_bar_obj))
+
+        self.complete_progress("The progress bar update is complete.")

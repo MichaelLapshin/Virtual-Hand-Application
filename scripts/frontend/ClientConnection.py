@@ -477,7 +477,7 @@ def fetch_dataset_finger_plot(dataset_id: int, finger: int, metric: int):
                 "finger": finger,
                 "metric": metric})
 
-    if result == "":
+    if result is None or result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -490,7 +490,7 @@ def fetch_dataset_sensor_plot(dataset_id: int, sensor: int):
         values={"dataset_id": dataset_id,
                 "sensor": sensor})
 
-    if result == "":
+    if result is None or result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -505,7 +505,7 @@ def fetch_model_prediction_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
-    if result == "":
+    if result is None or result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -520,7 +520,7 @@ def fetch_model_error_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
-    if result == "":
+    if result is None or result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 

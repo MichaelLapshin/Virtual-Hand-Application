@@ -97,3 +97,8 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def set_progress_colour(self, colour):
         self.progress_colour = colour
+
+    def clear(self):
+        self.reset()
+        self.set_max_count(-1)
+        self.set_metric_text("")
