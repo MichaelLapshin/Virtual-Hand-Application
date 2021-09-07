@@ -58,7 +58,9 @@ def get_dataset_finger_image_id(dataset_id: int, finger_num: int, metric_num: in
 
     Log.trace("Found the ids: " + str(ids))
 
-    if len(ids) != 1:
+    if len(ids) == 0:
+        return None
+    elif len(ids) > 1:
         Log.error(
             "Using the inputs: " + str((dataset_id, finger_num, metric_num)) + ", found " + str(len(ids)) + " ids.")
         Warnings.not_to_reach(popup=False)
@@ -86,7 +88,9 @@ def get_sensor_image_id(dataset_id: int, sensor_num: int):
 
     Log.trace("Found the ids: " + str(ids))
 
-    if len(ids) != 1:
+    if len(ids) == 0:
+        return None
+    elif len(ids) > 1:
         Log.error(
             "Using the inputs: " + str((dataset_id, sensor_num)) + ", found " + str(len(ids)) + " ids.")
         Warnings.not_to_reach(popup=False)
@@ -150,7 +154,9 @@ def get_model_prediction_image_id(model_id: int, finger_num: int, limb_num: int)
 
     Log.trace("Found the ids: " + str(ids))
 
-    if len(ids) != 1:
+    if len(ids) == 0:
+        return None
+    elif len(ids) > 1:
         Log.error(
             "Using the inputs: " + str((model_id, finger_num, limb_num)) + ", found " + str(len(ids)) + " ids.")
         Warnings.not_to_reach(popup=False)
@@ -178,7 +184,9 @@ def get_model_error_image_id(model_id: int, finger_num: int, limb_num: int):
 
     Log.trace("Found the ids: " + str(ids))
 
-    if len(ids) != 1:
+    if len(ids) == 0:
+        return None
+    elif len(ids) > 1:
         Log.error(
             "Using the inputs: " + str((model_id, finger_num, limb_num)) + ", found " + str(len(ids)) + " ids.")
         Warnings.not_to_reach(popup=False)

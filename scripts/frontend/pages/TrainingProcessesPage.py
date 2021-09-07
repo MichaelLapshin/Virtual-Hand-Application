@@ -28,12 +28,12 @@ class Frame(GenericPage.NavigationFrame):
         self.queue_search_frame = SearchBlock.ModelTrainingSearchFrame(
             self, column=0, row=0, queue_fetch_function=ClientConnection.get_model_training_queue,
             title="Queue", multi_select=False,
-            select_change_command= self.queue_selected_entry_update_command)
+            select_change_command=self.queue_selected_entry_update_command)
 
         self.complete_search_frame = SearchBlock.ModelTrainingSearchFrame(
             self, column=1, row=0, queue_fetch_function=ClientConnection.get_model_complete_queue,
             title="Complete", multi_select=False,
-            select_change_command= self.complete_selected_entry_update_command)
+            select_change_command=self.complete_selected_entry_update_command)
         self.clear_button = SearchButton(
             self.complete_search_frame.button_frame, column=0, row=0, text="Clear", command=self.clear_complete_list)
 
@@ -93,6 +93,7 @@ class Frame(GenericPage.NavigationFrame):
     def clear_complete_list(self):
         ClientConnection.clear_worker_complete_queue()
         self.complete_search_frame.search_button_command()
+        self.prediction_preview_block.image_frame.clear_images()
 
     def queue_selected_entry_update_command(self):
         self.selected_entry_update_command(search_frame=self.queue_search_frame)

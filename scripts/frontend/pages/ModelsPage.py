@@ -285,29 +285,36 @@ class NewFrame(GenericPage.NavigationFrame):
 
     def start_model_training_button_command(self):
 
-        is_dataset_selected = self.search_frame.scroll_block.is_selected_main()
+        if ClientConnection.is_logged_in() is True:
 
-        if is_dataset_selected is True:
+            is_dataset_selected = self.search_frame.scroll_block.is_selected_main()
 
-            is_raw = self.search_frame.list_storage[self.search_frame.scroll_block.get_selected_main()][
-                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")]
+            if is_dataset_selected is True:
 
-            if is_raw == 0:
-                result = self.new_model_info_frame.create_model()
+                is_raw = self.search_frame.list_storage[self.search_frame.scroll_block.get_selected_main()][
+                    Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")]
 
-                if result is True:
-                    Log.info("The model training process has been added to the queue.")
-                    tkinter.messagebox.showinfo("Success!", "Added the model training to the queue.")
+                if is_raw == 0:
+                    result = self.new_model_info_frame.create_model()
+
+                    if result is True:
+                        Log.info("The model training process has been added to the queue.")
+                        tkinter.messagebox.showinfo("Success!", "Added the model training to the queue.")
+                    else:
+                        Log.warning("Could not add the model training process to the queue.")
+                        tkinter.messagebox.showwarning("Failed!",
+                                                       "Could not add the model training process to the queue.")
                 else:
-                    Log.warning("Could not add the model training process to the queue.")
-                    tkinter.messagebox.showwarning("Failed!", "Could not add the model training process to the queue.")
+                    Log.trace("Could not start create model process. A raw dataset was selected.")
+                    tkinter.messagebox.showwarning("Warning!",
+                                                   "Could not add the model training process to the queue.\n"
+                                                   "A non-raw dataset must be selected.")
             else:
-                Log.trace("Could not start create model process. A raw dataset was selected.")
-                tkinter.messagebox.showwarning("Warning!", "Could not add the model training process to the queue.\n"
-                                                           "A non-raw dataset must be selected.")
+                Log.trace("Could not add the model training process to the queue. No dataset is selected.")
+                tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
         else:
-            Log.trace("Could not add the model training process to the queue. No dataset is selected.")
-            tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+            Log.trace("Could not add the model training process to the queue. The user is not logged in.")
+            tkinter.messagebox.showwarning("Warning!", "The user is not logged in.")
 
     def set_switch_to_view_frame(self, command):
         self.view_models_button.config(command=command)

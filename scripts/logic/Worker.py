@@ -67,6 +67,7 @@ class Worker(threading.Thread):
     def remove_queue_job(self, id: int):
         for q in self._queue:
             if id == q.get_id() and (len(self._queue) > 0 and self._queue[0].get_id() != id):
+                Log.info("Removed the job with id '" + str(id) + "', titled '" + q.get_title() + "'")
                 self._queue.remove(q)
                 break
 

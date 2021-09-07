@@ -151,5 +151,5 @@ LIMB_TYPE = ("Proximal", "Middle", "Distal")
 METRIC = ("Position", "Velocity", "Acceleration")
 IMAGE_EXT = ".png"
 IMAGE_SAMPLING_ZOOM = 5
-IMAGE_REQUEST_FREQ_S = 0.5
-IMAGE_ATTEMPT_MAX_TIMES = 5
+IMAGE_REQUEST_FREQ_S = 0.2
+IMAGE_ATTEMPT_MAX_TIMES = 10

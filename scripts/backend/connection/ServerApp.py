@@ -162,19 +162,24 @@ class ShutDown(threading.Thread):
 @server_app.route('/shutdown')
 def shutdown():
     Log.debug("Received request to shutdown the server...")
-    user_id = int(flarg("user_id"))
+    str_user_id = flarg("user_id")
 
-    if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD):
-        Log.info("Shutting down the server...")
+    if str_user_id is not None:
+        user_id = int(str_user_id)
 
-        stop_processes()
+        if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD):
+            Log.info("Shutting down the server...")
 
-        # Shutting down the flask server
-        ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
+            stop_processes()
 
-        return package(True, "Shutting down the server...")
+            # Shutting down the flask server
+            ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
+
+            return package(True, "Shutting down the server...")
+        else:
+            return package(False, "Could not shutdown the server. The current user is not the Administrator.")
     else:
-        return package(False, "Could not shutdown the server. The current user is not the Administrator.")
+        return package(False, "Could not shutdown the server. The command is not coming from an Administrator user.")
 
 
 @server_app.route('/is_online')
