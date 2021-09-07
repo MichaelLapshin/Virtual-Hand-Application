@@ -176,7 +176,7 @@ def shutdown():
             # Shutting down the flask server
             ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
 
-            return package(True, "The server is shutdown.")
+            return package(True, "The server is shut down.")
         else:
             return package(False, "Could not shutdown the server. The current user is not the Administrator.")
     else:

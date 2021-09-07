@@ -101,12 +101,11 @@ class ViewFrame(GenericPage.NavigationFrame):
             self.button_frame.columnconfigure(i, weight=1)
 
         # Create info frame buttons
-        self.training_progress_bar = ProgressBar.Frame(self.button_frame, column=0, row=0,
-                                                       metric_text=" Training Epochs", max_count=1,
-                                                       is_default_percentage=False)
-        self.create_model_process_button = InformationButton(self.button_frame, column=1, row=0,
+        self.create_model_process_button = InformationButton(self.button_frame, column=0, row=0,
                                                              text="Create Model Process",
                                                              command=self.create_model_process_button_command)
+        self.update_button = InformationButton(self.button_frame, column=1, row=0, text="Update",
+                                               command=self.update_button_command)
         self.delete_button = InformationButton(self.button_frame, column=2, row=0, text="Delete",
                                                command=self.delete_button_command)
 
@@ -121,8 +120,8 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Button frame
         self.button_frame.update_colour()
-        self.training_progress_bar.update_colour()
         self.create_model_process_button.update_colour()
+        self.update_button.update_colour()
         self.delete_button.update_colour()
 
         # Prediction block
@@ -136,8 +135,8 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Button frame
         self.button_frame.update_content()
-        self.training_progress_bar.update_content()
         self.create_model_process_button.update_content()
+        self.update_button.update_content()
         self.delete_button.update_content()
 
         # Prediction block
@@ -166,7 +165,16 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.prediction_preview_block.button_frame.update_image_state()
 
     def create_model_process_button_command(self):
-        Warnings.not_complete()  # TODO, finish this
+        if self.search_frame.scroll_block.is_selected_main() is True:
+            Warnings.not_complete()  # TODO, finish this
+        else:
+            tkinter.messagebox.showwarning("Warning!", "No model is selected.")
+
+    def update_button_command(self):
+        result = self.info_frame.save_item(is_selected=self.search_frame.scroll_block.is_selected_main(),
+                                           item_id=self.search_frame.get_selected_main_id())
+        if result is True:
+            self.search_frame.search_button_command()
 
     def delete_button_command(self):
         result = self.info_frame.delete_item(self.search_frame.scroll_block.is_selected_main(),

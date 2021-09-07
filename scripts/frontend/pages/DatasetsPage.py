@@ -208,15 +208,10 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.update_content()
 
     def update_button_command(self):
-        is_dataset_selected = self.search_frame.scroll_block.is_selected_main()
-
-        if is_dataset_selected is True:
-            result = self.info_frame.save_item(is_selected=is_dataset_selected,
-                                               item_id=self.search_frame.get_selected_main_id())
-            if result is True:
-                self.search_frame.search_button_command()
-        else:
-            tkinter.messagebox.showwarning("Warning!", "No dataset is selected.")
+        result = self.info_frame.save_item(is_selected=self.search_frame.scroll_block.is_selected_main(),
+                                           item_id=self.search_frame.get_selected_main_id())
+        if result is True:
+            self.search_frame.search_button_command()
 
     def delete_button_command(self):
         result = self.info_frame.delete_item(self.search_frame.scroll_block.is_selected_main(),

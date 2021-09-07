@@ -297,11 +297,11 @@ def update_model_entry(model_id, model_values):
     result = send_get_request("/update/model_entry", values={"id": model_id, "new_values": model_values})
 
     if result is True:
-        Log.info("The model with the id '" + model_id +
+        Log.info("The model with the id '" + str(model_id) +
                  "' was successfully updated with the values: " + str(model_values))
         return True
     else:
-        Log.info("The model with the id '" + model_id +
+        Log.info("The model with the id '" + str(model_id) +
                  "' failed to be updated with the values: " + str(model_values))
         return False
 
