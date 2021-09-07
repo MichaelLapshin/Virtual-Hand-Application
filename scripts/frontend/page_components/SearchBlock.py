@@ -114,7 +114,11 @@ class Frame(GenericPage.Frame):
         if len(self.list_storage) <= 0:
             return None
         else:
-            return self.list_storage[self.scroll_block.get_selected_main()][0]
+            main_index = self.scroll_block.get_selected_main()
+            if main_index is not None:
+                return self.list_storage[main_index][0]
+            else:
+                return None
 
     def get_selected_main_data(self):
         return self.get_index_data(self.scroll_block.get_selected_main())
@@ -329,3 +333,10 @@ class ModelTrainingSearchFrame(ModelSearchFrame):
 
     def get_queue_list(self):
         return self._queue_list
+
+    def get_job_id_of_selected_main(self):
+        model_id = self.get_selected_main_id()
+        for q in self._queue_list:
+            if q[1] == model_id:
+                return q[0]
+        return None

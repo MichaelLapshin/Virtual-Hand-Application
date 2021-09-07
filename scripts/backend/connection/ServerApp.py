@@ -167,7 +167,8 @@ def shutdown():
     if str_user_id is not None:
         user_id = int(str_user_id)
 
-        if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD):
+        if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME,
+                                                   password=Constants.ADMIN_PASSWORD):
             Log.info("Shutting down the server...")
 
             stop_processes()
@@ -175,7 +176,7 @@ def shutdown():
             # Shutting down the flask server
             ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
 
-            return package(True, "Shutting down the server...")
+            return package(True, "The server is shutdown.")
         else:
             return package(False, "Could not shutdown the server. The current user is not the Administrator.")
     else:

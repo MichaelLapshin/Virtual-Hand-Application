@@ -477,7 +477,7 @@ def fetch_dataset_finger_plot(dataset_id: int, finger: int, metric: int):
                 "finger": finger,
                 "metric": metric})
 
-    if result is "":
+    if result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -490,7 +490,7 @@ def fetch_dataset_sensor_plot(dataset_id: int, sensor: int):
         values={"dataset_id": dataset_id,
                 "sensor": sensor})
 
-    if result is "":
+    if result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -505,7 +505,7 @@ def fetch_model_prediction_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
-    if result is "":
+    if result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -520,7 +520,7 @@ def fetch_model_error_plot(model_id: int, finger: int, limb: int):
                 "finger": finger,
                 "limb": limb})
 
-    if result is "":
+    if result == "":
         return None
     return PIL.Image.open(io.BytesIO(base64.b64decode(result)))
 
@@ -540,9 +540,9 @@ def get_model_complete_queue():
     return send_get_request("/worker/get_model_complete_queue")
 
 
-def get_worker_progress_message(id: int):
-    Log.debug("Retrieving the progress message of task with id '" + str(id) + "'")
-    return send_get_request("/worker/get_model_progress_message")
+def get_worker_job_message(id: int):
+    Log.debug("Retrieving the progress of task with id '" + str(id) + "'")
+    return send_get_request("/worker/get_job_progress", values={"id": id})
 
 
 def clear_worker_complete_queue():

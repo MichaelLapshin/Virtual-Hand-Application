@@ -41,27 +41,36 @@ def fetch_model_complete_queue():
     return package(None, model_queue)
 
 
-@worker_api.route("/get_progress_message")
-def fetch_progress_message():
+@worker_api.route("/get_job_progress")
+def fetch_job_progress():
     """
     Fetches the progress message of the job
     """
 
     id = int(flarg("id"))
 
+    found_job = False
     message = ""
+    progress = 0
+    max_progress = 100
     for q in Worker.worker.get_queue():
         if q.get_id() == id:
+            found_job = True
+            progress = q.get_progress()
+            max_progress = q.get_max_progress()
             message = q.get_progress_message()
             break
 
     if len(message) == 0:
         for q in Worker.worker.get_complete():
             if q.get_id() == id:
+                found_job = True
+                progress = q.get_progress()
+                max_progress = q.get_max_progress()
                 message = q.get_progress_message()
                 break
 
-    return package(None, message)
+    return package(None, (found_job,progress, max_progress, message))
 
 
 @worker_api.route("/clear_complete_queue")

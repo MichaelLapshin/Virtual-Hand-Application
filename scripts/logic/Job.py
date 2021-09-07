@@ -1,7 +1,7 @@
 import threading
 import time
 
-from scripts import Warnings, Log
+from scripts import Warnings, Log, Constants
 
 job_id = 0
 
@@ -100,7 +100,8 @@ class SimultaneousJobs(Job):
         def is_complete(self):
             return self._is_complete
 
-    def __init__(self, jobs, title, progress_message=None, complete_message=None, info=None, check_delay=1):
+    def __init__(self, jobs, title, progress_message=None, complete_message=None, info=None,
+                 check_delay=Constants.UPDATE_PROGRESS_BAR_FREQ):
         Job.__init__(self, title=title, info=info)
 
         self._progress_message = progress_message
@@ -140,6 +141,7 @@ class SimultaneousJobs(Job):
 
             # Sleeps
             time.sleep(self._check_delay)
+            print("check complete", all_complete)
 
         # Task is complete
         self.complete_progress(self._complete_message)

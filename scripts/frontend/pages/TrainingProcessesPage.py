@@ -5,9 +5,11 @@ from scripts.frontend import Navigation, ClientConnection
 from scripts.frontend.custom_widgets.CustomButtons import InformationButton, SearchButton
 from scripts.frontend.custom_widgets.CustomLabels import SearchLabel
 from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
+from scripts.frontend.logic import ProgressBarUpdater
 from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock, \
     DataInfoBlock, ProgressBar
 from scripts.frontend.pages import GenericPage
+from scripts.logic import Worker
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
 
@@ -58,6 +60,7 @@ class Frame(GenericPage.NavigationFrame):
         self.complete_search_frame.update_colour()
         self.clear_button.update_colour()
         self.info_frame.update_colour()
+        self.progress_bar.update_colour()
         self.prediction_preview_block.update_colour()
 
     def update_content(self):
@@ -67,6 +70,14 @@ class Frame(GenericPage.NavigationFrame):
         self.clear_button.update_content()
         self.info_frame.update_content()
         self.prediction_preview_block.update_content()
+
+        # Progress bar
+        self.progress_bar.set_background_colour(
+            General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_C))
+        self.progress_bar.set_progress_colour(
+            General.washed_colour_hex(Constants.COLOUR_GREEN, Parameters.ColourGrad_F))
+
+        self.progress_bar.update_content()
 
     def destroy(self):
         super().destroy()
@@ -85,20 +96,34 @@ class Frame(GenericPage.NavigationFrame):
         # Updates the info frame
         self.info_frame.update_entries(entries=entries, owner_name=owner_name)
 
-        # Loads in the prediction and error images
-        selected_model_id = search_frame.get_selected_main_id()
-        self.prediction_preview_block.image_frame.load_new_images(model_id=selected_model_id)
-        self.prediction_preview_block.button_frame.update_image_state()
-
     def clear_complete_list(self):
         ClientConnection.clear_worker_complete_queue()
         self.complete_search_frame.search_button_command()
         self.prediction_preview_block.image_frame.clear_images()
 
     def queue_selected_entry_update_command(self):
+        # Updates progress bar
+        ProgressBarUpdater.remove_all_progress_bar_jobs()
+        Worker.worker.add_task(job=ProgressBarUpdater.JobUpdateProgressBar(
+            job_id=self.queue_search_frame.get_job_id_of_selected_main(), progress_bar_obj=self.progress_bar))
+
         self.selected_entry_update_command(search_frame=self.queue_search_frame)
         self.complete_search_frame.scroll_block.unselect_main()
 
+        # Clears the images (because the images won't be loaded at this point)
+        self.prediction_preview_block.image_frame.clear_images()
+
     def complete_selected_entry_update_command(self):
+        # Updates progress bar
+        ProgressBarUpdater.remove_all_progress_bar_jobs()
+        Worker.worker.add_task(job=ProgressBarUpdater.JobUpdateProgressBar(
+            job_id=self.complete_search_frame.get_job_id_of_selected_main(), progress_bar_obj=self.progress_bar))
+
         self.selected_entry_update_command(search_frame=self.complete_search_frame)
         self.queue_search_frame.scroll_block.unselect_main()
+
+        # Loads in the prediction and error images
+        selected_model_id = self.complete_search_frame.get_selected_main_id()
+        if selected_model_id is not None:
+            self.prediction_preview_block.image_frame.load_new_images(model_id=selected_model_id)
+            self.prediction_preview_block.button_frame.update_image_state()

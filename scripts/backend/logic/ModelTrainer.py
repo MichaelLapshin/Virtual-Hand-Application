@@ -1,4 +1,5 @@
 import os
+import time
 
 import h5py
 import numpy
@@ -25,6 +26,7 @@ class JobModelTrain(Job.Job):
                       + "] For epoch " + str(epoch) + ", the loss is '" + str(logs["loss"])
                       + "' and the absolute error is '" + str(logs[JobModelTrain.METRIC]) + "'")
             self.job.add_progress(1, "Processing training epochs...")
+            time.sleep(Constants.BETWEEN_EPOCH_DELAY)
 
         def on_train_end(self, logs=None):
             Log.info("[finger_index=" + str(self.finger_index) + " and limb_index=" + str(self.limb_index)

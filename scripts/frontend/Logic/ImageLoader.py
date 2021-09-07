@@ -29,17 +29,6 @@ class JobDatasetFingers(Job.Job):
         # Sending the request
         self.set_progress(1, "Sending the server a request for the image.")
 
-        image = None
-        attempts = Constants.IMAGE_ATTEMPT_MAX_TIMES
-        while image is None and attempts > 0:
-            image = ClientConnection.fetch_dataset_finger_plot(
-                dataset_id=self.dataset_id, finger=self.finger_index, metric=self.metric_index)
-
-            if image is None or (image.size[0] == 0 and image.size[1] == 0):
-                image = None
-                time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
-                attempts -= 1
-
         # Attempt to fetch the error plot
         image = ClientConnection.fetch_dataset_finger_plot(
             dataset_id=self.dataset_id, finger=self.finger_index, metric=self.metric_index)
@@ -48,7 +37,7 @@ class JobDatasetFingers(Job.Job):
 
             # Decrements the attempt count and creates a follow-up job if attempts remain
             self._info["load_attempts_left"] -= 1
-            if self.get_info().get("load_attempts_left") <= 0:
+            if self.get_info().get("load_attempts_left") > 0:
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 Worker.worker.add_task(JobDatasetFingers(
                     dataset_id=self.dataset_id, finger_index=self.finger_index, metric_index=self.metric_index,
@@ -96,7 +85,7 @@ class JobDatasetSensors(Job.Job):
 
             # Decrements the attempt count and creates a follow-up job if attempts remain
             self._info["load_attempts_left"] -= 1
-            if self.get_info().get("load_attempts_left") <= 0:
+            if self.get_info().get("load_attempts_left") > 0:
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 Worker.worker.add_task(JobDatasetSensors(
                     dataset_id=self.dataset_id, sensor_index=self.sensor_index, dest_obj=self.dest_obj,
@@ -145,7 +134,7 @@ class JobModelPredictions(Job.Job):
 
             # Decrements the attempt count and creates a follow-up job if attempts remain
             self._info["load_attempts_left"] -= 1
-            if self.get_info().get("load_attempts_left") <= 0:
+            if self.get_info().get("load_attempts_left") > 0:
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 Worker.worker.add_task(JobModelPredictions(
                     model_id=self.model_id, finger_index=self.finger_index, limb_index=self.limb_index,
@@ -195,7 +184,7 @@ class JobModelErrors(Job.Job):
 
             # Decrements the attempt count and creates a follow-up job if attempts remain
             self._info["load_attempts_left"] -= 1
-            if self.get_info().get("load_attempts_left") <= 0:
+            if self.get_info().get("load_attempts_left") > 0:
                 time.sleep(Constants.IMAGE_REQUEST_FREQ_S)
                 Worker.worker.add_task(JobModelErrors(
                     model_id=self.model_id, finger_index=self.finger_index, limb_index=self.limb_index,

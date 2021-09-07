@@ -150,6 +150,9 @@ FINGER_TYPE = ("Thumb", "Index", "Middle", "Ring", "Pinky")
 LIMB_TYPE = ("Proximal", "Middle", "Distal")
 METRIC = ("Position", "Velocity", "Acceleration")
 IMAGE_EXT = ".png"
-IMAGE_SAMPLING_ZOOM = 5
+IMAGE_ATTEMPT_MAX_TIMES = 5
+
+# Update frequency
 IMAGE_REQUEST_FREQ_S = 0.2
-IMAGE_ATTEMPT_MAX_TIMES = 10
+UPDATE_PROGRESS_BAR_FREQ = 30
+BETWEEN_EPOCH_DELAY = 0
