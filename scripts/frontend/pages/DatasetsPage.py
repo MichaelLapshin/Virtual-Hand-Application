@@ -16,6 +16,7 @@ from scripts.frontend.pages import GenericPage
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
 TITLE_NEW_DATASET_INFORMATION = "New Dataset Information"
 
+datasets_page = None
 
 class Frame(GenericPage.NavigationFrame):
 

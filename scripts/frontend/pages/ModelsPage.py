@@ -14,6 +14,7 @@ TITLE_SELECTED_MODEL_INFORMATION = "Selected Model Information"
 TITLE_SELECTED_DATABASE_INFORMATION = "Selected Database Information"
 TITLE_NEW_MODEL_INFORMATION = "New Model Information"
 
+models_page = None
 
 class Frame(GenericPage.NavigationFrame):
 

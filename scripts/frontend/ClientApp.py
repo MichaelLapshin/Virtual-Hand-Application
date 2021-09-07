@@ -7,8 +7,7 @@ from scripts.frontend.pages import \
     GenericPage, ModelsPage, DatasetsPage, TrainingProcessesPage, \
     ModelProcessesPage, HowToPage, ProjectInformationPage, AccountPage, SettingsPage
 
-from scripts.frontend import \
-    Navigation
+from scripts.frontend import Navigation
 from scripts.logic import Worker
 
 """
@@ -42,9 +41,6 @@ root.tk.call('tk', 'scaling', Parameters.GUI_Scale)
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
-# Creates the navigation bar and links them to the page
-navig_bar = Navigation.NavigationBar(root, column=0, row=0, columnspan=1, rowspan=1)
-
 # Template frame for the pages to use
 frame_window = GenericPage.Frame(
     root=root,
@@ -52,22 +48,36 @@ frame_window = GenericPage.Frame(
     columnspan=1, rowspan=1)
 frame_window.grid()
 
+# Creates the navigation bar and links them to the page
+Navigation.navig_bar = Navigation.NavigationBar(root, column=0, row=0, columnspan=1, rowspan=1)
+
+# Instantiates singleton pages
+ModelsPage.models_page = ModelsPage.Frame(root, base_frame=frame_window)
+DatasetsPage.datasets_page = DatasetsPage.Frame(root, base_frame=frame_window)
+TrainingProcessesPage.training_processes_page = TrainingProcessesPage.Frame(root, base_frame=frame_window)
+ModelProcessesPage.model_processes_page = ModelProcessesPage.Frame(root, base_frame=frame_window)
+HowToPage.how_to_page = HowToPage.Frame(root, base_frame=frame_window)
+ProjectInformationPage.project_information_page = ProjectInformationPage.Frame(root, base_frame=frame_window)
+AccountPage.account_page = AccountPage.Frame(root, base_frame=frame_window)
+SettingsPage.settings_page = SettingsPage.Frame(root, base_frame=frame_window)
+
 # Creates and adds the pages
-navig_bar.add_page(ModelsPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(DatasetsPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(TrainingProcessesPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(ModelProcessesPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(HowToPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(ProjectInformationPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(AccountPage.Frame(root, base_frame=frame_window))
-navig_bar.add_page(SettingsPage.Frame(root, base_frame=frame_window, navig_bar=navig_bar))
+Navigation.navig_bar.add_page(ModelsPage.models_page)
+Navigation.navig_bar.add_page(DatasetsPage.datasets_page)
+Navigation.navig_bar.add_page(TrainingProcessesPage.training_processes_page)
+Navigation.navig_bar.add_page(ModelProcessesPage.model_processes_page)
+Navigation.navig_bar.add_page(HowToPage.how_to_page)
+Navigation.navig_bar.add_page(ProjectInformationPage.project_information_page)
+Navigation.navig_bar.add_page(AccountPage.account_page)
+Navigation.navig_bar.add_page(SettingsPage.settings_page)
 
 # Destroys reference frame
 frame_window.destroy()
 
 # Starts at the Account page by default
-navig_bar.select_new_page(Navigation.TITLE_ACCOUNT)
-navig_bar.update_colour()
+Navigation.navig_bar.select_new_page(Navigation.TITLE_ACCOUNT)
+Navigation.navig_bar.update_colour()
+Navigation.navig_bar.update_all_page_colour()
 
 
 class UpdateThread(threading.Thread):
@@ -95,7 +105,7 @@ class UpdateThread(threading.Thread):
 # Starting worker threads
 Worker.worker = Worker.Worker(sleep_delay=0.1)
 Worker.worker.start()
-updater = UpdateThread(navig_bar=navig_bar)
+updater = UpdateThread(navig_bar=Navigation.navig_bar)
 updater.start()
 
 # Starts the GUI

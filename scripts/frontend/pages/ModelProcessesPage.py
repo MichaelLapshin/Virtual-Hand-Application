@@ -10,6 +10,7 @@ from scripts.frontend.pages import GenericPage
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
 
+model_processes_page = None
 
 class Frame(GenericPage.NavigationFrame):
     class InfoFrame(GenericPage.Frame):

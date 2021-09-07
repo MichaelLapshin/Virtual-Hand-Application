@@ -3,6 +3,7 @@ from scripts import Parameters
 from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage
 
+how_to_page = None
 
 class Frame(GenericPage.NavigationFrame):
 

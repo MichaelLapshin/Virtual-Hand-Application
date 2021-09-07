@@ -16,6 +16,9 @@ TITLE_PROJECT_INFORMATION = "Project Information"
 TITLE_ACCOUNT = "Account"
 TITLE_SETTINGS = "Settings"
 
+# Singleton variable
+navig_bar = None
+
 
 class NavigationBar(tkinter.Frame, WidgetInterface):
 

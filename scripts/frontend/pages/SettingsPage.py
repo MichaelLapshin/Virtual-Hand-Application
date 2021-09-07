@@ -6,14 +6,16 @@ from scripts.frontend import Navigation
 from scripts.frontend.custom_widgets import CustomButtons, CustomScales, CustomLabels
 from scripts.frontend.pages import GenericPage
 
+settings_page = None
+
 
 class Frame(GenericPage.NavigationFrame):
 
-    def __init__(self, root, navig_bar, base_frame=None):
+    def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
                                              page_title=Navigation.TITLE_SETTINGS)
         self.root = root
-        self.navig_bar = navig_bar
+        self.navig_bar = Navigation.navig_bar
         self.columnconfigure(0, weight=1)
 
         # Create settings title

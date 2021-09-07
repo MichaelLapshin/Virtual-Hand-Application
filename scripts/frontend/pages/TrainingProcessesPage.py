@@ -8,10 +8,12 @@ from scripts.frontend.custom_widgets.CustomOptionMenu import SortOptionMenu
 from scripts.frontend.logic import ProgressBarUpdater
 from scripts.frontend.page_components import ScrollBlock, InformationBlock, PredictionPreviewBlock, SearchBlock, \
     DataInfoBlock, ProgressBar
-from scripts.frontend.pages import GenericPage
+from scripts.frontend.pages import GenericPage, ModelsPage
 from scripts.logic import Worker
 
 TITLE_MODEL_INFORMATION = "Selected Model Information"
+
+training_processes_page = None
 
 
 class Frame(GenericPage.NavigationFrame):
@@ -31,6 +33,8 @@ class Frame(GenericPage.NavigationFrame):
             self, column=0, row=0, queue_fetch_function=ClientConnection.get_model_training_queue,
             title="Queue", multi_select=False,
             select_change_command=self.queue_selected_entry_update_command)
+        self.new_button = SearchButton(
+            self.queue_search_frame.button_frame, column=0, row=0, text="New", command=self.new_model_button_command)
 
         self.complete_search_frame = SearchBlock.ModelTrainingSearchFrame(
             self, column=1, row=0, queue_fetch_function=ClientConnection.get_model_complete_queue,
@@ -57,6 +61,7 @@ class Frame(GenericPage.NavigationFrame):
     def update_colour(self):
         super().update_colour()
         self.queue_search_frame.update_colour()
+        self.new_button.update_colour()
         self.complete_search_frame.update_colour()
         self.clear_button.update_colour()
         self.info_frame.update_colour()
@@ -66,6 +71,7 @@ class Frame(GenericPage.NavigationFrame):
     def update_content(self):
         super().update_content()
         self.queue_search_frame.update_content()
+        self.new_button.update_content()
         self.complete_search_frame.update_content()
         self.clear_button.update_content()
         self.info_frame.update_content()
@@ -80,6 +86,12 @@ class Frame(GenericPage.NavigationFrame):
         self.progress_bar.update_content()
 
     def destroy(self):
+        self.queue_search_frame.destroy()
+        self.new_button.destroy()
+        self.complete_search_frame.destroy()
+        self.clear_button.destroy()
+        self.info_frame.destroy()
+        self.prediction_preview_block.destroy()
         super().destroy()
 
     def selected_entry_update_command(self, search_frame):
@@ -95,6 +107,10 @@ class Frame(GenericPage.NavigationFrame):
 
         # Updates the info frame
         self.info_frame.update_entries(entries=entries, owner_name=owner_name)
+
+    def new_model_button_command(self):
+        Navigation.navig_bar.select_new_page(Navigation.TITLE_MODELS)
+        ModelsPage.models_page._switch_to_frame(ModelsPage.models_page.new_frame)
 
     def clear_complete_list(self):
         ClientConnection.clear_worker_complete_queue()
