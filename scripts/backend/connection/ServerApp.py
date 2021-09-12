@@ -31,8 +31,6 @@ from scripts.logic import Worker
 # Questionnaire for the server setup
 
 
-HOST = "127.0.0.1"
-PORT = 5000
 start_server = Database.connect("server_database.db")
 Database.create_all_new_tables(replace=False)
 
@@ -129,7 +127,7 @@ if start_server:
     Worker.worker.start()
 
     if __name__ == "__main__":
-        server_app.run(host=HOST, port=PORT, threaded=True)
+        server_app.run(host=Constants.SERVER_HOST, port=Constants.SERVER_PORT, threaded=True)
 
 """
     Flask REST API

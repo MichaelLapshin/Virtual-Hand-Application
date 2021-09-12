@@ -390,6 +390,8 @@ def create_model_training_process(name: str, owner_id: int, date_created: str,
                                   permission: int, rating: int, dataset_id: int, frames_shift: int,
                                   num_training_frames: int, learning_rate: float, batch_size: int, num_epochs: int,
                                   layer_type: str, num_layers: int, num_nodes_per_layer: int):
+    Log.info("Creating the model training process named '" + name + "'")
+
     result = send_get_request("/process/create_model_training_process",
                               values={"name": name, "owner_id": owner_id, "date_created": date_created,
                                       "permission": permission, "rating": rating,
@@ -404,6 +406,17 @@ def create_model_training_process(name: str, owner_id: int, date_created: str,
     else:
         Log.warning("The model training process of the dataset with id '" + str(dataset_id) + "' failed to begin.")
         return False
+
+
+def fetch_model_encoded_str_dir(model_id: int):
+    Log.info("Fetching the model with id '" + str(model_id) + "'")
+
+    result = send_get_request("/transfer/get_model", values={"model_id": model_id}, ovrd_ltst_msg=False)
+
+    if result is False:
+        Log.warning("Could not retrieve the directory of the model with id '" + str(model_id) + "'")
+        return None
+    return result
 
 
 """
@@ -475,7 +488,7 @@ def fetch_dataset_finger_plot(dataset_id: int, finger: int, metric: int):
         url_extension="/transfer/get_dataset_finger_image",
         values={"dataset_id": dataset_id,
                 "finger": finger,
-                "metric": metric})
+                "metric": metric}, ovrd_ltst_msg=False)
 
     if result is None or result == "":
         return None
@@ -488,7 +501,7 @@ def fetch_dataset_sensor_plot(dataset_id: int, sensor: int):
     result = send_get_request(
         url_extension="/transfer/get_dataset_sensor_image",
         values={"dataset_id": dataset_id,
-                "sensor": sensor})
+                "sensor": sensor}, ovrd_ltst_msg=False)
 
     if result is None or result == "":
         return None
@@ -503,7 +516,7 @@ def fetch_model_prediction_plot(model_id: int, finger: int, limb: int):
         url_extension="/transfer/get_model_prediction_image",
         values={"model_id": model_id,
                 "finger": finger,
-                "limb": limb})
+                "limb": limb}, ovrd_ltst_msg=False)
 
     if result is None or result == "":
         return None
@@ -518,7 +531,7 @@ def fetch_model_error_plot(model_id: int, finger: int, limb: int):
         url_extension="/transfer/get_model_error_image",
         values={"model_id": model_id,
                 "finger": finger,
-                "limb": limb})
+                "limb": limb}, ovrd_ltst_msg=False)
 
     if result is None or result == "":
         return None

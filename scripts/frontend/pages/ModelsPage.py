@@ -16,6 +16,7 @@ TITLE_NEW_MODEL_INFORMATION = "New Model Information"
 
 models_page = None
 
+
 class Frame(GenericPage.NavigationFrame):
 
     def __init__(self, root, base_frame=None):
@@ -92,9 +93,7 @@ class ViewFrame(GenericPage.NavigationFrame):
             right_column_title="Training Information")
 
         # Additional buttons for the info frame
-        self.button_frame = GenericPage.Frame(self,
-                                              column=1, row=1,
-                                              columnspan=1, rowspan=1)
+        self.button_frame = GenericPage.Frame(self, column=1, row=1, columnspan=1, rowspan=1)
         self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
 
         # Configure button frame weights

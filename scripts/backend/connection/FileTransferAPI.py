@@ -1,4 +1,5 @@
 import io
+import shutil
 import tkinter
 
 import flask
@@ -7,7 +8,8 @@ import base64
 
 from API_Helper import flarg, flreq, package
 from scripts import Warnings, Log, Constants, Parameters
-from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts, DatabasePlots
+from scripts.backend.connection import API_Helper
+from scripts.backend.database import Database, DatabaseDatasets, DatabaseAccounts, DatabasePlots, DatabaseModels
 from scripts.backend.logic import DatasetPlotter
 from scripts.logic import Worker
 
@@ -65,58 +67,92 @@ def upload_dataset():
 
 @file_transfer_api.route("/get_dataset_finger_image")
 def get_dataset_finger_image():
+    # Obtains the parameters
     dataset_id = flarg("dataset_id")
     image_finger = flarg("finger")
     image_metric = flarg("metric")
 
     # Loads the image and sends the encoded version of it
     try:
-        image = open(DatabasePlots.get_dataset_finger_image_file_path(dataset_id=dataset_id,
-                                                                      finger_num=image_finger, metric_num=image_metric),
-                     "rb")
-        return package(None, base64.b64encode(image.read()))
+        with open(DatabasePlots.get_dataset_finger_image_file_path(
+                dataset_id=dataset_id, finger_num=image_finger, metric_num=image_metric), "rb") as image:
+            return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")
 
 
 @file_transfer_api.route("/get_dataset_sensor_image")
 def get_dataset_sensor_image():
+    # Obtains the parameters
     dataset_id = flarg("dataset_id")
     sensor = flarg("sensor")
 
     # Loads the image and sends the encoded version of it
     try:
-        image = open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb")
-        return package(None, base64.b64encode(image.read()))
+        with open(DatabasePlots.get_sensor_image_file_path(dataset_id=dataset_id, sensor_num=sensor), "rb") as image:
+            return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")
 
 
 @file_transfer_api.route("/get_model_prediction_image")
 def get_model_prediction_image():
+    # Obtains the parameters
     model_id = flarg("model_id")
     finger = flarg("finger")
     limb = flarg("limb")
 
     # Loads the image and sends the encoded version of it
     try:
-        image = open(DatabasePlots.get_model_prediction_image_file_path(model_id=model_id,
-                                                                        finger_num=finger, limb_num=limb), "rb")
-        return package(None, base64.b64encode(image.read()))
+        with open(DatabasePlots.get_model_prediction_image_file_path(
+                model_id=model_id, finger_num=finger, limb_num=limb), "rb") as image:
+            return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")
 
 
 @file_transfer_api.route("/get_model_error_image")
 def get_model_error_image():
+    # Obtains the parameters
     model_id = flarg("model_id")
     finger = flarg("finger")
     limb = flarg("limb")
 
     # Loads the image and sends the encoded version of it
     try:
-        image = open(DatabasePlots.get_model_error_image_file_path(model_id=model_id,
-                                                                   finger_num=finger, limb_num=limb), "rb")
-        return package(None, base64.b64encode(image.read()))
+        with open(DatabasePlots.get_model_error_image_file_path(
+                model_id=model_id, finger_num=finger, limb_num=limb), "rb") as image:
+            return package(None, base64.b64encode(image.read()))
     except:
         return package(None, "")
+
+
+@file_transfer_api.route("/get_model")
+def get_model():
+    # Obtains the parameters
+    model_id = int(flarg("model_id"))
+
+    # Loads the image and sends the encoded version of it
+    try:
+        if DatabaseModels.exists_dataset_by_id(model_id) is True:
+            dir_path = Parameters.PROJECT_PATH + Constants.SERVER_MODEL_PATH + Constants.MODEL_DIR + str(model_id)
+            Log.info("Attempting to retrieve the model from the directory: " + dir_path)
+            return package(None, API_Helper.encode_string_directory(dir_path))
+            # Zips the file
+            # zip_path = Parameters.PROJECT_PATH + Constants.SERVER_MODEL_PATH + str(
+            #     model_id) + Constants.TEMP_ZIP_MODEL_SUFFIX
+            #
+            # shutil.make_archive(
+            #     zip_path, "zip",
+            #     Parameters.PROJECT_PATH + Constants.SERVER_MODEL_ZIP_PATH + str(model_id) + Constants.MODEL_EXT)
+            #
+            # # Sends back the zip file
+            # with open(zip_path) as reader:
+            #     zip_file = reader.read()
+            # return package(None, zip_file)
+        else:
+            return package(False, "The model with id '" + str(model_id) + "' does not exist in the database.")
+    except Exception as e:
+        Log.warning("Failed to retrieve and send the model directory back.")
+        Log.debug("Error: " + str(e))
+        return package(False, "Failed to retrieve and send the model directory back.")

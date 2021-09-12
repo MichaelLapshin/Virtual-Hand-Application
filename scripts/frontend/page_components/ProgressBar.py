@@ -53,6 +53,9 @@ class Frame(tkinter.Frame, WidgetInterface):
     def set_count(self, new_count):
         self.count = new_count
 
+    def add_count(self, count):
+        self.count += count
+
     def reset(self):
         self.count = -1
         self.old_count = -2

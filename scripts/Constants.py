@@ -5,6 +5,12 @@
 """
 import numpy as np
 
+# Server parameters
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 5000
+MODEL_SERVER_HOST = SERVER_HOST
+MODEL_SERVER_PORT = 5001
+
 default_resolution = "1160x800"
 
 # Server constants
@@ -48,6 +54,7 @@ TEMP_MODEL_PATH = "AppData-Client\\temp-models\\"  # Makes sure the end the path
 TEMP_DATASET_IMAGE_PATH = "AppData-Client\\temp-images-datasets\\"  # Makes sure the end the path with '\\'
 TEMP_MODEL_IMAGE_PATH = "AppData-Client\\temp-images-models\\"  # Makes sure the end the path with '\\'
 TEMP_SAVE_DATASET_NAME = "temp_dataset.ds"
+TEMP_ZIP_MODEL_SUFFIX = "_temp_model.zip"
 
 # Server directory paths
 SERVER_DATABASE_PATH = "AppData-Server\\databases\\"  # Makes sure the end the path with '\\'
@@ -57,6 +64,7 @@ SERVER_IMAGES_DATASETS_FINGERS_PATH = "AppData-Server\\images-datasets-fingers\\
 SERVER_IMAGES_DATASETS_SENSORS_PATH = "AppData-Server\\images-datasets-sensors\\"  # Makes sure the end the path with '\\'
 
 SERVER_MODEL_PATH = "AppData-Server\\models\\"  # Makes sure the end the path with '\\'
+SERVER_MODEL_ZIP_PATH = "AppData-Server\\zip-models\\"  # Makes sure the end the path with '\\'
 SERVER_IMAGES_MODELS_ERRORS_PATH = "AppData-Server\\images-models-errors\\"  # Makes sure the end the path with '\\'
 SERVER_IMAGES_MODELS_PREDICTIONS_PATH = "AppData-Server\\images-models-predictions\\"  # Makes sure the end the path with '\\'
 
@@ -139,6 +147,7 @@ NUM_FINGERS = 5
 NUM_LIMBS_PER_FINGER = 3
 NUM_SENSORS = 5
 NUM_FEATURES = NUM_FINGERS * NUM_LIMBS_PER_FINGER * 2 + NUM_SENSORS
+LIMB_LABELS = [chr(97 + c) for c in range(0, NUM_FEATURES)]
 
 eps = np.finfo(np.float32).eps.item()
 DIGITS = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
