@@ -166,6 +166,7 @@ class ViewFrame(GenericPage.NavigationFrame):
 
     def create_model_process_button_command(self):
         if self.search_frame.scroll_block.is_selected_main() is True:
+
             Warnings.not_complete()  # TODO, finish this
         else:
             tkinter.messagebox.showwarning("Warning!", "No model is selected.")

@@ -40,6 +40,11 @@ def merge_datasets():
     job = DatasetMerger.JobMerge(dataset_id=dataset_id, dataset_ids=dataset_ids)
     Worker.worker.add_task(job=job)
 
+    # Creates image creation job
+    create_image_job = DatasetPlotter.JobDatasetPlotter(
+        title="Plotting Merged Dataset with id '" + str(dataset_id) + "'", dataset_id=dataset_id, plot_vel_acc=False)
+    Worker.worker.add_task(job=create_image_job)
+
     return package(True, "The dataset merging process has begun.")
 
 

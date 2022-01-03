@@ -13,7 +13,7 @@ class Worker(threading.Thread):
         Thread performing long-lasting tasks
     """
 
-    def __init__(self, sleep_delay=1, thread_jobs=False):
+    def __init__(self, sleep_delay=0.5, thread_jobs=False):
         threading.Thread.__init__(self)
         self._running = False
         self.daemon = True
@@ -44,6 +44,7 @@ class Worker(threading.Thread):
                 self._end_time.append(General.get_current_slashed_date())
                 self._complete.append(self._queue[0])
                 self._queue.pop(0)
+
             time.sleep(self._sleep_delay)
 
         self._stopped = True

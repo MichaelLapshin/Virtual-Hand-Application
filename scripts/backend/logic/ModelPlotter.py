@@ -1,3 +1,5 @@
+import math
+
 from scripts import Warnings, Parameters, Constants, Log
 from scripts.backend.database import DatabasePlots
 from scripts.backend.logic import ModelTrainer
@@ -24,9 +26,20 @@ class JobModelErrorPlotter(Job.Job):
     def perform_task(self):
         self.set_progress(0, "Starting to plot the image '" + self._title + "'")
 
+        # Calculate the error history to display (relative to the lowest error value)
+        cutoff_error = min((i for i in self._history.history['loss'] if not math.isnan(i)), default=1) \
+                       * Constants.MODEL_ERROR_LOWEST_MULTIPLIER
+        cutoff_index = 0
+        for value in self._history.history['loss']:
+            if value < cutoff_error:
+                break
+            cutoff_index += 1
+        # history = self._history.history['loss'][cutoff_index::]
+
         # Creating the plot
         plt.plot(self._history.history['loss'], label='mean_absolute_error')
-        plt.ylim([0, 0.01])
+        plt.ylim([0, cutoff_error])
+        plt.xlim([cutoff_index, len(self._history.history['loss'])])
         plt.xlabel('Epoch')
         plt.ylabel('Error [' + ModelTrainer.JobModelTrain.LOSS + ']')
         plt.title(self._title)
@@ -78,14 +91,21 @@ class JobModelPredictionPlotter(Job.Job):
                 + str(self._training_data) + " self._label_data=" + str(self._label_data))
 
         # Generates prediction data
+        pred_interval = 1
+        if Constants.MODEL_PRED_FRAMES < len(self._training_data):
+            pred_interval = float(len(self._training_data)) / Constants.MODEL_PRED_FRAMES
+
         data = []
-        for i in range(0, len(self._training_data)):
-            to_predict = self._training_data[i].reshape(1, Constants.NUM_FEATURES)
-            data.append(self._model.predict(to_predict)[0][0])
+        label_data = []
+        for i in range(0, min(Constants.MODEL_PRED_FRAMES, len(self._training_data))):
+            index = int(i * pred_interval)
+            to_predict = self._training_data[index].reshape(1, Constants.NUM_FEATURES)
+            data.append(self._model(to_predict)[0][0].numpy())
+            label_data.append(self._label_data[index])
 
         # Creating the plot
         plt.plot(data)
-        plt.plot(self._label_data)
+        plt.plot(label_data)
         plt.xlabel('Frame')
         plt.ylabel("Velocity (degrees/second)")
         plt.title(self._title)

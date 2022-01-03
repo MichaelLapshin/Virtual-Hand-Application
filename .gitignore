@@ -22,3 +22,6 @@
 /AppData-Server/zip-models/
 /AppData-Server/images-models-errors/
 /AppData-Server/images-models-predictions/
+
+# Ignore the LeapSDK folder contents
+/LeapSDK/

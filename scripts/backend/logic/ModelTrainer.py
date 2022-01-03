@@ -1,14 +1,30 @@
+import math
 import os
 import time
 
 import h5py
 import numpy
+import tensorflow
 from tensorflow import keras
 
 from scripts import Warnings, Log, Constants, Parameters
 from scripts.backend.database import DatabaseModels
 from scripts.backend.logic import ModelPlotter
 from scripts.logic import Job, Worker
+
+# Set the tensorflow to use the GPU
+gpus = tensorflow.config.list_physical_devices('GPU')
+if gpus:
+    # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+    try:
+        tensorflow.config.set_logical_device_configuration(
+            gpus[0], [tensorflow.config.LogicalDeviceConfiguration(memory_limit=Constants.MODEL_TRAINING_GPU_MEM_LIM)])
+        logical_gpus = tensorflow.config.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    except RuntimeError as e:
+        # Virtual devices must be set before GPUs have been initialized
+        print(e)
+Log.warning("List of local devices: " + str(tensorflow.config.list_physical_devices('GPU')))
 
 
 class JobModelTrain(Job.Job):
@@ -39,7 +55,7 @@ class JobModelTrain(Job.Job):
                  dataset_id: int, frames_shift: int, num_training_frames: int,
                  learning_rate: float, batch_size: int, num_epochs: int,
                  layer_type: str, num_layers: int, num_nodes_per_layer: int, info=None):
-        Job.Job.__init__(self, title="Training a Model using the Dataset: " + str(dataset_id),info=info)
+        Job.Job.__init__(self, title="Training a Model using the Dataset: " + str(dataset_id), info=info)
 
         self.model_id = model_id
         self.finger_index = finger_index
@@ -130,11 +146,21 @@ class JobModelTrain(Job.Job):
 
             self._training_data.append(numpy.array(frame_data))
 
-        # Additional assertion
+        # Additional assertion on the data
+        # Checks the size is correct
         if len(self._label_data) != self.num_training_frames:
             Log.blocker("len(self._label_data) != self.num_training_frames : "
                         + str(len(self._label_data)) + " vs " + str(self.num_training_frames))
         assert len(self._training_data) == len(self._label_data) == self.num_training_frames
+
+        # Checks that there are no infinite data points
+        for frame_num, frame in enumerate(self._training_data):
+            for val in frame:
+                if math.isnan(val) or math.isinf(val):
+                    Log.blocker("The training data contains NaN or infinite values in frame "
+                                + str(frame_num) + ":\n" + str(frame))
+                assert not math.isnan(val) and not math.isinf(val)
+
 
         # Converts to datasets to numpy array
         self._label_data = numpy.array(self._label_data)
@@ -151,17 +177,24 @@ class JobModelTrain(Job.Job):
         model_layers.append(keras.layers.Dense(1))
         self._model = keras.Sequential(model_layers)
 
-        # Compile the model
-        self._model.compile(loss=JobModelTrain.LOSS,  # loss='mean_absolute_error',
-                            optimizer=keras.optimizers.RMSprop(learning_rate=self.learning_rate),
-                            metrics=[JobModelTrain.METRIC])
+        # Uses the CPU, prioritizes the use of the GPU
+        device_to_use = "/CPU:0"
+        if len(gpus) > 0:
+            device_to_use = '/GPU:0'
+        with tensorflow.device(device_to_use):
+            # Compile the model
+            # Gradient clipping info: https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Optimizer#attributes_1
+            self._model.compile(loss=JobModelTrain.LOSS,  # loss='mean_absolute_error',
+                                # optimizer=keras.optimizers.Adam(learning_rate=self.learning_rate, clipvalue=1),
+                                optimizer=keras.optimizers.RMSprop(learning_rate=self.learning_rate, clipvalue=1),
+                                metrics=[JobModelTrain.METRIC])
 
-        # Trains the model
-        training_history = self._model.fit(
-            self._training_data, self._label_data,
-            batch_size=self.batch_size, epochs=self.num_epochs, shuffle=True, verbose=0,
-            callbacks=[
-                JobModelTrain.CustomCallback(job=self, finger_index=self.finger_index, limb_index=self.limb_index)])
+            # Trains the model
+            training_history = self._model.fit(
+                self._training_data, self._label_data,
+                batch_size=self.batch_size, epochs=self.num_epochs, shuffle=True, verbose=0,
+                callbacks=[
+                    JobModelTrain.CustomCallback(job=self, finger_index=self.finger_index, limb_index=self.limb_index)])
 
         # Saves the model
         save_dir = Parameters.PROJECT_PATH + Constants.SERVER_MODEL_PATH + Constants.MODEL_DIR + str(self.model_id)

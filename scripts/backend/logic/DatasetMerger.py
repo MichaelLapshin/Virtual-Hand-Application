@@ -35,6 +35,10 @@ class JobMerge(Job.Job):
                 partial_time_list = General.float_int_unknownArray2list(reader.get("time"))
                 assert len(partial_time_list) == len(partial_sensor_list[0]) == len(partial_angle_list[0][0])
             else:
+                if len(partial_sensor_list[0]) != len(partial_angle_list[0][0]):
+                    Log.blocker(
+                        "Could not generate dataset since len(partial_sensor_list[0]) != len(partial_angle_list[0][0]. "
+                        + str(len(partial_sensor_list[0])) + " != " + str(len(partial_angle_list[0][0])))
                 assert len(partial_sensor_list[0]) == len(partial_angle_list[0][0])
 
             reader.close()

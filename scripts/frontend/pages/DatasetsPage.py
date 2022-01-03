@@ -18,6 +18,7 @@ TITLE_NEW_DATASET_INFORMATION = "New Dataset Information"
 
 datasets_page = None
 
+
 class Frame(GenericPage.NavigationFrame):
 
     def __init__(self, root, base_frame=None):
@@ -442,8 +443,8 @@ class NewFrame(GenericPage.NavigationFrame):
             self.stop_progress_button.update_content()
 
             # Paint the camera
-            if (self.hand_angler is not None) and (self.hand_angler.get_raw_image() is not None):
-                image = Image.fromarray(self.hand_angler.get_processed_image())
+            if (self.hand_angler is not None) and (self.hand_angler.get_processed_image() is not None):
+                image = self.hand_angler.get_processed_image()
 
                 # Resize image
                 ratio = General.resizing_scale(width=image.width, height=image.height,
@@ -516,19 +517,12 @@ class NewFrame(GenericPage.NavigationFrame):
             logic threads and objects
         """
 
-        # Setup Hand Angler
-        self.hand_angler = MediapipHandAngler.HandAngleReader()
-        self.hand_angler.start()
-
-        # Setup Sensor Reader & Data Recorder
+        # Setup Sensor Reader
         self.sensor_listener = None
         self.data_recorder = None
 
-        # Data recording frame
-        self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, hand_angler=self.hand_angler,
-                                                             column=1, row=0, rowspan=3)
-        self.data_rec_info_frame.start_progress_button.config(command=self.start_dataset_recording)
-        self.data_rec_info_frame.stop_progress_button.config(command=self.stop_dataset_recording)
+        # Setup the hand angler
+        self.hand_angler = None
         self.reconfigure_hand_angler()
 
     def update_colour(self):
@@ -649,17 +643,43 @@ class NewFrame(GenericPage.NavigationFrame):
 
         # Checks if the reset is allowed
         reconfigure = True
-        reconfigure &= InputConstraints.assert_int_non_negative("Video source", video_source)
+        # reconfigure &= InputConstraints.assert_string_from_set("Video source", video_source, Video)
         reconfigure &= InputConstraints.assert_int_positive("Width", width)
         reconfigure &= InputConstraints.assert_int_positive("Height", height)
         reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
         reconfigure &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
 
-        # Performs reset if allowed
+        # Performs reset if allowed (Setup Hand Angler)
         if reconfigure is True:
-            self.hand_angler.set_configurations(
-                video_source=int(video_source), width=int(width), height=int(height), zoom=int(zoom_percent),
-                frames_per_second=int(frames_per_second))
+            if self.hand_angler is not None:
+                self.hand_angler.stop_watching()
+                self.hand_angler.stop()
+
+            # Turns on either the mediapipe or leap motion hand tracker
+            if video_source == "Video Camera":
+                self.hand_angler = MediapipHandAngler.MediaPipeHandAnglerReader()
+                self.hand_angler.start()
+
+                self.hand_angler.set_configurations(width=int(width), height=int(height), zoom=int(zoom_percent),
+                                                    frames_per_second=int(frames_per_second))
+                self.hand_angler.start_watching()
+
+            elif video_source == "Leap Motion":
+                self.hand_angler = MediapipHandAngler.LeapMotionHandAnglerReader()
+                self.hand_angler.start()
+
+                self.hand_angler.set_configurations(width=int(width), height=int(height), zoom=int(zoom_percent),
+                                                    frames_per_second=int(frames_per_second))
+                self.hand_angler.start_watching()
+            else:
+                Warnings.not_to_reach()
+
+            # Data recording frame
+            self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, hand_angler=self.hand_angler,
+                                                                 column=1, row=0, rowspan=3)
+            self.data_rec_info_frame.start_progress_button.config(command=self.start_dataset_recording)
+            self.data_rec_info_frame.stop_progress_button.config(command=self.stop_dataset_recording)
+            self.data_rec_info_frame.update_colour()
 
     def start_dataset_recording(self):
         # Retrieves the data

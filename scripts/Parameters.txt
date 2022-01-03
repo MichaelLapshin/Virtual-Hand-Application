@@ -1,8 +1,6 @@
-PROJECT_PATH = "C:\\Git\\Virtual-Hand-Application\\"
-_user_parameters_file_path = PROJECT_PATH + "scripts\\Parameters.txt"
-GUI_Scale = 1.3
-UPDATE_DELAY_MS = 10.0
-COLOUR_ALPHA = (241, 91, 1)
-COLOUR_BRAVO = (117, 102, 140)
 SERVER_IP_ADDRESS = 'http://127.0.0.1'
 SERVER_PORT = '5000'
+GUI_Scale = 1.2
+UPDATE_DELAY_MS = 10.0
+COLOUR_ALPHA = (91, 155, 213)
+COLOUR_BRAVO = (146, 208, 80)

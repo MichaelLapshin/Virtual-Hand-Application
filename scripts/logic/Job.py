@@ -141,7 +141,7 @@ class SimultaneousJobs(Job):
 
             # Sleeps
             time.sleep(self._check_delay)
-            print("check complete", all_complete)
+            print("Simultaneous Task Status:", all_complete)
 
         # Task is complete
         self.complete_progress(self._complete_message)

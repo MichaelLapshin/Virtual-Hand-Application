@@ -3,18 +3,16 @@
 @description: Script for obtaining finger angles and sensor readings.
 @author: Michael Lapshin
 """
+import math
 import os
 import threading
 
 from scripts import Constants, Parameters, Log
+from scripts.General import time_ms
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import time
 import h5py
-
-
-def time_ms():
-    return int(round(time.time() * 1000))
 
 
 class Recorder(threading.Thread):
@@ -38,7 +36,6 @@ class Recorder(threading.Thread):
         self._number_of_frames = None
 
         # Running variables
-        self._zeroes = {}
         self._running = False
         self._success = False
 
@@ -63,7 +60,7 @@ class Recorder(threading.Thread):
             self._success = False
 
         # Zeros the sensor data
-        self._zeros = self.sensor_listener.get_readings_frame()
+        self.sensor_listener.zero_sensor_readings()
 
         """
         # Training data format
@@ -88,7 +85,7 @@ class Recorder(threading.Thread):
         if Recorder.RECORD_TIME:
             time_list = []
         sensor_list = []
-        angle_list = [[[] for b in range(0, 3)] for a in range(0, 5)]
+        angle_list = [[[] for b in range(0, Constants.NUM_LIMBS_PER_FINGER)] for a in range(0, Constants.NUM_FINGERS)]
 
         # Indexes the incoming sensor data (sensor key character -> number between 0 and total sensor count)
         sensor_to_index_map = {}
@@ -127,13 +124,29 @@ class Recorder(threading.Thread):
 
             # Adds sensor data
             for key in key_list:
-                sensor_list[sensor_to_index_map[key]].append(current_sensor_data[key] - self._zeros[key])
+                sensor_list[sensor_to_index_map[key]].append(current_sensor_data[key])
 
-            # sensor_data.wait4new_readings()
-            # Adds limb angle data
+            # Obtains limb angle data
             limb_data = self.hand_angler.get_all_limb_angles()
-            for finger_index in range(0, 5):
-                for limb_index in range(0, 3):
+
+            # Asserts that the limb values are valid
+            for finger_index in range(0, Constants.NUM_FINGERS):
+                for limb_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
+                    val = limb_data[finger_index][limb_index]
+
+                    # Checks for and handles invalid limb angle data
+                    if math.isnan(val) or math.isinf(val):
+                        self._running = False
+                        self._success = False
+                        self.progress_bar.set_metric_text(
+                            " Aborting the recording process. Encountered an invalid angle value: " + str(val) +
+                            " for the limb: " + Constants.FINGER_TYPE[finger_index] + " " + Constants.LIMB_TYPE[
+                                limb_index])
+                        break
+
+            # Adds the limb angle data
+            for finger_index in range(0, Constants.NUM_FINGERS):
+                for limb_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
                     angle_list[finger_index][limb_index].append(limb_data[finger_index][limb_index])
 
             # Adds time data
