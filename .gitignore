@@ -5,6 +5,7 @@
 # Ignore the virtual enviroment libraries
 /venv/
 **/__pycache__/
+.idea/.name
 
 # Ignore Client App Data
 /AppData-Client/
