@@ -93,9 +93,9 @@ class PermissionsOptionMenu(OptionMenu):
 
 
 class VideoSourceOptionMenu(OptionMenu):
-    def __init__(self, root, column, row, columnspan=1, rowspan=1, value="0"):
+    def __init__(self, root, column, row, columnspan=1, rowspan=1, value="Video Camera"):
         # Create the options
-        self.values = ["0", "1", "2"]
+        self.values = ["Video Camera", "Leap Motion"]
 
         if value is None:
             value = self.values[0]

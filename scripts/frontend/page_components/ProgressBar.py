@@ -9,7 +9,8 @@ class Frame(tkinter.Frame, WidgetInterface):
     _progress = "Progress: "
     _percentage = "%"
 
-    def __init__(self, root, column, row, metric_text, max_count, is_default_percentage=False, columnspan=1, rowspan=1):
+    def __init__(self, root, column, row, metric_text, max_count=-1, is_default_percentage=False, columnspan=1,
+                 rowspan=1):
         tkinter.Frame.__init__(self, root)
         self.grid(column=column, row=row)
         self.grid(columnspan=columnspan, rowspan=rowspan)
@@ -51,6 +52,9 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def set_count(self, new_count):
         self.count = new_count
+
+    def add_count(self, count):
+        self.count += count
 
     def reset(self):
         self.count = -1
@@ -96,3 +100,8 @@ class Frame(tkinter.Frame, WidgetInterface):
 
     def set_progress_colour(self, colour):
         self.progress_colour = colour
+
+    def clear(self):
+        self.reset()
+        self.set_max_count(-1)
+        self.set_metric_text("")

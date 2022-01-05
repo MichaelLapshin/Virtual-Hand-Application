@@ -14,6 +14,7 @@ import flask
 # Import REST API scripts
 
 from API_Helper import package, flarg
+from WorkerAPI import worker_api
 from AccountAPI import account_api
 from FileTransferAPI import file_transfer_api
 from DataProcessingAPI import data_processing_api
@@ -30,11 +31,8 @@ from scripts.logic import Worker
 # Questionnaire for the server setup
 
 
-HOST = "127.0.0.1"
-PORT = 5000
 start_server = Database.connect("server_database.db")
 Database.create_all_new_tables(replace=False)
-workers = []
 
 # Create the Admin user (if does not already exist)
 exists_admin = DatabaseAccounts.exists_user_by_name(user_name=Constants.ADMIN_USER_NAME) \
@@ -95,15 +93,13 @@ def stop_processes():
     #     while console_reader.is_stopped() is False:
     #         time.sleep(1)
 
-    # Stops the workers
-    for w in workers:
-        if w is not None:
-            w.stop()
+    # Stops the worker
+    if Worker.worker is not None:
+        Worker.worker.stop()
 
     # Waits until the workers are done their tasks
-    for w in workers:
-        while w.is_stopped() is False:
-            time.sleep(1)
+    while Worker.worker.is_stopped() is False:
+        time.sleep(1)
 
     # Disconnects the database
     Database.disconnect()
@@ -115,6 +111,7 @@ if start_server:
     Log.info("Starting the server...")
     server_app = flask.Flask(__name__)
     server_app.config['SECRET_KEY'] = os.urandom(16)  # Random secret key
+    server_app.register_blueprint(worker_api, url_prefix="/worker")
     server_app.register_blueprint(account_api, url_prefix="/account")
     server_app.register_blueprint(file_transfer_api, url_prefix="/transfer")
     server_app.register_blueprint(data_processing_api, url_prefix="/process")
@@ -125,24 +122,12 @@ if start_server:
     # console_reader = ConsoleReader(stop_processes)
     # console_reader.start()
 
-    # Creates workers
-    Worker.dataset_worker = Worker.Worker()
-    Worker.dataset_image_worker = Worker.Worker()
-    Worker.model_worker = Worker.Worker()
-    Worker.model_image_worker = Worker.Worker()
-
-    # Appends all workers to a list
-    workers.append(Worker.dataset_worker)
-    workers.append(Worker.dataset_image_worker)
-    workers.append(Worker.model_worker)
-    workers.append(Worker.model_image_worker)
-
-    # Starts the worker threads
-    for w in workers:
-        w.start()
+    # Creates & starts the worker thread
+    Worker.worker = Worker.Worker()
+    Worker.worker.start()
 
     if __name__ == "__main__":
-        server_app.run(host=HOST, port=PORT, threaded=True)
+        server_app.run(host=Constants.SERVER_HOST, port=Constants.SERVER_PORT, threaded=True)
 
 """
     Flask REST API
@@ -175,19 +160,25 @@ class ShutDown(threading.Thread):
 @server_app.route('/shutdown')
 def shutdown():
     Log.debug("Received request to shutdown the server...")
-    user_id = int(flarg("user_id"))
+    str_user_id = flarg("user_id")
 
-    if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD):
-        Log.info("Shutting down the server...")
+    if str_user_id is not None:
+        user_id = int(str_user_id)
 
-        stop_processes()
+        if user_id == DatabaseAccounts.get_user_id(user_name=Constants.ADMIN_USER_NAME,
+                                                   password=Constants.ADMIN_PASSWORD):
+            Log.info("Shutting down the server...")
 
-        # Shutting down the flask server
-        ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
+            stop_processes()
 
-        return package(True, "Shutting down the server...")
+            # Shutting down the flask server
+            ShutDown(shutdown_func=flask.request.environ.get('werkzeug.server.shutdown'), delay_s=0)
+
+            return package(True, "The server is shut down.")
+        else:
+            return package(False, "Could not shutdown the server. The current user is not the Administrator.")
     else:
-        return package(False, "Could not shutdown the server. The current user is not the Administrator.")
+        return package(False, "Could not shutdown the server. The command is not coming from an Administrator user.")
 
 
 @server_app.route('/is_online')

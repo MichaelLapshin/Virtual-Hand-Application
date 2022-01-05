@@ -5,9 +5,9 @@
 """
 import os
 
-from scripts import Log, Parameters, Constants, Warnings, General
+from scripts import Log, Parameters, Constants, General
 from scripts.backend.database import DatabaseDatasets
-from scripts.backend.logic import Job
+from scripts.logic import Job
 from scripts.frontend.logic import DatasetRecorder
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
@@ -41,25 +41,18 @@ def _generate_derivative_limb_data(original_list, frames_per_second):
 
 
 class JobSmooth(Job.Job):
-    def __init__(self, dataset_parent_id, dataset_num_frames, dataset_fps, dataset_frames_shift,
+    def __init__(self, dataset_id, dataset_parent_id, dataset_num_frames, dataset_fps,
                  sensor_savagol_distance, sensor_savagol_degree, angle_savagol_distance, angle_savagol_degree,
-                 dataset_name, dataset_owner_id, dataset_date, dataset_permission, dataset_rating, dataset_is_raw,
                  info=None):
         Job.Job.__init__(self, title="Smoothing Dataset: " + str(dataset_parent_id), info=info)
+        self.dataset_id = dataset_id
         self.dataset_parent_id = dataset_parent_id
         self.dataset_num_frames = dataset_num_frames
         self.dataset_fps = dataset_fps
-        self.dataset_frames_shift = dataset_frames_shift
         self.sensor_savagol_distance = sensor_savagol_distance
         self.sensor_savagol_degree = sensor_savagol_degree
         self.angle_savagol_distance = angle_savagol_distance
         self.angle_savagol_degree = angle_savagol_degree
-        self.dataset_name = dataset_name
-        self.dataset_owner_id = dataset_owner_id
-        self.dataset_date = dataset_date
-        self.dataset_permission = dataset_permission
-        self.dataset_rating = dataset_rating
-        self.is_raw = dataset_is_raw
 
         # For the task
         self.set_max_progress(100)
@@ -99,14 +92,15 @@ class JobSmooth(Job.Job):
                              range(0, Constants.NUM_FINGERS)]
 
         # Smooths the dataset
-        progress_points = 60
+        progress_points = 65
         for sensor_index in range(0, Constants.NUM_SENSORS):
             sensor_list[sensor_index] = \
                 scipy.signal.savgol_filter(x=old_sensor_list[sensor_index],
                                            window_length=self.sensor_savagol_distance,
                                            polyorder=self.sensor_savagol_degree)
-            self.add_progress(progress_points / float(Constants.NUM_SENSORS),
-                              "Smoothing the dataset sensors: " + str(sensor_index) + "/" + str(Constants.NUM_SENSORS))
+            self.add_progress(
+                progress_points / float(Constants.NUM_SENSORS + Constants.NUM_FINGERS * Constants.NUM_LIMBS_PER_FINGER),
+                "Smoothing the dataset sensors: " + str(sensor_index) + "/" + str(Constants.NUM_SENSORS))
 
         for finger_index in range(0, Constants.NUM_FINGERS):
             for limb_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
@@ -114,25 +108,10 @@ class JobSmooth(Job.Job):
                     scipy.signal.savgol_filter(x=old_angle_list[finger_index][limb_index],
                                                window_length=self.angle_savagol_distance,
                                                polyorder=self.angle_savagol_degree)
-                self.add_progress(progress_points / float(Constants.NUM_SENSORS),
+                self.add_progress(progress_points / float(
+                    Constants.NUM_SENSORS + Constants.NUM_FINGERS * Constants.NUM_LIMBS_PER_FINGER),
                                   "Smoothing the dataset angles: " + str(finger_index * 3 + limb_index) + "/" + str(
                                       Constants.NUM_FINGERS * Constants.NUM_LIMBS_PER_FINGER))
-
-        # Shifts the frame
-        progress_points = 10
-        for sensor_index in range(0, Constants.NUM_SENSORS):
-            sensor_list[sensor_index] = sensor_list[sensor_index][:-self.dataset_frames_shift:]
-            self.add_progress(
-                progress_points / float(Constants.NUM_SENSORS + Constants.NUM_FINGERS * Constants.NUM_LIMBS_PER_FINGER)
-                , "Shifting data (cropping sensors list from the back)")
-
-        for finger_index in range(0, Constants.NUM_FINGERS):
-            for limb_index in range(0, Constants.NUM_LIMBS_PER_FINGER):
-                angle_list[finger_index][limb_index] = angle_list[finger_index][limb_index][self.dataset_frames_shift::]
-                self.add_progress(
-                    progress_points / float(
-                        Constants.NUM_SENSORS + Constants.NUM_FINGERS * Constants.NUM_LIMBS_PER_FINGER)
-                    , "Shifting data (cropping angles list from the front)")
 
         # Generates derivative data
         progress_points = 20
@@ -161,7 +140,8 @@ class JobSmooth(Job.Job):
         self.set_progress(95, "Saving the temporary dataset file.")
 
         # Saves the training data
-        file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + Constants.TEMP_SAVE_DATASET_NAME
+        file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH \
+                    + str(self.dataset_id) + Constants.DATASET_EXT
         hf = h5py.File(file_name, 'w')
         if DatasetRecorder.Recorder.RECORD_TIME is True:
             hf.create_dataset("time", data=time_list)
@@ -171,20 +151,5 @@ class JobSmooth(Job.Job):
         hf.create_dataset("acceleration", data=acceleration_list)
         hf.close()
 
-        self.set_progress(98, "Saving the smoothed dataset into the database.")
-
-        # Saves the data on the database
-        result = DatabaseDatasets.create_new_dataset(
-            name=self.dataset_name, owner_id=self.dataset_owner_id, date=self.dataset_date,
-            permission=self.dataset_permission, rating=self.dataset_rating, is_raw=self.is_raw,
-            num_frames=self.dataset_num_frames, fps=self.dataset_fps, frames_shift=self.dataset_frames_shift,
-            sensor_savagol_distance=self.sensor_savagol_distance, sensor_savagol_degree=self.sensor_savagol_degree,
-            angle_savagol_distance=self.angle_savagol_distance, angle_savagol_degree=self.angle_savagol_degree,
-            file=file_name, contains_vel_acc_data=True)
-
-        self.set_progress(100, "The dataset was saved into the database.")
-
-        if result is True:
-            Log.info("The smoothed dataset was saved on the database.")
-        else:
-            Log.warning("The smoothed dataset was not saved on the database.")
+        self.complete_progress("The dataset file is saved.")
+        Log.info("Done smoothing the dataset with id '" + str(self.dataset_id) + "'")

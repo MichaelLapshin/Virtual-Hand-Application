@@ -42,6 +42,7 @@ USER_LIST_UPDATE_BUTTON = "Update User List"
 USER_LIST_COLUMN_LABEL = "Number of Columns"
 USER_LIS_COLUMN_NUM_DEFAULT = 5
 
+account_page = None
 
 class Frame(GenericPage.NavigationFrame):
     class LoginFrame(GenericPage.Frame):

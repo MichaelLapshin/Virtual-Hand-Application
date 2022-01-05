@@ -14,7 +14,7 @@ def get_all_datasets():
     return result
 
 
-def update_dataset_entry(dataset_id, new_values):
+def update_dataset_entry(dataset_id: int, new_values: dict):
     Log.info("Updating the dataset with id '" + str(dataset_id) + "' with the new values: " + str(new_values))
     try:
         Database.cursor.execute(
@@ -27,64 +27,47 @@ def update_dataset_entry(dataset_id, new_values):
         return False
 
 
-def create_new_dataset(name, owner_id, date, permission, rating, num_frames, fps,
-                       file=None, is_raw=True, frames_shift=0,
+def create_new_dataset(name, owner_id, date_created, permission, rating, num_frames, fps,                       is_raw=True,
                        sensor_savagol_distance=0, sensor_savagol_degree=0,
-                       angle_savagol_distance=0, angle_savagol_degree=0, contains_vel_acc_data=False):
-    Log.info("Inserting a dataset entry: "
-             + str((name, owner_id, date, permission, rating, is_raw, num_frames, fps, frames_shift,
-                    sensor_savagol_distance, sensor_savagol_degree, angle_savagol_distance, angle_savagol_degree)))
+                       angle_savagol_distance=0, angle_savagol_degree=0):
+    """
+    Creates a dataset entry
+    :return: ID of the new dataset entry
+    """
+
+    # Prepares the data
+    input_data = (name, owner_id, date_created, permission, rating, is_raw, num_frames, fps,
+                  sensor_savagol_distance, sensor_savagol_degree,
+                  angle_savagol_distance, angle_savagol_degree)
+    Log.info("Inserting a dataset entry: " + str(input_data))
 
     # Create new dataset
-    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (name, owner_id, date, permission, rating, is_raw, num_frames, fps, frames_shift,
-                             sensor_savagol_distance, sensor_savagol_degree,
-                             angle_savagol_distance, angle_savagol_degree))
+    Database.cursor.execute("INSERT INTO Datasets VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", input_data)
     Database.connection.commit()
 
     # Obtains the ID of the new dataset
     # TODO, Warning: can cause problem with multiple users since lastworid returns id for the cursor (cursor is shared)
     dataset_id = Database.cursor.lastrowid
-    Log.debug("Create a dataset entry with the id '" + str(dataset_id) + "'")
-
-    # Saves the file locally
-    if file is not None:
-
-        # Write to file
-        output_file_name = Parameters.PROJECT_PATH + Constants.SERVER_DATASET_PATH + str(dataset_id) + ".ds"
-        try:
-            Log.trace("Trying to save the smoothed dataset by executing file.save()")
-            file.save(output_file_name)
-        except:
-            Log.debug(
-                "Could not save the smoothed dataset with file.save(); attempting to rename (or replace) the file")
-            os.replace(file, output_file_name)
-
-        # Creates image creation job
-        job = DatasetPlotter.JobDatasetPlotter(title="Plotting Dataset", dataset_id=dataset_id,
-                                               plot_vel_acc=contains_vel_acc_data)
-        Worker.dataset_image_worker.add_task(job=job)
-    else:
-        Log.warning("A dataset entry with id '" + str(dataset_id) + "' is being saved without a file.")
-    return True
+    Log.debug("Created a dataset entry with the id '" + str(dataset_id) + "'")
+    return dataset_id
 
 
-def exists_dataset_by_name(dataset_name):
-    Log.info("Checking if a dataset exists with the name '" + dataset_name + "'.")
-    Database.cursor.execute("SELECT * FROM Datasets WHERE Name='" + dataset_name + "'")
+def exists_dataset_by_id(dataset_id: int):
+    Log.info("Checking if a dataset exists with the id '" + str(dataset_id) + "'.")
+    Database.cursor.execute("SELECT * FROM Datasets WHERE ID='" + str(dataset_id) + "'")
 
     # Checks the number of datasets found with the given user name
     num_datasets = len(Database.cursor.fetchall())
-    Log.debug("Found " + str(num_datasets) + " datasets with the name '" + dataset_name + "'.")
+    Log.debug("Found " + str(num_datasets) + " datasets with the id '" + str(dataset_id) + "'.")
 
     if num_datasets == 1:
-        Log.info("Found the dataset with the name '" + dataset_name + "'.")
+        Log.info("Found the dataset with the name '" + str(dataset_id) + "'.")
         return True
     elif num_datasets == 0:
-        Log.info("Did not find the dataset with the name '" + dataset_name + "'.")
+        Log.info("Did not find the dataset with the name '" + str(dataset_id) + "'.")
         return False
     else:
-        Log.warning("Found multiple occurrences of datasets with the name '" + dataset_name + "'.")
+        Log.warning("Found multiple occurrences of datasets with the name '" + str(dataset_id) + "'.")
         Warnings.not_to_reach(popup=False)
         return True
 
@@ -95,7 +78,7 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id="NULL"):
 
     # Fetching the ordered data
     Database.cursor.execute(
-        "SELECT " + General.list_to_sql_select_features(Constants.DATABASE_ENTRY_TRANSFER_DATA)
+        "SELECT " + General.list_to_sql_select_features(Constants.DATASET_ENTRY_TRANSFER_DATA)
         + " FROM Datasets WHERE ID_Owner=" + str(user_id) + " or "
         + "Permission<=" + str(Constants.PERMISSION_LEVELS.get(Constants.PERMISSION_PUBLIC))
         + " ORDER BY " + sort_by + " " + direction)
@@ -106,7 +89,12 @@ def fetch_ordered_datasets(sort_by="Name", direction="ASC", user_id="NULL"):
     return results
 
 
-def delete_dataset(dataset_id):
+def delete_dataset(dataset_id: int):
+    """
+    Deletes the dataset. Soft deletes its presence in other objects which used it.
+    :param dataset_id:
+    :return: True, the dataset was deleted
+    """
     Log.info("Deleting the dataset with id '" + str(dataset_id) + "'")
 
     # Delete the database file
@@ -130,10 +118,16 @@ def delete_dataset(dataset_id):
 
     # Delete the database entries related to the dataset
     Database.cursor.execute("DELETE FROM Datasets WHERE ID=" + str(dataset_id))
-    Database.cursor.execute("DELETE FROM DatasetDependencies WHERE ID_Dataset=" + str(dataset_id)
-                            + " OR ID_Dependency=" + str(dataset_id))
+    Database.cursor.execute("DELETE FROM DatasetDependencies WHERE ID_Dataset=" + str(dataset_id))
     Database.cursor.execute("DELETE FROM DatasetFingerPlots WHERE ID_Dataset=" + str(dataset_id))
     Database.cursor.execute("DELETE FROM DatasetSensorPlots WHERE ID_Dataset=" + str(dataset_id))
-    Database.connection.commit()
 
+    # If it is a dependency for another dataset, then replace it with Constants.DATABASE_DELETED_ID
+    Database.cursor.execute("UPDATE DatasetDependencies SET ID_Dependency=" + str(Constants.DATABASE_DELETED_ID)
+                            + " WHERE ID_Dependency=" + str(dataset_id))
+    Database.cursor.execute("UPDATE Models SET ID_Dataset=" + str(Constants.DATABASE_DELETED_ID)
+                            + " WHERE ID_Dataset=" + str(dataset_id))
+
+    # Saves the changes
+    Database.connection.commit()
     return True

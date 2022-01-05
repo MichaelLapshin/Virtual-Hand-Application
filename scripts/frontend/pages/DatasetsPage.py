@@ -16,6 +16,8 @@ from scripts.frontend.pages import GenericPage
 TITLE_SELECTED_DATASET_INFORMATION = "Selected Dataset Information"
 TITLE_NEW_DATASET_INFORMATION = "New Dataset Information"
 
+datasets_page = None
+
 
 class Frame(GenericPage.NavigationFrame):
 
@@ -80,71 +82,6 @@ class Frame(GenericPage.NavigationFrame):
 
 
 class ViewFrame(GenericPage.NavigationFrame):
-    class InfoFrame(GenericPage.Frame):
-
-        def __init__(self, root, column, row, columnspan=1, rowspan=1):
-            GenericPage.Frame.__init__(self,
-                                       root, column=column, row=row,
-                                       columnspan=columnspan, rowspan=rowspan)
-            self.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure weights
-            self.columnconfigure(0, weight=1)
-            self.rowconfigure(0, weight=1)
-            self.rowconfigure(1, weight=0)
-
-            # Information frame
-            self.info_block = InformationBlock.Frame(self, title=TITLE_SELECTED_DATASET_INFORMATION,
-                                                     num_columns=2, num_rows=2)
-            self.info_block.config()
-            self.info_block.grid(column=0, row=0)
-            self.info_block.grid(columnspan=1, rowspan=1)
-
-            # Buttons Frame
-            self.button_frame = GenericPage.Frame(self,
-                                                  column=0, row=1,
-                                                  columnspan=1, rowspan=1)
-            self.button_frame.config(padx=Constants.SHORT_SPACING, pady=Constants.SHORT_SPACING)
-
-            # Configure button frame weights
-            self.button_frame.columnconfigure(0, weight=1)
-            self.button_frame.columnconfigure(1, weight=1)
-            self.button_frame.columnconfigure(2, weight=1)
-            self.button_frame.columnconfigure(3, weight=1)
-
-            # Create buttons
-            self.favourite_button = \
-                InformationButton(self.button_frame, column=0, row=0, text="Favourite", command=Warnings.not_complete)
-            self.duplicate_button = \
-                InformationButton(self.button_frame, column=1, row=0, text="Duplicate", command=Warnings.not_complete)
-            self.smooth_button = \
-                InformationButton(self.button_frame, column=2, row=0, text="Smooth Dataset",
-                                  command=Warnings.not_complete)
-            self.delete_button = \
-                InformationButton(self.button_frame, column=3, row=0, text="Delete", command=Warnings.not_complete)
-
-            """
-                Additional information
-            """
-            # Fill in data for the information block
-            self.info_block.add_info(1, 0, "hello world!")
-            self.info_block.add_info(0, 1, "This is another test \n to check out \n what this type of stuff\n can do.")
-
-        def update_colour(self):
-            super().update_colour()
-            self.button_frame.update_colour()
-
-            self.favourite_button.update_colour()
-            self.duplicate_button.update_colour()
-            self.smooth_button.update_colour()
-            self.delete_button.update_colour()
-
-            self.info_block.set_frame_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.set_label_colour(Parameters.COLOUR_BRAVO)
-            self.info_block.update_colour()
-
-            self.button_frame.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_B))
-            self.config(bg=General.washed_colour_hex(Parameters.COLOUR_BRAVO, Parameters.ColourGrad_B))
 
     def __init__(self, root, base_frame=None):
         GenericPage.NavigationFrame.__init__(self, root=root, base_frame=base_frame,
@@ -172,24 +109,24 @@ class ViewFrame(GenericPage.NavigationFrame):
         """
             Info Frame
         """
-        self.smooth_frame = DataInfoBlock.DatasetInfo(
-            self, column=1, row=0, title="Smoothed Dataset Information",
-            general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
-                                  "Permission": False, "Rating": True, "Is_Raw": False},
-            right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": True,
-                                "Sensor_Savagol_Distance": True, "Sensor_Savagol_Degree": True,
-                                "Angle_Savagol_Distance": True, "Angle_Savagol_Degree": True},
-            right_column_title="Smoothing Information")
-        self.smooth_frame.grid_remove()
-
         self.info_frame = DataInfoBlock.DatasetInfo(
             self, column=1, row=0, title="Selected Dataset Information",
             general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
                                   "Permission": False, "Rating": True, "Is_Raw": False},
-            right_options_data={"Num_Frames": False, "FPS": False, "Frames_Shift": False,
+            right_options_data={"Num_Frames": False, "FPS": False,
                                 "Sensor_Savagol_Distance": False, "Sensor_Savagol_Degree": False,
                                 "Angle_Savagol_Distance": False, "Angle_Savagol_Degree": False},
             right_column_title="Smoothing Information")
+
+        self.smooth_frame = DataInfoBlock.DatasetInfo(
+            self, column=1, row=0, title="Smoothed Dataset Information",
+            general_options_data={"Name": True, "ID_Owner": False, "Date_Created": False,
+                                  "Permission": False, "Rating": True, "Is_Raw": False},
+            right_options_data={"Num_Frames": False, "FPS": False,
+                                "Sensor_Savagol_Distance": True, "Sensor_Savagol_Degree": True,
+                                "Angle_Savagol_Distance": True, "Angle_Savagol_Degree": True},
+            right_column_title="Smoothing Information")
+        self.smooth_frame.grid_remove()
 
         # Additional buttons for the info frame
         self.button_frame = GenericPage.Frame(self,
@@ -201,14 +138,11 @@ class ViewFrame(GenericPage.NavigationFrame):
         for i in range(0, 5):
             self.button_frame.columnconfigure(i, weight=1)
 
-        # Create buttons
+        # Create info frame buttons
         self.update_button = InformationButton(self.button_frame, column=0, row=0, text="Update",
                                                command=self.update_button_command)
         # self.favourite_button = InformationButton(self.button_frame, column=1, row=0, text="Favourite",
         #                                           command=lambda: self.info_frame.toggle_favourite_item(
-        #                                               self.search_frame.get_selected_main_id()))
-        # self.duplicate_button = InformationButton(self.button_frame, column=2, row=0, text="Duplicate",
-        #                                           command=lambda: self.info_frame.duplicate_item(
         #                                               self.search_frame.get_selected_main_id()))
         self.smooth_button = InformationButton(self.button_frame, column=1, row=0, text="Smooth Dataset",
                                                command=lambda: self.set_is_smoothing(True))
@@ -259,15 +193,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         # Info frame
         if self.is_smoothing is True:
             self.smooth_frame.update_content()
-
-            # Set smooth num_frames to be accurate
-            try:
-                self.smooth_frame.update_entries(
-                    {"Num_Frames": str(int(self.info_frame.get_value("Num_Frames"))
-                                       - int(self.smooth_frame.get_value("Frames_Shift")))})
-            except:
-                self.smooth_frame.update_entries({"Num_Frames": "<" + self.info_frame.get_value("Num_Frames")})
-
+            self.smooth_frame.update_entries({"Date_Created": General.get_current_slashed_date()})
         else:
             self.info_frame.update_content()
 
@@ -284,8 +210,8 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.update_content()
 
     def update_button_command(self):
-        result = self.info_frame.save_item(self.search_frame.scroll_block.is_selected_main(),
-                                           self.search_frame.get_selected_main_id())
+        result = self.info_frame.save_item(is_selected=self.search_frame.scroll_block.is_selected_main(),
+                                           item_id=self.search_frame.get_selected_main_id())
         if result is True:
             self.search_frame.search_button_command()
 
@@ -308,7 +234,7 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.info_frame.clear_info_frame()
         self.graph_frame.metric_button_frame.enable_all_buttons(False)
         self.set_is_smoothing(False)
-        self.graph_frame.clear_images()
+        self.graph_frame.image_frame.clear_images()
 
     def selected_entry_update_command(self):
         self.set_is_smoothing(False)
@@ -319,14 +245,15 @@ class ViewFrame(GenericPage.NavigationFrame):
 
         # Prepares the entries
         entries = {}
-        for i in range(0, len(Constants.DATABASE_ENTRY_TRANSFER_DATA)):
-            entries[Constants.DATABASE_ENTRY_TRANSFER_DATA[i]] = data_at_index[i]
+        for i in range(0, len(Constants.DATASET_ENTRY_TRANSFER_DATA)):
+            entries[Constants.DATASET_ENTRY_TRANSFER_DATA[i]] = data_at_index[i]
+        owner_name = ClientConnection.get_user_name_of(entries.get("ID_Owner"))
 
         # Updates the info frame
-        self.info_frame.update_entries(entries=entries)
+        self.info_frame.update_entries(entries=entries, owner_name=owner_name)
 
         self.graph_frame.metric_button_frame.enable_all_buttons(True)
-        if self.search_frame.get_selected_main_data()[Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 0:
+        if self.search_frame.get_selected_main_data()[Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 0:
             self.smooth_button.disable()
             self.graph_frame.metric_button_frame.enable_vel_acc_buttons(True)
         else:
@@ -340,17 +267,20 @@ class ViewFrame(GenericPage.NavigationFrame):
         self.graph_frame.image_frame.load_new_images(
             dataset_id=selected_dataset_id,
             is_raw=self.search_frame.list_storage[selected_index][
-                Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")],
-            update_image_visibility_command=self.graph_frame.metric_button_frame.update_image_size_command)
+                Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")])
         self.graph_frame.metric_button_frame.update_image_state()
 
     def smooth_dataset_button_command(self):
-        result = self.smooth_frame.smooth_dataset(self.search_frame.get_selected_main_id())
+        result = self.smooth_frame.smooth_dataset(
+            self.search_frame.get_index_entry(self.search_frame.scroll_block.get_selected_main(), "ID_Owner"),
+            self.search_frame.get_selected_main_id())
+
         Log.debug("The database smoothing result is: " + str(result))
+
         if result is True:
             self.set_is_smoothing(False)
-            self.search_frame_command()
-            self.graph_frame.clear_images()
+            self.search_frame.search_button_command()
+            self.graph_frame.image_frame.clear_images()
 
     def set_is_smoothing(self, smooth):
 
@@ -378,12 +308,12 @@ class ViewFrame(GenericPage.NavigationFrame):
                         "Permission": Constants.PERMISSION_LEVELS.get(self.info_frame.get_value("Permission")),
                         "Rating": self.info_frame.get_value("Rating"),
                         "Is_Raw": 0,
+                        "Num_Frames": self.info_frame.get_value("Num_Frames"),
                         "FPS": self.info_frame.get_value("FPS"),
-                    })
+                    }, owner_name=ClientConnection.get_user_name())
 
                     # Clears the smoothing parameters
                     self.smooth_frame.update_entries({
-                        "Frames_Shift": "",
                         "Sensor_Savagol_Distance": "",
                         "Sensor_Savagol_Degree": "",
                         "Angle_Savagol_Distance": "",
@@ -513,8 +443,8 @@ class NewFrame(GenericPage.NavigationFrame):
             self.stop_progress_button.update_content()
 
             # Paint the camera
-            if (self.hand_angler is not None) and (self.hand_angler.get_raw_image() is not None):
-                image = Image.fromarray(self.hand_angler.get_processed_image())
+            if (self.hand_angler is not None) and (self.hand_angler.get_processed_image() is not None):
+                image = self.hand_angler.get_processed_image()
 
                 # Resize image
                 ratio = General.resizing_scale(width=image.width, height=image.height,
@@ -587,19 +517,12 @@ class NewFrame(GenericPage.NavigationFrame):
             logic threads and objects
         """
 
-        # Setup Hand Angler
-        self.hand_angler = MediapipHandAngler.HandAngleReader()
-        self.hand_angler.start()
-
-        # Setup Sensor Reader & Data Recorder
+        # Setup Sensor Reader
         self.sensor_listener = None
         self.data_recorder = None
 
-        # Data recording frame
-        self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, hand_angler=self.hand_angler,
-                                                             column=1, row=0, rowspan=3)
-        self.data_rec_info_frame.start_progress_button.config(command=self.start_dataset_recording)
-        self.data_rec_info_frame.stop_progress_button.config(command=self.stop_dataset_recording)
+        # Setup the hand angler
+        self.hand_angler = None
         self.reconfigure_hand_angler()
 
     def update_colour(self):
@@ -720,17 +643,43 @@ class NewFrame(GenericPage.NavigationFrame):
 
         # Checks if the reset is allowed
         reconfigure = True
-        reconfigure &= InputConstraints.assert_int_non_negative("Video source", video_source)
+        # reconfigure &= InputConstraints.assert_string_from_set("Video source", video_source, Video)
         reconfigure &= InputConstraints.assert_int_positive("Width", width)
         reconfigure &= InputConstraints.assert_int_positive("Height", height)
         reconfigure &= InputConstraints.assert_int_positive("Zoom %", zoom_percent)
         reconfigure &= InputConstraints.assert_int_positive("Frames per second", frames_per_second)
 
-        # Performs reset if allowed
+        # Performs reset if allowed (Setup Hand Angler)
         if reconfigure is True:
-            self.hand_angler.set_configurations(
-                video_source=int(video_source), width=int(width), height=int(height), zoom=int(zoom_percent),
-                frames_per_second=int(frames_per_second))
+            if self.hand_angler is not None:
+                self.hand_angler.stop_watching()
+                self.hand_angler.stop()
+
+            # Turns on either the mediapipe or leap motion hand tracker
+            if video_source == "Video Camera":
+                self.hand_angler = MediapipHandAngler.MediaPipeHandAnglerReader()
+                self.hand_angler.start()
+
+                self.hand_angler.set_configurations(width=int(width), height=int(height), zoom=int(zoom_percent),
+                                                    frames_per_second=int(frames_per_second))
+                self.hand_angler.start_watching()
+
+            elif video_source == "Leap Motion":
+                self.hand_angler = MediapipHandAngler.LeapMotionHandAnglerReader()
+                self.hand_angler.start()
+
+                self.hand_angler.set_configurations(width=int(width), height=int(height), zoom=int(zoom_percent),
+                                                    frames_per_second=int(frames_per_second))
+                self.hand_angler.start_watching()
+            else:
+                Warnings.not_to_reach()
+
+            # Data recording frame
+            self.data_rec_info_frame = NewFrame.DataRecInfoFrame(self, hand_angler=self.hand_angler,
+                                                                 column=1, row=0, rowspan=3)
+            self.data_rec_info_frame.start_progress_button.config(command=self.start_dataset_recording)
+            self.data_rec_info_frame.stop_progress_button.config(command=self.stop_dataset_recording)
+            self.data_rec_info_frame.update_colour()
 
     def start_dataset_recording(self):
         # Retrieves the data

@@ -28,7 +28,7 @@ def get_all_account():
     return result
 
 
-def get_user_id(user_name, password):
+def get_user_id(user_name: str, password: str) -> int:
     Log.debug("Getting the ID of a user named '" + user_name + "'.")
     Database.cursor.execute("SELECT ID FROM Users WHERE Name='" + user_name + "' and Password='" + password + "'")
 
@@ -42,6 +42,21 @@ def get_user_id(user_name, password):
     Log.info(
         "Retrieved the ID '" + str(id) + "' for the user named '" + user_name + "' with password '" + password + "'")
     return id
+
+
+def get_user_name(user_id: int) -> str:
+    Log.debug("Getting the name of a user with id '" + str(user_id) + "'.")
+    Database.cursor.execute("SELECT Name FROM Users WHERE ID=" + str(user_id))
+
+    fetched_data = Database.cursor.fetchall()
+
+    if len(fetched_data) <= 0:
+        return -1
+
+    # Obtain the user name
+    name = fetched_data[0][0]
+    Log.info("Retrieved the name '" + name + "' for the user with id '" + str(user_id) + "'")
+    return name
 
 
 def exists_user_by_id(user_id: int):
@@ -65,7 +80,7 @@ def exists_user_by_id(user_id: int):
         return True
 
 
-def exists_user_by_name(user_name):
+def exists_user_by_name(user_name: str):
     Log.info("Checking if a user exists with the name '" + user_name + "'.")
     Database.cursor.execute("SELECT * FROM Users WHERE Name='" + user_name + "'")
 
@@ -138,7 +153,7 @@ def add_user(user_name, password, permission=Constants.PERMISSION_LEVELS.get(Con
 
 def delete_user(user_id):
     """
-    Deletes the user. Transfers all possessions to the Admin user.
+    Deletes the user. Soft deletes all owned objects
     :param user_id: user with user_id to delete
     """
 
@@ -149,10 +164,11 @@ def delete_user(user_id):
     # Deletes the user
     Database.cursor.execute("DELETE FROM Users WHERE ID=" + str(user_id))
 
-    # Changes Owner ID of all related datasets and models
-    admin_id = get_user_id(user_name=Constants.ADMIN_USER_NAME, password=Constants.ADMIN_PASSWORD)
-    Database.cursor.execute("UPDATE Datasets SET ID_Owner=" + str(admin_id) + " WHERE ID_Owner=" + str(user_id))
-    Database.cursor.execute("UPDATE Models SET ID_Owner=" + str(admin_id) + " WHERE ID_Owner=" + str(user_id))
+    # Soft deletes all objects with owner id (replace with Constants.DATABASE_DELETED_ID)
+    Database.cursor.execute("UPDATE Datasets SET ID_Owner=" + str(Constants.DATABASE_DELETED_ID)
+                            + " WHERE ID_Owner=" + str(user_id))
+    Database.cursor.execute("UPDATE Models SET ID_Owner=" + str(Constants.DATABASE_DELETED_ID)
+                            + " WHERE ID_Owner=" + str(user_id))
 
     # Saves the changes
     Database.connection.commit()

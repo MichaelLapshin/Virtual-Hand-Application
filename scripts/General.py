@@ -1,8 +1,24 @@
 import datetime
+import time
 
 import numpy
 
 from scripts import Log
+
+
+def time_ms():
+    return int(round(time.time() * 1000))
+
+
+def dict_deepcopy(dict):
+    d = {}
+    for k in dict.keys():
+        d[k] = dict[k]
+    return d
+
+
+def constraint_number_value(value, min_value, max_value):
+    return max(min_value, min(max_value, value))
 
 
 def washed_colour_rgb(colour, percent):

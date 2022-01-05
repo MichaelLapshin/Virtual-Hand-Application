@@ -12,8 +12,6 @@ data_updating_api = flask.Blueprint('data_updating_api', __name__)
 """
 
 
-
-
 @data_updating_api.route("/dataset_entry")
 def update_dataset_entry():
     dataset_id = flarg("id")

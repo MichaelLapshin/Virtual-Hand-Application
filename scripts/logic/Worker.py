@@ -5,10 +5,7 @@ import time
 
 from scripts import Log, General
 
-dataset_worker = None
-dataset_image_worker = None
-model_worker = None
-model_image_worker = None
+worker = None
 
 
 class Worker(threading.Thread):
@@ -16,7 +13,7 @@ class Worker(threading.Thread):
         Thread performing long-lasting tasks
     """
 
-    def __init__(self, sleep_delay=1):
+    def __init__(self, sleep_delay=0.5, thread_jobs=False):
         threading.Thread.__init__(self)
         self._running = False
         self.daemon = True
@@ -26,8 +23,10 @@ class Worker(threading.Thread):
         self._end_time = []
         self._stopped = True
         self._sleep_delay = sleep_delay
+        self._thread_jobs = thread_jobs
 
     def add_task(self, job):
+        Log.info("Added the job '" + job.get_title() + "'")
         self._queue.append(job)
 
     def run(self):
@@ -35,13 +34,17 @@ class Worker(threading.Thread):
         while self._running is True:
             while len(self._queue) > 0:
                 # TODO, change 'while' to 'if' once you get the worker tasks to be stored within the database
+                # Performs the task
+                Log.info("Starting to process the job '" + self._queue[0].get_title() + "'")
                 self._start_time.append(General.get_current_slashed_date())
                 self._queue[0].perform_task()
-                self._end_time.append(General.get_current_slashed_date())
 
                 # Transfers the task to the queue complete
+                Log.info("Completed the job '" + self._queue[0].get_title() + "'")
+                self._end_time.append(General.get_current_slashed_date())
                 self._complete.append(self._queue[0])
                 self._queue.pop(0)
+
             time.sleep(self._sleep_delay)
 
         self._stopped = True
@@ -61,6 +64,13 @@ class Worker(threading.Thread):
             self._start_time.pop(0)
             self._end_time.pop(0)
             self._complete.pop(0)
+
+    def remove_queue_job(self, id: int):
+        for q in self._queue:
+            if id == q.get_id() and (len(self._queue) > 0 and self._queue[0].get_id() != id):
+                Log.info("Removed the job with id '" + str(id) + "', titled '" + q.get_title() + "'")
+                self._queue.remove(q)
+                break
 
     """
         Getters

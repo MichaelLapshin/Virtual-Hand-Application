@@ -152,6 +152,15 @@ class Frame(tkinter.Frame, WidgetInterface):
     def is_selected_main(self):
         return len(self.listbox.curselection()) > 0
 
+    def unselect_main(self):
+        # Clears the selection
+        self.listbox.selection_clear(0, tkinter.END)
+        self.sorted_listbox.selection_clear(0, tkinter.END)
+
+        # Resets select index
+        self.selected_index_listbox = -1
+        self.selected_index_sorted_listbox = -1
+
     def num_selected(self):
         return len(self.get_selected_multi())
 

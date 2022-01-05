@@ -35,6 +35,7 @@ class Button(tkinter.Button, WidgetInterface):
     def enable(self):
         self["state"] = tkinter.NORMAL
 
+
 """
     Custom buttons
 """
@@ -78,6 +79,7 @@ class InformationButton(Button):
     def update_colour(self):
         super().update_colour()
         self.config(bg=General.washed_colour_hex(Parameters.COLOUR_ALPHA, Parameters.ColourGrad_C))
+
 
 class AccountButton(Button):
     def __init__(self, root, column, row, columnspan=1, rowspan=1, text=None, command=Warnings.not_complete):

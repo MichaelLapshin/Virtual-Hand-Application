@@ -2,10 +2,15 @@
 *.log
 /logs/
 
-# Ignore Client Data
+# Ignore the virtual enviroment libraries
+/venv/
+**/__pycache__/
+
+# Ignore Client App Data
 /AppData-Client/
 /AppData-Client/temp-models/
 /AppData-Client/temp-datasets/
+
 
 # Ignore Server Data
 /AppData-Server/
@@ -15,3 +20,22 @@
 /AppData-Server/images-models/
 /AppData-Server/images-datasets-fingers/
 /AppData-Server/images-datasets-sensors/
+
+# Ignore Server App Data
+/AppData-Server/
+/AppData-Server/databases/
+
+/AppData-Server/datasets/
+/AppData-Server/images-datasets-fingers/
+/AppData-Server/images-datasets-sensors/
+
+/AppData-Server/models/
+/AppData-Server/zip-models/
+/AppData-Server/images-models-errors/
+/AppData-Server/images-models-predictions/
+
+# Ignore useless Unity files
+/TheMachineLearningHand-Unity/.vs/
+/TheMachineLearningHand-Unity/Library/Artifacts/
+/TheMachineLearningHand-Unity/Library/StateCache/
+

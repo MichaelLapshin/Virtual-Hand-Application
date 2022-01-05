@@ -5,7 +5,7 @@
 """
 import os
 
-from scripts import Constants, Log
+from scripts import Constants, Log, General
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # To remove the redundant warnings
 import serial
@@ -13,13 +13,6 @@ import time
 import threading
 
 print("Imported the SensorListener.py class successfully.")
-
-
-def _dict_deepcopy(dictionary):
-    d = {}
-    for k in dictionary.keys():
-        d[k] = dictionary[k]
-    return d
 
 
 class SensorReadingsListener(threading.Thread):
@@ -33,6 +26,7 @@ class SensorReadingsListener(threading.Thread):
         self._sensorReadings = {}
         self._running = False
         self._is_reading = False
+        self._zeroed_sensor_readings = None
 
         try:
             self.port = serial.Serial('COM3', 9600, timeout=100)  # for COM3
@@ -43,6 +37,13 @@ class SensorReadingsListener(threading.Thread):
             if self.port.isOpen():
                 print("Closed the port.")
                 self.port.close()
+
+    def zero_sensor_readings(self):
+        # stores the zeroed value
+        self._zeroed_sensor_readings = None
+        while self._zeroed_sensor_readings is None:
+            self._zeroed_sensor_readings = self.get_readings_frame()
+        self._zeroed_sensor_readings = General.dict_deepcopy(self._zeroed_sensor_readings)
 
     # Reading start/stop methods
     def start_reading(self):
@@ -61,7 +62,7 @@ class SensorReadingsListener(threading.Thread):
     def stop_running(self):
         self._running = False
         self._is_reading = False
-        time.sleep(1)
+        time.sleep(0.5)
         if self.port.isOpen():
             self.port.close()
 
@@ -133,7 +134,12 @@ class SensorReadingsListener(threading.Thread):
 
     # Getter for the batch of sensor readings list
     def get_readings_frame(self):
-        return _dict_deepcopy(self._sensorReadings)
+        if self._zeroed_sensor_readings is not None:
+            assert len(self._sensorReadings) == len(self._zeroed_sensor_readings)
+            return {key: self._sensorReadings[key] - self._zeroed_sensor_readings[key]
+                    for key in self._sensorReadings.keys()}
+        else:
+            return General.dict_deepcopy(self._sensorReadings)
 
     def print_raw_sensor_readings(self):
         print(str(self._sensorReadings))

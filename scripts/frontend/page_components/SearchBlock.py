@@ -100,21 +100,25 @@ class Frame(GenericPage.Frame):
         self.sort_direction_option_menu.update_content()
 
     def search_button_command(self):
-        Warnings.not_to_reach()
+        Warnings.not_overridden()
 
     def get_index_data(self, index):
         return self.list_storage[index]
 
     def get_index_entry(self, index, entry):
-        Warnings.not_to_reach()
+        Warnings.not_overridden()
 
     def get_selected_main_id(self):
-        assert 0 == Constants.DATABASE_ENTRY_TRANSFER_DATA.index("ID") and \
+        assert 0 == Constants.DATASET_ENTRY_TRANSFER_DATA.index("ID") and \
                0 == Constants.MODEL_ENTRY_TRANSFER_DATA.index("ID")
         if len(self.list_storage) <= 0:
             return None
         else:
-            return self.list_storage[self.scroll_block.get_selected_main()][0]
+            main_index = self.scroll_block.get_selected_main()
+            if main_index is not None:
+                return self.list_storage[main_index][0]
+            else:
+                return None
 
     def get_selected_main_data(self):
         return self.get_index_data(self.scroll_block.get_selected_main())
@@ -138,28 +142,31 @@ class DatasetSearchFrame(Frame):
         super().update_content()
 
     def search_button_command(self):
-        sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
+        if ClientConnection.is_server_online() is True:
+            sort_by = Constants.DATABASES_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
 
-        # Obtains the information
-        user_id = ClientConnection.get_user_id()
-        if user_id is None:
-            user_id = "NULL"
-        self.list_storage = ClientConnection.fetch_ordered_datasets(
-            sort_by=sort_by,
-            direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
-            user_id=user_id)
+            # Obtains the information
+            user_id = ClientConnection.get_user_id()
+            if user_id is None:
+                user_id = "NULL"
+            self.list_storage = ClientConnection.fetch_ordered_datasets(
+                sort_by=sort_by,
+                direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
+                user_id=user_id)
 
-        # Replaces the list
-        replace_list = []
-        replace_list_sorted = []
-        if self.list_storage is not None:
-            for item in self.list_storage:
-                replace_list.append(" " + str(item[Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Name")]))
-                replace_list_sorted.append(" " + str(item[Constants.DATABASE_ENTRY_TRANSFER_DATA.index(sort_by)]))
+            # Replaces the list
+            replace_list = []
+            replace_list_sorted = []
+            if self.list_storage is not None:
+                for item in self.list_storage:
+                    replace_list.append(" " + str(item[Constants.DATASET_ENTRY_TRANSFER_DATA.index("Name")]))
+                    replace_list_sorted.append(" " + str(item[Constants.DATASET_ENTRY_TRANSFER_DATA.index(sort_by)]))
 
-        self.scroll_block.replace_list(replace_list, replace_list_sorted)
-        if self.search_frame_command is not None:
-            self.search_frame_command()
+            self.scroll_block.replace_list(replace_list, replace_list_sorted)
+            if self.search_frame_command is not None:
+                self.search_frame_command()
+        else:
+            tkinter.messagebox.showwarning("Warning!", "The registered server is currently unavailable.")
 
     def merge_selected_datasets(self):
         assert self.scroll_block.multi_select is True
@@ -168,7 +175,7 @@ class DatasetSearchFrame(Frame):
         dataset_indices = self.scroll_block.get_selected_multi()
         dataset_ids = []
         for i in dataset_indices:
-            dataset_ids.append(self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("ID")])
+            dataset_ids.append(self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("ID")])
 
         # Performs the merging if datasets are selected
         if len(dataset_ids) > 0:
@@ -176,7 +183,7 @@ class DatasetSearchFrame(Frame):
 
             are_all_raw = True
             for i in dataset_indices:
-                are_all_raw &= self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 1
+                are_all_raw &= self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("Is_Raw")] == 1
 
             if are_all_raw is True:
 
@@ -185,9 +192,9 @@ class DatasetSearchFrame(Frame):
                 cur_fps = None
                 for i in dataset_indices:
                     if cur_fps is None:
-                        cur_fps = self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("FPS")]
+                        cur_fps = self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("FPS")]
                     are_all_fps_same &= \
-                        (cur_fps == self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("FPS")])
+                        (cur_fps == self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("FPS")])
 
                 if are_all_fps_same is True:
                     # Merging the datasets
@@ -202,12 +209,19 @@ class DatasetSearchFrame(Frame):
                     # Computes average rating of the datasets
                     rating = 0
                     for i in dataset_indices:
-                        rating += self.list_storage[i][Constants.DATABASE_ENTRY_TRANSFER_DATA.index("Rating")]
+                        rating += self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("Rating")]
                     rating = int(rating / len(dataset_ids))
 
+                    # Computes to number of combined frames
+                    num_frames = 0
+                    for i in dataset_indices:
+                        num_frames += self.list_storage[i][Constants.DATASET_ENTRY_TRANSFER_DATA.index("Num_Frames")]
+
+                    # Sends the request
                     result = ClientConnection.merge_datasets(dataset_ids=dataset_ids, dataset_name=dataset_name,
                                                              dataset_owner_id=ClientConnection.get_user_id(),
-                                                             dataset_rating=rating, dataset_fps=cur_fps)
+                                                             dataset_rating=rating,
+                                                             dataset_num_frames=num_frames, dataset_fps=cur_fps)
                     if result is True:
                         tkinter.messagebox.showwarning("Success!", "The datasets have been merged.")
                         return True
@@ -226,7 +240,7 @@ class DatasetSearchFrame(Frame):
             return False
 
     def get_index_entry(self, index, entry):
-        return self.list_storage[index][Constants.DATABASE_ENTRY_TRANSFER_DATA.index(entry)]
+        return self.list_storage[index][Constants.DATASET_ENTRY_TRANSFER_DATA.index(entry)]
 
 
 class ModelSearchFrame(Frame):
@@ -246,12 +260,83 @@ class ModelSearchFrame(Frame):
         super().update_content()
 
     def search_button_command(self):
-        # Obtains the information
-        self.list_storage = ClientConnection.fetch_ordered_models(
-            sort_by=Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
-            direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
-            user_id=ClientConnection.get_user_id())
-        self.scroll_block.replace_list(self.list_storage[::][2])
+        if ClientConnection.is_server_online() is True:
+            sort_by = Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
+
+            # Obtains the information
+            user_id = ClientConnection.get_user_id()
+            if user_id is None:
+                user_id = "NULL"
+            self.list_storage = ClientConnection.fetch_ordered_models(
+                sort_by=Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
+                direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
+                user_id=user_id)
+
+            # Replaces the list
+            replace_list = []
+            replace_list_sorted = []
+            if self.list_storage is not None:
+                for item in self.list_storage:
+                    replace_list.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index("Name")]))
+                    replace_list_sorted.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index(sort_by)]))
+
+            self.scroll_block.replace_list(replace_list, replace_list_sorted)
+        else:
+            tkinter.messagebox.showwarning("Warning!", "The registered server is currently unavailable.")
 
     def get_index_entry(self, index, entry):
         return self.list_storage[index][Constants.MODEL_ENTRY_TRANSFER_DATA.index(entry)]
+
+
+class ModelTrainingSearchFrame(ModelSearchFrame):
+    def __init__(self, root, column, row, queue_fetch_function, columnspan=1, rowspan=1, title=None, multi_select=False,
+                 sort_columnspan=2, select_change_command=None):
+        ModelSearchFrame.__init__(self, root, column=column, row=row, columnspan=columnspan, rowspan=rowspan,
+                                  title=title, multi_select=multi_select, sort_columnspan=sort_columnspan,
+                                  select_change_command=select_change_command)
+        self._queue_fetch_function = queue_fetch_function
+        self._queue_list = []
+
+    def search_button_command(self):
+        if ClientConnection.is_server_online() is True:
+            sort_by = Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get())
+
+            # Obtains the information
+            user_id = ClientConnection.get_user_id()
+            if user_id is None:
+                user_id = "NULL"
+            self.list_storage = ClientConnection.fetch_ordered_models(
+                sort_by=Constants.MODELS_SORT_BY_OPTIONS.get(self.sort_option_menu.get()),
+                direction=Constants.SORT_DIRECTION.get(self.sort_direction_option_menu.get()),
+                user_id=user_id)
+
+            # Remove all none-queue models
+            self._queue_list = self._queue_fetch_function()
+            model_queue_ids = [q[1] for q in self._queue_list]
+            temp_list_storage = []
+            for item in self.list_storage:
+                if item[Constants.MODEL_ENTRY_TRANSFER_DATA.index("ID")] in model_queue_ids:
+                    temp_list_storage.append(item)
+            self.list_storage = temp_list_storage
+
+            # Replaces the list
+            replace_list = []
+            replace_list_sorted = []
+            if self.list_storage is not None:
+                for item in self.list_storage:
+                    replace_list.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index("Name")]))
+                    replace_list_sorted.append(" " + str(item[Constants.MODEL_ENTRY_TRANSFER_DATA.index(sort_by)]))
+
+            self.scroll_block.replace_list(replace_list, replace_list_sorted)
+        else:
+            tkinter.messagebox.showwarning("Warning!", "The registered server is currently unavailable.")
+
+    def get_queue_list(self):
+        return self._queue_list
+
+    def get_job_id_of_selected_main(self):
+        model_id = self.get_selected_main_id()
+        for q in self._queue_list:
+            if q[1] == model_id:
+                return q[0]
+        return None

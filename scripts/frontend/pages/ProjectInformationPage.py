@@ -6,6 +6,7 @@ from scripts.frontend.custom_widgets import CustomLabels
 from scripts.frontend.page_components import InformationBlock
 from scripts.frontend.pages import GenericPage
 
+project_information_page = None
 
 class Frame(GenericPage.NavigationFrame):
     TITLE = "Project Information"

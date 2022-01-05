@@ -114,19 +114,18 @@ def create_datasets_table():
                             Is_Raw         BOOLEAN NOT NULL,
                             Num_Frames     INTEGER NOT NULL,
                             FPS            INTEGER NOT NULL,
-                            Frames_Shift   INTEGER NOT NULL,
                             Sensor_Savagol_Distance    INTEGER NOT NULL,
                             Sensor_Savagol_Degree      INTEGER NOT NULL,
                             Angle_Savagol_Distance     INTEGER NOT NULL,
                             Angle_Savagol_Degree       INTEGER NOT NULL)""")
 
 
-def create_dataset_dependency_table():
+def create_dataset_dependencies_table():
     global cursor
     # Create Datasets
     cursor.execute("""CREATE TABLE DatasetDependencies (
                                 ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
-                                ID_Dependency   INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE)""")
+                                ID_Dependency   INTEGER REFERENCES Datasets(ID) ON UPDATE CASCADE)""")
 
 
 def create_dataset_finger_plot_table():
@@ -136,8 +135,7 @@ def create_dataset_finger_plot_table():
                                     ID              INTEGER PRIMARY KEY,
                                     ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
                                     Finger          INTEGER,
-                                    Metric          INTEGER
-                                    )""")
+                                    Metric          INTEGER)""")
 
 
 def create_dataset_sensor_plot_table():
@@ -146,11 +144,7 @@ def create_dataset_sensor_plot_table():
     cursor.execute("""CREATE TABLE DatasetSensorPlots (
                                     ID              INTEGER PRIMARY KEY,
                                     ID_Dataset      INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
-                                    Sensor          INTEGER
-                                    )""")
-
-
-# def create_model_plot_sensor_table():
+                                    Sensor          INTEGER)""")
 
 
 def create_models_table():
@@ -161,9 +155,10 @@ def create_models_table():
                             Name                TEXT NOT NULL,
                             ID_Owner            INTEGER REFERENCES Users(ID) ON UPDATE CASCADE,
                             Date_Created        DATE,
-                            View_Domain         INTEGER NOT NULL,
+                            Permission          INTEGER NOT NULL,
                             Rating              INTEGER,
-                            ID_Dataset          INTEGER NOT NULL REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                            ID_Dataset          INTEGER REFERENCES Datasets(ID) ON UPDATE CASCADE,
+                            Frames_Shift        INTEGER NOT NULL,
                             Num_Training_Frames INTEGER NOT NULL,
                             Learning_Rate       REAL NOT NULL,
                             Batch_Size          INTEGER NOT NULL,
@@ -173,6 +168,26 @@ def create_models_table():
                             Num_Nodes_Per_Layer INTEGER NOT NULL)""")
 
 
+def create_model_error_plot_table():
+    global cursor
+    # Create Models Table
+    cursor.execute("""CREATE TABLE ModelErrorPlots (
+                                ID            INTEGER PRIMARY KEY,
+                                ID_Model      INTEGER NOT NULL REFERENCES Models(ID) ON UPDATE CASCADE,
+                                Finger        INTEGER,
+                                Limb          INTEGER)""")
+
+
+def create_model_prediction_plot_table():
+    global cursor
+    # Create Models Table
+    cursor.execute("""CREATE TABLE ModelPredictionPlots (
+                                ID            INTEGER PRIMARY KEY,
+                                ID_Model      INTEGER NOT NULL REFERENCES Models(ID) ON UPDATE CASCADE,
+                                Finger        INTEGER,
+                                Limb          INTEGER)""")
+
+
 def create_all_new_tables(replace=False):
     global cursor
 
@@ -180,15 +195,23 @@ def create_all_new_tables(replace=False):
 
     Log.info("Creating database tables...")
 
-    # Creating the new tables
+    # Creating user table
     _create_table_check(table_name="Users", create_tables_function=create_users_table, replace=replace)
+
+    # Creates dataset tables
     _create_table_check(table_name="Datasets", create_tables_function=create_datasets_table, replace=replace)
-    _create_table_check(table_name="DatasetDependencies", create_tables_function=create_dataset_dependency_table,
+    _create_table_check(table_name="DatasetDependencies", create_tables_function=create_dataset_dependencies_table,
                         replace=replace)
-    _create_table_check(table_name="Models", create_tables_function=create_models_table, replace=replace)
     _create_table_check(table_name="DatasetFingerPlots", create_tables_function=create_dataset_finger_plot_table,
                         replace=replace)
     _create_table_check(table_name="DatasetSensorPlots", create_tables_function=create_dataset_sensor_plot_table,
+                        replace=replace)
+
+    # Creates model tables
+    _create_table_check(table_name="Models", create_tables_function=create_models_table, replace=replace)
+    _create_table_check(table_name="ModelErrorPlots", create_tables_function=create_model_error_plot_table,
+                        replace=replace)
+    _create_table_check(table_name="ModelPredictionPlots", create_tables_function=create_model_prediction_plot_table,
                         replace=replace)
 
 
