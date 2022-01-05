@@ -74,7 +74,7 @@ After the training of each model, a series of prediction graphs and loss-graphs 
 ## Testing a Model
 Once a model has been trained, within the "Model Processes" tab, the user may select a model and "Start Server". This creates a local UDP server which listens for incoming environment data, obtains the current sensor readings, makes a prediction using the model, and returns the result back the (Unity program) sender.
 
-![Model Processes](https://user-images.githubusercontent.com/55516685/148303404-6cb401ad-18f5-4c5e-b11c-f27642df00ca.PNG)
+![Testing Model](https://user-images.githubusercontent.com/55516685/148305517-201d03ba-fbb7-4c1a-8088-4856ededa9ba.PNG)
 
 
 ## Settings
@@ -89,6 +89,7 @@ Since the program does not know the hand's intended position for certain (visual
 
 The hardware is limited in accuracy and frequency which renders a solution challenging to develop. The sensor amplifiers are limited to 80Hz sampling rate with about 1% reading error. The current visual hand-trackers used in to train the models are limited to 60Hz and 120Hz.
 
+![Hardware](https://user-images.githubusercontent.com/55516685/148305527-be56c0e9-b237-4057-af19-cc2439f173f1.jpg)
 
 
 # A previous approach (predicting angular velocities)
