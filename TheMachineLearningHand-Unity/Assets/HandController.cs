@@ -145,6 +145,7 @@ public class HandController : MonoBehaviour
             float angle = movableLimbs[i].transform.localEulerAngles.x;
             angle = angle > 180 ? angle - 360 : angle;
 
+
             // Applies the computed velocities to the hand
             if (i == 0 && angle > 35) // TODO, thumb exception, deal with this properly later
             {
@@ -171,11 +172,14 @@ public class HandController : MonoBehaviour
             }
             else
             {
-                // Make the velocity the sum of the given and parent velocity
-                rigidBodies[i].angularVelocity =
-                    new Vector3(
-                        movableLimbs[i].transform.parent.GetComponent<Rigidbody>().angularVelocity.x +
-                        limb_velocities[i], 0, 0);
+                // Make the velocity the sum of the given and parent velocity // TODO, this is from the old apporach (predicting velocities)
+                // rigidBodies[i].angularVelocity =
+                //     new Vector3(
+                //         movableLimbs[i].transform.parent.GetComponent<Rigidbody>().angularVelocity.x +
+                //         limb_velocities[i], 0, 0);
+
+                // Assign the predicted angle to the limb
+                movableLimbs[i].transform.localEulerAngles = new Vector3(limb_velocities[i], 0, 0);
             }
 
             // Records the new limb data to send to the Python Script

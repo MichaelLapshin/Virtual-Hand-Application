@@ -2,8 +2,9 @@
 *.log
 /logs/
 
-# Ignore Libraries
+# Ignore the virtual enviroment libraries
 /venv/
+**/__pycache__/
 
 # Ignore Client App Data
 /AppData-Client/
@@ -23,5 +24,7 @@
 /AppData-Server/images-models-errors/
 /AppData-Server/images-models-predictions/
 
-# Ignore the LeapSDK folder contents
-/LeapSDK/
+# Ignore useless Unity files
+/TheMachineLearningHand-Unity/.vs/
+/TheMachineLearningHand-Unity/Library/Artifacts/
+/TheMachineLearningHand-Unity/Library/StateCache/

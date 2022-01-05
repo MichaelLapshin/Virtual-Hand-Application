@@ -120,7 +120,8 @@ class JobModelTrain(Job.Job):
             all_features.append(list(data_set.get("sensor")[sensor_index][:-self.frames_shift:]))
 
         # Get label data, includes the shift in the frames
-        self._label_data = list(data_set.get("velocity")[self.finger_index][self.limb_index][self.frames_shift::])
+        # self._label_data = list(data_set.get("velocity")[self.finger_index][self.limb_index][self.frames_shift::])
+        self._label_data = list(data_set.get("angle")[self.finger_index][self.limb_index][self.frames_shift::])
 
         # Closes the dataset
         data_set.close()
